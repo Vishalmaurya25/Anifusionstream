@@ -320,6 +320,44 @@ router.post('/add-genre', ensureAuthenticatedAdmin, async (req, res) => {
     }
 });
 
+// --- DELETE GENRE ---
+router.post('/delete-genre/:id', ensureAuthenticatedAdmin, async (req, res) => {
+    try {
+        const genreId = req.params.id;
+
+        // 1. Remove the genre from the database
+        await Genre.findByIdAndDelete(genreId);
+
+        // 2. (Optional but Recommended) Remove this genre ID from all Anime documents
+        // This prevents "dead" IDs from staying in your anime genre arrays
+        await Anime.updateMany(
+            { genres: genreId }, 
+            { $pull: { genres: genreId } }
+        );
+
+        req.flash('success', 'Category removed successfully.');
+        res.redirect('/admin/manage-categories');
+    } catch (err) {
+        console.error("Delete Genre Error:", err);
+        req.flash('error', 'Failed to delete category.');
+        res.redirect('/admin/manage-categories');
+    }
+});
+
+// --- EDIT GENRE (Update) ---
+router.post('/edit-genre/:id', ensureAuthenticatedAdmin, async (req, res) => {
+    try {
+        const { name } = req.body;
+        await Genre.findByIdAndUpdate(req.params.id, { name: name.trim() });
+        
+        req.flash('success', 'Category updated.');
+        res.redirect('/admin/manage-categories');
+    } catch (err) {
+        req.flash('error', 'Update failed.');
+        res.redirect('/admin/manage-categories');
+    }
+});
+
 router.get('/logout', (req, res) => {
     req.session.destroy(() => res.redirect('/admin/login'));
 });
