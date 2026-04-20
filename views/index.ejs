@@ -1,28 +1,31 @@
 <%- include('partials/header') %>
 
-<div class="container mx-auto px-4 md:px-8">
+<div class="container mx-auto px-2 md:px-8">
     
-    <div class="mt-8 mb-6 flex justify-center relative">
+    <div class="mt-4 mb-4 md:mt-8 md:mb-6 flex justify-center relative">
         <form action="/search" method="GET" id="search-form" class="w-full max-w-3xl">
-            <div class="glass-search flex items-center px-4 py-2 shadow-2xl transition-all">
+            <div class="glass-search flex items-center px-4 py-1.5 md:py-2 shadow-2xl transition-all">
                 
-                <input type="text" name="q" id="search-input" value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>" 
+                <input type="text" name="q" id="search-input" 
+                    value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>" 
                     placeholder="Search anime..." 
-                    class="bg-transparent text-white text-sm w-full py-2 px-2 focus:outline-none" 
+                    class="bg-transparent text-white text-sm w-full py-2 px-1 focus:outline-none" 
                     autocomplete="off">
                 
-                <button type="submit" class="mx-2 p-2 rounded-full hover:bg-white/10 text-blue-400 transition-all">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button type="submit" class="mx-1 p-2 rounded-full hover:bg-white/10 text-blue-400 transition-all">
+                    <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2.5"></path>
                     </svg>
                 </button>
 
-                <div class="h-6 w-px bg-white/10 mx-2"></div>
+                <div class="h-5 w-px bg-white/10 mx-1"></div>
 
-                <select name="genre" id="genre-select" class="bg-transparent text-gray-400 text-xs font-bold focus:outline-none cursor-pointer hover:text-white transition-colors">
+                <select name="genre" id="genre-select" 
+                    class="bg-transparent text-gray-400 text-[9px] md:text-xs font-bold focus:outline-none cursor-pointer hover:text-white transition-colors">
                     <option value="">Genres</option>
                     <% genres.forEach(genre => { %>
-                        <option value="<%= genre._id %>" <%= typeof selectedGenre !== 'undefined' && selectedGenre === genre._id.toString() ? 'selected' : '' %>>
+                        <option value="<%= genre._id %>" 
+                            <%= typeof selectedGenre !== 'undefined' && selectedGenre === genre._id.toString() ? 'selected' : '' %>>
                             <%= genre.name %>
                         </option>
                     <% }) %>
@@ -34,22 +37,22 @@
     </div>
 
     <% if (typeof isSearchResult !== 'undefined' && isSearchResult) { %>
-        <div class="mb-12 glass-panel p-6 rounded-3xl">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-black text-white uppercase tracking-tighter">
+        <div class="mb-8 glass-panel p-4 md:p-6 rounded-2xl md:rounded-3xl">
+            <div class="flex justify-between items-center mb-4 md:mb-6">
+                <h2 class="text-lg md:text-xl font-black text-white uppercase tracking-tighter">
                     <span class="text-blue-500">Results:</span> <%= animes.length %> Found
                 </h2>
-                <a href="/" class="text-[10px] font-black bg-red-600/20 text-red-500 border border-red-500/30 px-4 py-2 rounded-full hover:bg-red-600 hover:text-white transition-all">
+                <a href="/" class="text-[9px] font-black bg-red-600/20 text-red-500 border border-red-500/30 px-3 py-1.5 rounded-full hover:bg-red-600 hover:text-white transition-all">
                     CLEAR SEARCH X
                 </a>
             </div>
             
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
                 <% animes.forEach(anime => { %>
-                    <div class="anime-card-glass rounded-2xl p-2 transition-all">
+                    <div class="anime-card-glass rounded-xl md:rounded-2xl p-1.5 transition-all">
                         <a href="/anime/<%= anime._id %>">
-                            <img src="<%= anime.imageUrl %>" alt="<%= anime.name %>" class="w-full h-48 md:h-64 object-cover rounded-xl shadow-lg">
-                            <p class="text-center mt-3 text-white font-bold text-xs md:text-sm line-clamp-2 leading-tight h-8 md:h-10 px-2">
+                            <img src="<%= anime.imageUrl %>" alt="<%= anime.name %>" class="w-full aspect-[2/3] object-cover rounded-lg md:rounded-xl shadow-lg">
+                            <p class="text-center mt-2 text-white font-bold text-[10px] md:text-sm line-clamp-2 leading-tight h-7 md:h-10 px-1">
                                 <%= anime.name %>
                             </p>
                         </a>
@@ -61,36 +64,44 @@
 
     <%- include('animation') %>
 
-    <section class="mt-12 mb-12">
-        <div class="flex items-center gap-3 mb-6">
-            <div class="w-1.5 h-8 bg-blue-600 rounded-full"></div>
-            <h2 class="text-2xl font-black text-white tracking-tight">Latest Episodes</h2>
+    <section class="mt-8 mb-8 md:mt-12 md:mb-12">
+        <div class="flex items-center gap-2 mb-4 md:mb-6">
+            <div class="w-1 h-5 md:w-1.5 md:h-8 bg-blue-600 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.5)]"></div>
+            <h2 class="text-base md:text-2xl font-black text-white tracking-tight">Latest Episodes</h2>
         </div>
 
-        <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-4">
-            <% (latestEpisodes || []).slice(0, 13).forEach(function(episode) { %>
-                <div class="episode-glass-card group cursor-pointer p-1.5 md:p-2 rounded-xl border border-white/5 transition-all">
+        <div class="grid grid-cols-3 lg:grid-cols-4 gap-2 md:gap-6">
+            <% (latestEpisodes || []).slice(0, 20).forEach(function(episode, index) { %>
+                
+                <div class="episode-glass-card group cursor-pointer p-1 rounded-lg md:rounded-xl border border-white/5 transition-all <%= index >= 9 ? 'hidden lg:block' : '' %>">
                     <a href="/anime/<%= episode.anime ? episode.anime._id : '' %>" class="block">
-                        <div class="relative aspect-video overflow-hidden rounded-lg">
-                            <img src="<%= episode.anime && episode.anime.imageUrl ? episode.anime.imageUrl : '/images/default.png' %>" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                            <div class="absolute top-1 left-1 bg-black/80 backdrop-blur-md text-[8px] font-black text-white px-1.5 py-0.5 rounded border border-white/10 uppercase">
+                        <div class="relative aspect-video overflow-hidden rounded-md md:rounded-lg">
+                            <img src="<%= episode.anime && episode.anime.imageUrl ? episode.anime.imageUrl : '/images/default.png' %>" 
+                                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                            
+                            <div class="absolute top-0.5 left-0.5 md:top-1 md:left-1 bg-black/80 backdrop-blur-md text-[6px] md:text-[8px] font-black text-white px-1 py-0.5 rounded border border-white/10 uppercase">
                                 S<%= episode.seasonNumber %> E<%= episode.episodeNumber %>
                             </div>
                         </div>
-                        <div class="mt-2 text-center">
-                            <h3 class="text-white text-[9px] md:text-xs font-bold line-clamp-2 leading-tight h-[24px] md:h-[32px]">
-                                <%= episode.anime ? episode.anime.name : 'Unknown' %>
+                        
+                        <div class="mt-1.5 text-center">
+                            <h3 class="text-white text-[8px] md:text-xs font-bold line-clamp-2 leading-tight h-[20px] md:h-[32px]">
+                                <%= episode.anime ? episode.anime.name : 'Unknown Anime' %>
                             </h3>
-                            <p class="text-gray-500 text-[8px] uppercase font-black tracking-tighter">ep <%= episode.episodeNumber %></p>
+                            <p class="text-gray-500 text-[7px] md:text-[9px] uppercase font-black tracking-tighter">
+                                ep <%= episode.episodeNumber %>
+                            </p>
                         </div>
                     </a>
                 </div>
+
             <% }) %>
         </div>
     </section>
 
     <% if (typeof isSearchResult === 'undefined' || !isSearchResult) { %>
         <% 
+            // Step 1: Force "Latest" to top
             let displayGenres = [...genres]; 
             const latestIndex = displayGenres.findIndex(g => g.name.toLowerCase().includes('latest'));
             
@@ -101,26 +112,38 @@
         %>
 
         <% displayGenres.forEach(genre => { 
-            const genreAnimes = animes.filter(anime => anime.genres.some(g => g._id.toString() === genre._id.toString()));
+            // Step 2: Filter anime belonging to this specific genre
+            let genreAnimes = animes.filter(anime => anime.genres.some(g => g._id.toString() === genre._id.toString()));
+            
+            // Step 3: Apply LIFO Logic (Newest first) ONLY for the Latest section
+            if (genre.name.toLowerCase().includes('latest')) {
+                genreAnimes = [...genreAnimes].reverse();
+            }
+
             if(genreAnimes.length > 0) { %>
-            <div class="mb-12">
-                <div class="flex justify-between items-center mb-6">
-                    <div class="flex items-center gap-3">
-                        <div class="text-blue-500 font-black text-xl">#</div>
-                        <h2 class="text-xl font-black text-white tracking-tight capitalize"><%= genre.name %></h2>
+            
+            <div class="mb-6 md:mb-10"> 
+                <div class="flex justify-between items-center mb-3 px-1">
+                    <div class="flex items-center gap-2">
+                        <div class="text-blue-500 font-black text-lg md:text-xl">#</div>
+                        <h2 class="text-sm md:text-xl font-black text-white tracking-tight capitalize">
+                            <%= genre.name %>
+                        </h2>
                     </div>
-                    <a href="/search?genre=<%= genre._id %>" class="text-gray-500 text-[10px] font-black uppercase tracking-widest hover:text-white transition-colors">View All →</a>
+                    <a href="/search?genre=<%= genre._id %>" class="text-gray-500 text-[8px] md:text-[10px] font-black uppercase tracking-widest hover:text-white transition-colors">
+                        View All →
+                    </a>
                 </div>
 
-                <div class="anime-scroll flex gap-5 overflow-x-auto pb-6 snap-x">
+                <div class="anime-scroll flex gap-2.5 md:gap-5 overflow-x-auto pb-4 snap-x">
                     <% genreAnimes.forEach(anime => { %>
-                        <div class="anime-card-glass flex-shrink-0 w-32 md:w-48 snap-center">
+                        <div class="anime-card-glass flex-shrink-0 w-[110px] md:w-48 snap-center p-1 md:p-1.5 rounded-xl">
                             <a href="/anime/<%= anime._id %>" class="group">
-                                <div class="relative rounded-2xl overflow-hidden border border-white/5 shadow-2xl">
-                                    <img src="<%= anime.imageUrl %>" class="w-full h-44 md:h-64 object-cover group-hover:scale-105 transition-transform duration-700">
+                                <div class="relative rounded-lg md:rounded-2xl overflow-hidden border border-white/5 shadow-2xl">
+                                    <img src="<%= anime.imageUrl %>" class="w-full aspect-[2/3] object-cover group-hover:scale-105 transition-transform duration-700">
                                     <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 </div>
-                                <p class="mt-3 text-white text-xs md:text-sm font-bold text-center line-clamp-2 leading-tight h-8 md:h-10 group-hover:text-blue-400">
+                                <p class="mt-2 text-white text-[10px] md:text-sm font-bold text-center line-clamp-2 leading-tight h-7 md:h-10 group-hover:text-blue-400">
                                     <%= anime.name %>
                                 </p>
                             </a>
@@ -128,17 +151,24 @@
                     <% }) %>
                 </div>
             </div>
+
         <% } }) %>
     <% } %>
 
-    <div class="mt-20 mb-10 flex justify-center px-4">
-        <div class="w-full max-w-xl bg-gradient-to-br from-[#151b23] to-[#0b0e11] border border-white/5 rounded-[2.5rem] p-10 md:p-14 text-center shadow-2xl relative overflow-hidden group">
-            <h2 class="text-3xl font-black text-white mb-4">Need to reach <span class="text-blue-500">us?</span></h2>
-            <p class="text-gray-400 text-sm md:text-base leading-relaxed mb-8">
-                Send a message directly to the admin team and we'll get back to you as soon as possible.
+    <div class="mt-12 mb-8 md:mt-20 md:mb-10 flex justify-center px-2">
+        <div class="w-full max-w-xl bg-gradient-to-br from-[#151b23] to-[#0b0e11] border border-white/5 rounded-[2rem] md:rounded-[2.5rem] p-8 md:p-14 text-center shadow-2xl relative overflow-hidden group">
+            
+            <h2 class="text-lg md:text-3xl font-black text-white mb-2 md:mb-4">
+                Need to reach <span class="text-blue-500">us?</span>
+            </h2>
+            <p class="text-gray-400 text-[10px] md:text-base leading-relaxed mb-6">
+                Send a message directly to the admin team and we'll get back to you soon.
             </p>
-            <a href="/contact-us" class="inline-flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-500 text-white font-black py-4 px-12 rounded-2xl transition-all shadow-xl shadow-blue-600/20 hover:-translate-y-1">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 8l7 8.941L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+            
+            <a href="/contact-us" class="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white text-[10px] md:text-base font-black py-3 md:py-4 px-8 md:px-12 rounded-xl md:rounded-2xl transition-all hover:-translate-y-1 shadow-xl shadow-blue-900/20">
+                <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 8l7 8.941L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                </svg>
                 CONTACT ADMIN
             </a>
         </div>
@@ -153,21 +183,26 @@
 </script>
 
 <script>
-    const animes = JSON.parse(document.getElementById('animes-data').textContent);
+    const fullAnimeList = JSON.parse(document.getElementById('animes-data').textContent);
     const searchInput = document.getElementById('search-input');
     const suggestionsDiv = document.getElementById('suggestions');
     const genreSelect = document.getElementById('genre-select');
 
+    // Live Search Functionality
     searchInput.addEventListener('input', () => {
         const query = searchInput.value.trim().toLowerCase();
         suggestionsDiv.innerHTML = '';
         suggestionsDiv.classList.add('hidden');
+
         if (query.length === 0) return;
-        const filtered = animes.filter(a => a.name.toLowerCase().includes(query)).slice(0, 10);
+
+        const filtered = fullAnimeList.filter(a => a.name.toLowerCase().includes(query)).slice(0, 10);
+        
         if (filtered.length === 0) return;
+
         filtered.forEach(a => {
             const div = document.createElement('div');
-            div.className = 'p-3 hover:bg-white/10 cursor-pointer text-white text-sm font-medium transition-all';
+            div.className = 'p-3 hover:bg-white/10 cursor-pointer text-white text-sm font-medium transition-all border-b border-white/5';
             div.textContent = a.name;
             div.onclick = () => {
                 searchInput.value = a.name;
@@ -176,25 +211,47 @@
             };
             suggestionsDiv.appendChild(div);
         });
+
         suggestionsDiv.classList.remove('hidden');
     });
 
-    genreSelect.onchange = () => { if (genreSelect.value) { searchInput.value = ''; document.getElementById('search-form').submit(); } };
-    document.onclick = (e) => { if (!searchInput.contains(e.target) && !suggestionsDiv.contains(e.target)) { suggestionsDiv.classList.add('hidden'); } };
+    // Handle Genre Dropdown selection
+    genreSelect.onchange = () => { 
+        if (genreSelect.value) { 
+            searchInput.value = ''; 
+            document.getElementById('search-form').submit(); 
+        } 
+    };
+
+    // Close suggestions when clicking outside
+    document.onclick = (e) => { 
+        if (!searchInput.contains(e.target) && !suggestionsDiv.contains(e.target)) { 
+            suggestionsDiv.classList.add('hidden'); 
+        } 
+    };
 </script>
 
 <style>
-    body { background-color: #0b0e11; color: #fff; }
-    .glass-search { background: rgba(21, 27, 35, 0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 99px; }
-    .anime-card-glass { background: rgba(21, 27, 35, 0.4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.05); }
-    .episode-glass-card { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(4px); }
+    body { background-color: #0b0e11; color: #fff; overflow-x: hidden; }
+
+    /* Glass Effect Containers */
+    .glass-search { background: rgba(21, 27, 35, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 99px; }
+    .glass-panel { background: rgba(21, 27, 35, 0.4); border: 1px solid rgba(255, 255, 255, 0.05); }
+    .anime-card-glass { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); transition: 0.3s; }
+    .episode-glass-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); }
+
+    /* Horizontal Scrolling Styles */
     .anime-scroll { -ms-overflow-style: none; scrollbar-width: none; }
     .anime-scroll::-webkit-scrollbar { display: none; }
-    @keyframes suggestionDrop { 0% { opacity: 0; transform: translate(-50%, -10px); } 100% { opacity: 1; transform: translate(-50%, 0); } }
+
+    /* Search Suggestion Animation */
+    @keyframes suggestionDrop { 
+        0% { opacity: 0; transform: translate(-50%, -10px); } 
+        100% { opacity: 1; transform: translate(-50%, 0); } 
+    }
     .animate-suggestion-drop { animation: suggestionDrop 0.25s ease-out forwards; }
-    
+
+    /* Custom Dropdown Styles */
     #genre-select { background-color: transparent; color: #9ca3af; }
     #genre-select option { background-color: #1c232d; color: #ffffff; padding: 10px; }
-    #genre-select:focus { outline: none; }
-    #genre-select:hover { color: #ffffff; }
 </style>
