@@ -26,14 +26,14 @@
 
                 <!-- CUSTOM DROPDOWN - SUPER GLOWING ARROW -->
                 <div class="custom-genre-dropdown relative flex-shrink-0">
-                    <input type="hidden" name="genre" id="genre-input" value="<%= typeof selectedGenre!== 'undefined'? selectedGenre : '' %>">
-                    <button type="button" id="genre-toggle" class="group bg-transparent text-gray-400 text-[9px] md:text-xs font-black focus:outline-none cursor-pointer hover:text-blue-400 transition-colors uppercase tracking-wider px-2 py-1 rounded-lg flex items-center gap-1.5 select-none">
-                        <span id="genre-label"><%= selectedGenre? genres.find(g => g._id.toString() === selectedGenre)?.name || 'Genre' : 'Genre' %></span>
-                        <!-- DROPDOWN ARROW ICON - BADA AUR CLEAR -->
-                        <svg class="w-3.5 h-3.5 transition-all duration-300 flex-shrink-0 text-blue-400" id="genre-arrow" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-                        </svg>
-                    </button>
+    <input type="hidden" name="genre" id="genre-input" value="<%= typeof selectedGenre!== 'undefined'? selectedGenre : '' %>">
+    <button type="button" id="genre-toggle" class="group bg-transparent text-gray-400 text-[9px] md:text-xs font-black focus:outline-none cursor-pointer hover:text-blue-400 transition-colors uppercase tracking-wider px-2 py-1 rounded-lg flex items-center gap-1.5 select-none">
+        <span id="genre-label"><%= selectedGenre? genres.find(g => g._id.toString() === selectedGenre)?.name || 'Genre' : 'Genre' %></span>
+        <!-- DROPDOWN ARROW ICON - BADA AUR CLEAR -->
+        <svg class="w-3.5 h-3.5 transition-all duration-300 flex-shrink-0 text-blue-400" id="genre-arrow" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+        </svg>
+    </button>
 
                     <div id="genre-menu" class="absolute right-0 top-full mt-2 w-52 max-h-72 overflow-y-auto bg-[#0a0e12] rounded-xl border border-blue-500/20 shadow-2xl shadow-blue-500/10 hidden will-change-transform">
                         <!-- Top Scroll Indicator - GLOWING -->
@@ -292,21 +292,26 @@
                                 <div class="relative rounded-lg md:rounded-2xl overflow-hidden border border-white/5 shadow-2xl">
                                     <img src="<%= anime.imageUrl %>" class="w-full aspect-[2/3] object-cover group-hover:scale-105 transition-transform duration-700">
                                     <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-
+                                    
+                                    
                                     <div class="absolute top-1 right-1 bg-red-600/80 backdrop-blur-md text-[6px] md:text-[8px] font-black text-white px-1.5 py-0.5 rounded border border-white/10">
-                                        MOVIE
-                                    </div>
+                           MOVIE
                                 </div>
-                                <p class="mt-2 text-white text-[10px] md:text-sm font-bold text-center line-clamp-2 leading-tight h-7 md:h-10 group-hover:text-red-400">
-                                    <%= anime.name %>
-                                </p>
-                            </a>
-                        </div>
+                          </div> <!-- ← Ye closing div missing tha -->
+                      <p class="mt-2 text-white text-[10px] md:text-sm font-bold text-center line-clamp-2 leading-tight h-7 md:h-10 group-hover:text-red-400">
+                       <%= anime.name %>
+                       </p>
+                       </a>
+                       </div>
+
+                        
                     <% }) %>
                 </div>
             </div>
         <% } }) %>
     </section>
+    <% } %>
+
     <% } %>
 
     <div class="mt-12 mb-8 md:mt-20 md:mb-10 flex justify-center px-2">
@@ -545,17 +550,16 @@ loadSchedule();
                             </div>
                         `}
                         <div class="absolute top-0.5 right-0.5 md:top-1 md:right-1 bg-purple-600/80 backdrop-blur-md text-[6px] md:text-[8px] font-black text-white px-1 py-0.5 rounded">
- 
-                        CONTINUE
+                            CONTINUE
                         </div>
                     </div>
                     <div class="mt-1.5 text-center">
-                        <h3 class="text-white text-[8px] md:text-xs font-bold line-clamp-2 leading-tight h- md:h-">
+                        <h3 class="text-white text-[8px] md:text-xs font-bold line-clamp-2 leading-tight h-[20px] md:h-[32px]">
                             ${item.animeName}
                         </h3>
                         <p class="text-gray-500 text-[7px] md:text-[9px] uppercase font-black tracking-tighter">
                             ${isMovie? 'Film' : `Ep ${item.episode}`}
-                        </p>
+                                                </p>
                     </div>
                 </a>
             `;
@@ -948,184 +952,17 @@ body { background-color: #0b0e11; color: #fff; overflow-x: hidden; }
     box-shadow: 0 0 20px rgba(251, 146, 60, 0.2);
 }
 
-/* ============================================
-   TOONSTREAM STYLE - 3 CARD MOBILE LAYOUT
-   ============================================ */
-
-/* 1. SIDE PADDING KAM KARO - Mobile */
-@media (max-width: 640px) {
-   .container {
-        padding-left: 8px!important;
-        padding-right: 8px!important;
-    }
-
-    /* Main wrapper padding */
-   .px-2,.px-3,.px-4 {
-        padding-left: 8px!important;
-        padding-right: 8px!important;
-    }
-
-    /* Section gaps kam karo */
-   .mb-6,.mb-8,.mb-10 {
-        margin-bottom: 1rem!important;
-    }
-
-   .mt-8,.mt-12 {
-        margin-top: 1.5rem!important;
-    }
-}
-
-/* 2. CARD WIDTH - Magic Number 105-110px */
-@media (max-width: 640px) {
-    /* Latest Release Cards */
-   .episode-glass-card {
-        width: 108px!important;
-        min-width: 108px!important;
-        max-width: 108px!important;
-        padding: 4px!important;
-        border-radius: 8px!important;
-    }
-
-    /* Genre Section Cards */
-   .anime-card-glass {
-        width: 108px!important;
-        min-width: 108px!important;
-        max-width: 108px!important;
-        padding: 4px!important;
-        border-radius: 8px!important;
-    }
-
-    /* Grid Cards - Search Results */
-   .grid-cols-2 >.anime-card-glass,
-   .grid-cols-3 >.episode-glass-card {
-        width: 100%!important;
-        min-width: auto!important;
-        max-width: none!important;
-    }
-}
-
-/* 3. ASPECT RATIO - 2:3 Vertical Poster */
-@media (max-width: 640px) {
-    /* Latest Release Images */
-   .episode-glass-card.aspect-video {
-        aspect-ratio: 2/3!important;
-        border-radius: 6px!important;
-    }
-
-    /* Genre Cards Images */
-   .anime-card-glass img,
-   .anime-card-glass.aspect-\[2\/3\] {
-        aspect-ratio: 2/3!important;
-        border-radius: 6px!important;
-    }
-
-    /* All card images */
-   .anime-card-glass img,
-   .episode-glass-card img {
-        object-fit: cover;
-        aspect-ratio: 2/3!important;
-    }
-}
-
-/* 4. TEXT COMPACT - 1 Line Truncate */
-@media (max-width: 640px) {
-    /* Card Titles */
-   .anime-card-glass p,
-   .episode-glass-card h3,
-   .episode-glass-card p {
-        font-size: 9px!important;
-        line-height: 1.2!important;
-        font-weight: 700!important;
-        height: 11px!important;
-        margin-top: 4px!important;
-        white-space: nowrap!important;
-        overflow: hidden!important;
-        text-overflow: ellipsis!important;
-        -webkit-line-clamp: 1!important;
-        line-clamp: 1!important;
-        display: block!important;
-        padding: 0 2px!important;
-    }
-
-    /* Episode text */
-   .episode-glass-card p.text-\[7px\] {
-        font-size: 7px!important;
-        height: 9px!important;
-        margin-top: 1px!important;
-        color: #6b7280!important;
-    }
-
-    /* Badges chhote karo */
-   .episode-glass-card.absolute {
-        font-size: 6px!important;
-        padding: 2px 4px!important;
-        border-radius: 3px!important;
-    }
-}
-
-/* GAPS KAM KARO - 8px */
-@media (max-width: 640px) {
-    /* Grid gaps */
-   .gap-2,.gap-3 {
-        gap: 8px!important;
-    }
-
-    /* Scroll container gaps */
-   .anime-scroll {
-        gap: 8px!important;
-        padding-bottom: 12px!important;
-    }
-
-    /* Flex gaps */
-   .gap-2\.5,.gap-4 {
-        gap: 8px!important;
-    }
-}
-
-/* EXTRA: Galaxy S8 Specific - 360px width */
-@media (max-width: 375px) {
-   .episode-glass-card,
-   .anime-card-glass {
-        width: 105px!important;
-        min-width: 105px!important;
-        max-width: 105px!important;
-    }
-
-   .gap-2,.gap-3,.anime-scroll {
-        gap: 6px!important;
-    }
-}
-
-/* Section Headers Compact */
-@media (max-width: 640px) {
-    h2.text-base, h2.text-2xl {
-        font-size: 14px!important;
-        margin-bottom: 12px!important;
-    }
-
-   .flex.items-center.gap-2 {
-        gap: 6px!important;
-        margin-bottom: 12px!important;
-    }
-
-    /* Blue/Red bar chhota */
-   .w-1.h-5 {
-        width: 3px!important;
-        height: 16px!important;
-    }
-}
-
 /* Mobile Optimization */
 @media (max-width: 640px) {
-   .anime-card-glass { padding: 0.5rem; }
+    .anime-card-glass { padding: 0.5rem; }
 
-   .search-modern {
+    .search-modern {
         border-radius: 18px;
         padding-left: 12px;
         padding-right: 12px;
     }
 
-   .search-modern::after {
+    .search-modern::after {
         border-radius: 18px;
     }
 
@@ -1142,7 +979,7 @@ body { background-color: #0b0e11; color: #fff; overflow-x: hidden; }
         max-height: 60vh;
     }
 
-   .genre-option {
+    .genre-option {
         font-size: 10px;
         padding: 10px 12px;
     }
@@ -1164,4 +1001,3 @@ body { background-color: #0b0e11; color: #fff; overflow-x: hidden; }
     letter-spacing: -0.02em!important;
 }
 </style>
-<% } %>
