@@ -14,15 +14,16 @@
             --input-dark: #1c232d;
             --primary-blue: #3b82f6;
             --text-muted: #9ca3af;
+            --danger-red: #ef4444;
         }
 
-        body { 
-            background-color: var(--bg-deep); 
-            color: #ffffff; 
-            font-family: 'Inter', sans-serif; 
+        body {
+            background-color: var(--bg-deep);
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
         }
 
-        .admin-wrapper {
+       .admin-wrapper {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -32,7 +33,7 @@
             padding: 2rem 1.25rem;
         }
 
-        .ui-card {
+       .ui-card {
             background-color: var(--card-navy);
             border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 2rem;
@@ -42,7 +43,7 @@
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
 
-        .ui-label {
+       .ui-label {
             font-size: 0.75rem;
             font-weight: 700;
             color: var(--text-muted);
@@ -52,7 +53,7 @@
             display: block;
         }
 
-        .ui-input {
+       .ui-input {
             background-color: var(--input-dark);
             border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 0.85rem;
@@ -62,13 +63,13 @@
             transition: all 0.2s ease;
         }
 
-        .ui-input:focus {
+       .ui-input:focus {
             outline: none;
             border-color: var(--primary-blue);
             box-shadow: 0 0 0 1px var(--primary-blue);
         }
 
-        .genre-grid {
+       .genre-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
             gap: 12px;
@@ -78,7 +79,7 @@
             border: 1px solid rgba(255,255,255,0.02);
         }
 
-        .genre-item {
+       .genre-item {
             display: flex;
             align-items: center;
             font-size: 0.85rem;
@@ -87,7 +88,7 @@
             transition: color 0.2s;
         }
 
-        .genre-item:hover { color: #fff; }
+       .genre-item:hover { color: #fff; }
 
         input[type="checkbox"] {
             margin-right: 10px;
@@ -96,7 +97,7 @@
             height: 18px;
         }
 
-        .ui-button {
+       .ui-button {
             background-color: var(--primary-blue);
             color: #ffffff;
             font-weight: 700;
@@ -108,19 +109,91 @@
             letter-spacing: 0.05em;
         }
 
-        .ui-button:hover {
+       .ui-button:hover {
             transform: translateY(-2px);
             filter: brightness(1.1);
             box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
         }
 
-        .back-link {
+       .back-link {
             color: var(--primary-blue);
             font-size: 0.75rem;
             font-weight: 800;
             text-decoration: none;
             margin-bottom: 1.5rem;
             display: inline-block;
+        }
+
+        /* NEW: Type Selector Styles */
+       .type-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+       .type-option {
+            background: var(--input-dark);
+            border: 2px solid rgba(255, 255, 255, 0.05);
+            border-radius: 1rem;
+            padding: 1.25rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            position: relative;
+        }
+
+       .type-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+        }
+
+       .type-option:hover {
+            border-color: rgba(59, 130, 246, 0.3);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+       .type-option.active {
+            border-color: var(--primary-blue);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+       .type-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+       .type-label {
+            font-size: 0.85rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+       .type-desc {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+       .warning-box {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 1rem;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+       .warning-text {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #fca5a5;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        @media (max-width: 640px) {
+           .type-selector { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -135,22 +208,52 @@
             <p class="text-gray-500 mt-2">Editing Metadata for: <span class="text-white font-bold"><%= anime.name %></span></p>
         </div>
 
+        <%- include('partials/flash') %>
+
         <div class="ui-card">
             <form action="/admin/edit-anime/<%= anime._id %>" method="POST">
-                
+
+                <!-- NEW: Type Selector -->
+                <div class="mb-8">
+                    <label class="ui-label">Content Type</label>
+                    <div class="type-selector">
+                        <label class="type-option <%= anime.type === 'series' ||!anime.type? 'active' : '' %>" id="type-series">
+                            <input type="radio" name="type" value="series" <%= anime.type === 'series' ||!anime.type? 'checked' : '' %>>
+                            <div class="type-icon">📺</div>
+                            <div class="type-label">TV Series</div>
+                            <div class="type-desc">Multiple episodes & seasons</div>
+                        </label>
+                        <label class="type-option <%= anime.type === 'movie'? 'active' : '' %>" id="type-movie">
+                            <input type="radio" name="type" value="movie" <%= anime.type === 'movie'? 'checked' : '' %>>
+                            <div class="type-icon">🎬</div>
+                            <div class="type-label">Movie</div>
+                            <div class="type-desc">Single video file</div>
+                        </label>
+                    </div>
+                </div>
+
+                <% if(anime.type === 'series' && anime.seasons && anime.seasons.length > 0) { %>
+                <div class="warning-box" id="type-warning" style="display: none;">
+                    <div class="warning-text">
+                        ⚠️ WARNING: Changing Series to Movie will keep all episodes as S1E1.<br>
+                        Existing episodes won't be deleted but season structure will be ignored.
+                    </div>
+                </div>
+                <% } %>
+
                 <div class="mb-8">
                     <label class="ui-label">Anime Title</label>
-                    <input type="text" name="name" value="<%= anime.name %>" class="ui-input" required>
+                    <input type="text" name="name" value="<%= anime.name %>" class="ui-input" required maxlength="200">
                 </div>
 
                 <div class="mb-8">
                     <label class="ui-label">Cover Image URL</label>
-                    <input type="text" name="imageUrl" value="<%= anime.imageUrl %>" class="ui-input" required>
+                    <input type="text" name="imageUrl" value="<%= anime.imageUrl %>" class="ui-input" required maxlength="500">
                 </div>
 
                 <div class="mb-8">
                     <label class="ui-label">Synopsis / Description</label>
-                    <textarea name="description" rows="5" class="ui-input" required><%= anime.description %></textarea>
+                    <textarea name="description" rows="5" class="ui-input" required maxlength="5000"><%= anime.description %></textarea>
                 </div>
 
                 <div class="mb-10">
@@ -158,8 +261,8 @@
                     <div class="genre-grid">
                         <% genres.forEach(genre => { %>
                             <label class="genre-item">
-                                <input type="checkbox" name="genres" value="<%= genre._id %>" 
-                                    <%= anime.genres.some(g => g._id.toString() === genre._id.toString()) ? 'checked' : '' %>> 
+                                <input type="checkbox" name="genres" value="<%= genre._id %>"
+                                    <%= anime.genres.some(g => g._id.toString() === genre._id.toString())? 'checked' : '' %>>
                                 <%= genre.name %>
                             </label>
                         <% }) %>
@@ -168,7 +271,7 @@
 
                 <div class="mb-8">
                     <label class="ui-label">Special Information / Announcements</label>
-                    <textarea name="specialInfo" rows="3" class="ui-input" placeholder="e.g. MORE EPISODE WILL BE ADDED AFTER RELEASE..."></textarea>
+                    <textarea name="specialInfo" rows="3" class="ui-input" placeholder="e.g. MORE EPISODE WILL BE ADDED AFTER RELEASE..." maxlength="500"><%= anime.specialInfo || '' %></textarea>
                     <p class="text-[10px] text-gray-500 mt-2 italic">Note: This will only appear on the anime page if you write something here.</p>
                 </div>
 
@@ -178,6 +281,32 @@
             </form>
         </div>
     </div>
+
+<script>
+    // Type selector toggle
+    const typeOptions = document.querySelectorAll('.type-option');
+    const typeInputs = document.querySelectorAll('input[name="type"]');
+    const warningBox = document.getElementById('type-warning');
+    const currentType = '<%= anime.type || "series" %>';
+
+    typeOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            typeOptions.forEach(opt => opt.classList.remove('active'));
+            option.classList.add('active');
+            option.querySelector('input').checked = true;
+
+            // Show warning if changing series to movie
+            if(warningBox) {
+                const newType = option.querySelector('input').value;
+                if(currentType === 'series' && newType === 'movie') {
+                    warningBox.style.display = 'block';
+                } else {
+                    warningBox.style.display = 'none';
+                }
+            }
+        });
+    });
+</script>
 
 </body>
 </html>

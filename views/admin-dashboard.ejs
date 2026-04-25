@@ -1,11 +1,13 @@
 <%- include('partials/header') %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel | AniFusionStream</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <title>Admin Dashboard | AniFusionStream</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -16,41 +18,43 @@
             --text-muted: #9ca3af;
         }
 
-        body { 
-            background-color: var(--bg-deep); 
-            color: #ffffff; 
-            font-family: 'Inter', sans-serif; 
+        body {
+            background-color: var(--bg-deep);
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Glassmorphism utility */
-        .obsidian-card {
+     .obsidian-card {
             background-color: var(--card-navy);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            /* border: 1px solid rgba(255, 255, 0.05); */
             backdrop-filter: blur(10px);
             border-radius: 2rem;
             transition: all 0.3s ease;
         }
 
-        .inner-obsidian {
+     .inner-obsidian {
             background-color: var(--inner-navy);
             border: 1px solid rgba(255, 255, 255, 0.03);
             border-radius: 1.25rem;
         }
 
-        .premium-btn {
+     .premium-btn {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.1em;
             font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .premium-btn:hover {
+     .premium-btn:hover {
             transform: translateY(-2px);
             filter: brightness(1.1);
         }
 
-        .anime-poster {
+     .anime-poster {
             width: 140px;
             height: 200px;
             object-fit: cover;
@@ -58,7 +62,7 @@
             box-shadow: 0 15px 30px rgba(0,0,0,0.5);
         }
 
-        .ep-thumbnail {
+     .ep-thumbnail {
             width: 100px;
             height: 60px;
             object-fit: cover;
@@ -66,68 +70,71 @@
             background: var(--inner-navy);
         }
 
-        /* Scrollbar styling for reports */
-        .custom-scroll::-webkit-scrollbar { width: 5px; }
-        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+     .custom-scroll::-webkit-scrollbar { width: 5px; }
+     .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+     .custom-scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
     </style>
 </head>
 <body class="py-8 px-4 md:px-12">
     <div class="max-w-7xl mx-auto">
-        
+
         <header class="flex flex-col md:flex-row justify-between items-center mb-16 gap-8">
             <div class="text-center md:text-left">
                 <h1 class="text-5xl font-black tracking-tighter text-white">
                     ADMIN <span class="text-blue-500">CORE</span>
                 </h1>
-                <p class="text-gray-500 font-bold mt-2 uppercase tracking-widest text-xs">
-                    Managing <span class="text-white"><%= animes.length %></span> Active Titles
+                <p class="text-gray-500 font-bold mt-2 uppercase tracking-widest text-">
+                    System Status: <span class="text-green-500">Operational</span> • <span class="text-white"><%= animes.length %></span> Titles Online
                 </p>
             </div>
-            <div class="flex flex-wrap justify-center gap-3">
-                <a href="/admin/add-anime" class="premium-btn bg-blue-600 text-white px-6 py-3 rounded-2xl text-xs shadow-lg shadow-blue-600/20">Create Anime</a>
-                <a href="/admin/manage-categories" class="premium-btn bg-white/5 border border-white/10 text-white px-6 py-3 rounded-2xl text-xs hover:bg-white/10">Categories</a>
-                <a href="/admin/logout" class="premium-btn bg-red-600/10 border border-red-500/20 text-red-500 px-6 py-3 rounded-2xl text-xs hover:bg-red-600 hover:text-white">Logout</a>
+            <div class="flex flex-wrap items-center justify-center gap-4">
+                <a href="/admin/add-anime" class="premium-btn bg-blue-600 text-white px-6 py-3 rounded-2xl text- shadow-lg shadow-blue-600/20">Create Anime</a>
+                <a href="/admin/manage-categories" class="premium-btn bg-white/5 border border-white/10 text-white px-6 py-3 rounded-2xl text- hover:bg-white/10">Categories</a>
+
+                <form action="/admin/logout" method="POST" class="inline">
+                    <button type="submit" class="premium-btn bg-red-600/10 text-red-500 border border-red-600/30 px-6 py-3 rounded-2xl text- hover:bg-red-600 hover:text-white transition-all">
+                        Terminate Session
+                    </button>
+                </form>
             </div>
         </header>
 
-        <% if (messages.success) { %>
-            <div class="bg-blue-600/10 border border-blue-500/50 text-blue-400 p-4 rounded-2xl mb-10 text-sm font-bold text-center">
-                <%= messages.success %>
-            </div>
-        <% } %>
+        <%- include('partials/flash') %>
 
+        <!-- FIXED: User Reports Center Aligned -->
         <section class="mb-20">
-            <div class="flex items-center gap-3 mb-8">
+            <div class="flex items-center justify-center gap-3 mb-8">
                 <div class="w-1.5 h-8 bg-blue-500 rounded-full shadow-[0_0_15px_rgba(59,130,246,0.5)]"></div>
-                <h2 class="text-2xl font-black text-white">User Reports & Support</h2>
+                <h2 class="text-2xl font-black text-white uppercase tracking-tight">System Reports & Support</h2>
             </div>
 
-            <% if (typeof userMessages !== 'undefined' && userMessages.length > 0) { %>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <% if (typeof userMessages!== 'undefined' && userMessages.length > 0) { %>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
                     <% userMessages.forEach(msg => { %>
                         <div class="obsidian-card p-8 relative overflow-hidden group">
                             <span class="text-[9px] font-black uppercase tracking-tighter bg-blue-600/20 text-blue-400 px-3 py-1 rounded-full mb-4 inline-block">
-                                <%= msg.subject %>
+                                <%= msg.subject || 'General Inquiry' %>
                             </span>
-                            
+
                             <h3 class="font-bold text-xl text-white mb-1"><%= msg.name %></h3>
                             <p class="text-xs text-gray-500 mb-6"><%= msg.email %></p>
-                            
+
                             <div class="inner-obsidian p-4 h-32 overflow-y-auto text-sm text-gray-400 custom-scroll leading-relaxed mb-6">
                                 <%= msg.message %>
                             </div>
 
-                            <form action="/admin/delete-message/<%= msg._id %>" method="POST" onsubmit="return confirm('Archive this message?');">
-                                <button type="submit" class="w-full py-3 rounded-xl bg-white/5 text-gray-500 hover:bg-red-600 hover:text-white text-[10px] font-black uppercase tracking-widest transition-all">
-                                    Clear Report
-                                </button>
-                            </form>
+                            <button type="button"
+                                    data-action="delete-message"
+                                    data-message-id="<%= msg._id %>"
+                                    class="w-full py-3 rounded-xl bg-white/5 text-gray-500 hover:bg-red-600 hover:text-white text- font-black uppercase tracking-widest transition-all">
+                                Clear Report
+                            </button>
                         </div>
                     <% }) %>
                 </div>
             <% } else { %>
-                <div class="obsidian-card p-12 text-center border-dashed border-2 border-white/5">
+                <div class="obsidian-card p-12 text-center border-dashed border-2 border-white/5 max-w-2xl mx-auto">
+                    <div class="text-5xl text-gray-700 mb-4">✓</div>
                     <p class="text-gray-600 italic font-medium">System is clear. No pending user reports.</p>
                 </div>
             <% } %>
@@ -136,79 +143,275 @@
         <section>
             <div class="flex items-center gap-3 mb-10">
                 <div class="w-1.5 h-8 bg-blue-500 rounded-full shadow-[0_0_15px_rgba(59,130,246,0.5)]"></div>
-                <h2 class="text-2xl font-black text-white">Anime Catalog Management</h2>
+                <h2 class="text-2xl font-black text-white uppercase tracking-tight">Catalog Intelligence</h2>
             </div>
 
             <div class="space-y-10">
                 <% animes.forEach(anime => { %>
                     <div class="obsidian-card overflow-hidden">
-                        
+
                         <div class="p-8 md:p-10 flex flex-col md:flex-row gap-10 items-center md:items-start bg-gradient-to-br from-white/5 to-transparent">
-                            <img src="<%= anime.imageUrl || 'https://via.placeholder.com/140x200' %>" class="anime-poster border border-white/10">
+                            <img src="<%= anime.imageUrl || 'https://via.placeholder.com/140x200' %>" class="anime-poster border border-white/10" alt="Poster">
 
                             <div class="flex-1 text-center md:text-left">
                                 <div class="flex flex-wrap justify-center md:justify-start gap-2 mb-4">
-                                    <% anime.genres.forEach(genre => { %>
-                                        <span class="bg-blue-600/10 text-blue-400 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border border-blue-500/20">
-                                            <%= genre.name %>
-                                        </span>
-                                    <% }) %>
+                                    <% if(anime.genres && anime.genres.length > 0) { %>
+                                        <% anime.genres.forEach(genre => { %>
+                                            <span class="bg-blue-600/10 text-blue-400 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border-blue-500/20">
+                                                <%= genre.name %>
+                                            </span>
+                                        <% }) %>
+                                    <% } %>
                                 </div>
                                 <h2 class="text-4xl font-black mb-3 text-white tracking-tight"><%= anime.name %></h2>
                                 <p class="text-gray-500 text-sm leading-relaxed line-clamp-2 max-w-4xl mb-8"><%= anime.description %></p>
-                                
+
                                 <div class="flex flex-wrap justify-center md:justify-start gap-4">
-                                    <a href="/admin/edit-anime/<%= anime._id %>" class="premium-btn bg-blue-600 text-white px-6 py-3 rounded-2xl text-[10px] shadow-lg shadow-blue-600/20">Edit Metadata</a>
-                                    <a href="/admin/add-episode/<%= anime._id %>" class="premium-btn bg-white/5 border border-white/10 text-white px-6 py-3 rounded-2xl text-[10px] hover:bg-white/10">Add Episode</a>
-                                    <form action="/admin/delete-anime/<%= anime._id %>" method="POST" onsubmit="return confirm('Delete entire series? This cannot be undone.');">
-                                        <button type="submit" class="premium-btn bg-red-600/10 text-red-500 px-6 py-3 rounded-2xl text-[10px] border border-red-500/20 hover:bg-red-600 hover:text-white">Delete Series</button>
-                                    </form>
+                                    <a href="/admin/edit-anime/<%= anime._id %>" class="premium-btn bg-blue-600 text-white px-6 py-3 rounded-2xl text- shadow-lg shadow-blue-600/20">Edit Metadata</a>
+                                    <a href="/admin/add-episode/<%= anime._id %>" class="premium-btn bg-white/5 border border-white/10 text-white px-6 py-3 rounded-2xl text- hover:bg-white/10">Add Episode</a>
+                                    <!-- FIXED: Delete Series with SweetAlert -->
+                                    <button type="button"
+                                            data-action="delete-anime"
+                                            data-anime-id="<%= anime._id %>"
+                                            data-anime-name="<%= anime.name %>"
+                                            class="premium-btn bg-red-600/10 text-red-500 px-6 py-3 rounded-2xl text- border border-red-500/20 hover:bg-red-600 hover:text-white transition-all">
+                                        Delete Series
+                                    </button>
                                 </div>
                             </div>
                         </div>
 
                         <div class="p-8 md:p-10 bg-black/20 border-t border-white/5">
-                            <% anime.seasons.forEach(season => { %>
-                                <div class="mb-12 last:mb-0">
-                                    <div class="flex items-center gap-6 mb-8">
-                                        <h4 class="text-lg font-black text-white uppercase tracking-tighter">Season <%= season.seasonNumber %></h4>
-                                        <div class="flex-1 h-px bg-white/5"></div>
-                                    </div>
-
-                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                        <% season.episodes.forEach(episode => { %>
-                                            <div class="inner-obsidian p-5 group hover:border-blue-500/50 transition-all">
-                                                <div class="flex gap-5 items-center">
-                                                    <img src="<%= episode.imageUrl || 'https://via.placeholder.com/100x60' %>" class="ep-thumbnail">
-                                                    
-                                                    <div class="flex-1 min-w-0">
-                                                        <h5 class="font-black text-[9px] text-blue-500 uppercase mb-0.5">EP <%= episode.episodeNumber %></h5>
-                                                        <p class="font-bold text-white text-sm truncate"><%= episode.title %></p>
-                                                    </div>
-
-                                                    <div class="flex gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                        <a href="/anime/edit-episode/<%= anime._id %>/<%= season._id %>/<%= episode._id %>" class="text-gray-500 hover:text-white transition-colors">
-                                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                                                        </a>
-                                                        <form action="/admin/delete-episode/<%= anime._id %>/<%= season._id %>/<%= episode._id %>" method="POST" onsubmit="return confirm('Delete episode?');">
-                                                            <button type="submit" class="text-gray-500 hover:text-red-500 transition-colors">
-                                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m4-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                                            </button>
-                                                        </form>
-                                                    </div>
-                                                </div>
+                            <% if(anime.seasons && anime.seasons.length > 0) { %>
+                                <% anime.seasons.forEach(season => { %>
+                                    <div class="mb-12 last:mb-0">
+                                        <div class="flex items-center justify-between gap-6 mb-8">
+                                            <div class="flex items-center gap-6 flex-1">
+                                                <h4 class="text-lg font-black text-white uppercase tracking-tighter">Season <%= season.seasonNumber %></h4>
+                                                <div class="flex-1 h-px bg-white/5"></div>
                                             </div>
-                                        <% }) %>
+                                            <!-- FIXED: Delete Season with SweetAlert -->
+                                            <button type="button"
+                                                    data-action="delete-season"
+                                                    data-anime-id="<%= anime._id %>"
+                                                    data-season-id="<%= season._id %>"
+                                                    data-season-num="<%= season.seasonNumber %>"
+                                                    data-episode-count="<%= season.episodes.length %>"
+                                                    class="premium-btn bg-red-600/10 text-red-500 px-4 py-2 rounded-xl text-[9px] border border-red-500/20 hover:bg-red-600 hover:text-white transition-all">
+                                                <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                                Delete Season
+                                            </button>
+                                        </div>
+
+                                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                            <% if(season.episodes && season.episodes.length > 0) { %>
+                                                <% season.episodes.forEach(episode => { %>
+                                                    <div class="inner-obsidian p-5 hover:border-blue-500/50 transition-all">
+                                                        <div class="flex gap-5 items-center">
+                                                            <img src="<%= episode.imageUrl || 'https://via.placeholder.com/100x60' %>" class="ep-thumbnail" alt="Ep">
+
+                                                            <div class="flex-1 min-w-0">
+                                                                <h5 class="font-black text-[9px] text-blue-500 uppercase mb-0.5">EP <%= episode.episodeNumber %></h5>
+                                                                <p class="font-bold text-white text-sm truncate"><%= episode.title %></p>
+                                                            </div>
+
+                                                            <div class="flex gap-2">
+                                                                <a href="/admin/edit-episode/<%= episode._id %>"
+                                                                   class="bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white p-2.5 rounded-lg transition-all border border-blue-500/30 hover:border-blue-500 hover:scale-110"
+                                                                   title="Edit Episode">
+                                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                                                    </svg>
+                                                                </a>
+
+                                                                <button type="button"
+                                                                        data-action="delete-episode"
+                                                                        data-episode-id="<%= episode._id %>"
+                                                                        data-episode-num="<%= episode.episodeNumber %>"
+                                                                        class="bg-red-600/20 hover:bg-red-600 text-red-500 hover:text-white p-2.5 rounded-lg transition-all border border-red-500/30 hover:border-red-500 hover:scale-110"
+                                                                        title="Delete Episode">
+                                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                                    </svg>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                <% }) %>
+                                            <% } else { %>
+                                                <p class="text-gray-600 text-xs italic">No episodes added to this season.</p>
+                                            <% } %>
+                                        </div>
                                     </div>
+                                <% }) %>
+                            <% } else { %>
+                                <div class="text-center py-4">
+                                    <p class="text-gray-600 text-sm italic uppercase tracking-widest">Structural metadata missing for seasons.</p>
                                 </div>
-                            <% }) %>
+                            <% } %>
                         </div>
                     </div>
                 <% }) %>
             </div>
         </section>
-        
+
     </div>
+
+    <%- include('partials/footer') %>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    // Event delegation for all delete actions
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('[data-action]');
+        if (!btn) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        const action = btn.getAttribute('data-action');
+
+        if (action === 'delete-episode') {
+            const episodeId = btn.getAttribute('data-episode-id');
+            const episodeNum = btn.getAttribute('data-episode-num');
+            deleteEpisode(episodeId, episodeNum);
+        } else if (action === 'delete-season') {
+            const animeId = btn.getAttribute('data-anime-id');
+            const seasonId = btn.getAttribute('data-season-id');
+            const seasonNum = btn.getAttribute('data-season-num');
+            const episodeCount = btn.getAttribute('data-episode-count');
+            deleteSeason(animeId, seasonId, seasonNum, episodeCount);
+        } else if (action === 'delete-anime') {
+            const animeId = btn.getAttribute('data-anime-id');
+            const animeName = btn.getAttribute('data-anime-name');
+            deleteAnime(animeId, animeName);
+        } else if (action === 'delete-message') {
+            const messageId = btn.getAttribute('data-message-id');
+            deleteMessage(messageId);
+        }
+    });
+
+    // Delete Episode
+    function deleteEpisode(episodeId, episodeNum) {
+        Swal.fire({
+            title: 'Delete Episode?',
+            html: `Are you sure you want to delete <b>Episode ${episodeNum}</b>?<br><br><span class="text-red-500 text-sm">⚠️ This action cannot be undone!</span>`,
+            icon: 'warning',
+            background: '#0b0e11',
+            color: '#ffffff',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#1f2937',
+            confirmButtonText: 'Yes, Delete!',
+            cancelButtonText: 'Cancel',
+            customClass: {
+                popup: 'rounded-2xl border-white/10 shadow-2xl'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                showLoading();
+                submitForm(`/admin/delete-episode/${episodeId}`);
+            }
+        });
+    }
+
+    // Delete Season
+    function deleteSeason(animeId, seasonId, seasonNum, episodeCount) {
+        Swal.fire({
+            title: 'Delete Season?',
+            html: `Are you sure you want to delete <b>Season ${seasonNum}</b>?<br><br><span class="text-red-500 text-sm">⚠️ All ${episodeCount} episodes will be permanently deleted!</span>`,
+            icon: 'warning',
+            background: '#0b0e11',
+            color: '#ffffff',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#1f2937',
+            confirmButtonText: 'Yes, Delete!',
+            cancelButtonText: 'Cancel',
+            customClass: {
+                popup: 'rounded-2xl border border-white/10 shadow-2xl'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                showLoading();
+                submitForm(`/admin/delete-season/${animeId}/${seasonId}`);
+            }
+        });
+    }
+
+    // Delete Anime
+    function deleteAnime(animeId, animeName) {
+        Swal.fire({
+            title: 'Delete Entire Series?',
+            html: `Are you sure you want to delete <b>"${animeName}"</b>?<br><br><span class="text-red-500 text-sm">⚠️ All seasons and episodes will be permanently deleted!</span>`,
+            icon: 'warning',
+            background: '#0b0e11',
+            color: '#ffffff',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#1f2937',
+            confirmButtonText: 'Yes, Delete!',
+            cancelButtonText: 'Cancel',
+            customClass: {
+                popup: 'rounded-2xl border border-white/10 shadow-2xl'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                showLoading();
+                submitForm(`/admin/delete-anime/${animeId}`);
+            }
+        });
+    }
+
+    // Delete Message
+    function deleteMessage(messageId) {
+        Swal.fire({
+            title: 'Archive Report?',
+            html: `Are you sure you want to clear this report?<br><br><span class="text-yellow-500 text-sm">⚠️ This will permanently delete the message.</span>`,
+            icon: 'question',
+            background: '#0b0e11',
+            color: '#ffffff',
+            showCancelButton: true,
+            confirmButtonColor: '#3b82f6',
+            cancelButtonColor: '#1f2937',
+            confirmButtonText: 'Yes, Clear!',
+            cancelButtonText: 'Cancel',
+            customClass: {
+                popup: 'rounded-2xl border border-white/10 shadow-2xl'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                showLoading();
+                submitForm(`/admin/delete-message/${messageId}`);
+            }
+        });
+    }
+
+    // Helper: Show Loading
+    function showLoading() {
+        Swal.fire({
+            title: 'Processing...',
+            text: 'Please wait',
+            allowOutsideClick: false,
+            background: '#0b0e11',
+            color: '#ffffff',
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+    }
+
+    // Helper: Submit Form
+    function submitForm(action) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = action;
+        document.body.appendChild(form);
+        form.submit();
+    }
+});
+</script>
+
 </body>
 </html>
-<%- include('partials/footer') %>

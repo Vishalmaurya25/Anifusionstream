@@ -1,222 +1,447 @@
 <%- include("partials/header") %>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Privacy Policy | AniFusionStream</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-deep: #0b0e11;      /* Deepest background */
-            --navy-card: #151b23;    /* Main card color */
-            --navy-inner: #1c232d;   /* Sub-boxes and list items */
-            --primary-blue: #3b82f6;  /* Electric blue accent */
-            --text-main: #ffffff;
-            --text-dim: #9ca3af;
-        }
 
-        body { 
-            background-color: var(--bg-deep); 
-            color: var(--text-main); 
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            -webkit-font-smoothing: antialiased;
-        }
+<style>
+    :root {
+        --bg-deep: #0b0e11;
+        --card-navy: #151b23;
+        --input-dark: #1c232d;
+        --primary-blue: #3b82f6;
+        --primary-amber: #f59e0b;
+        --primary-cyan: #06b6d4;
+        --accent-purple: #a855f7;
+        --accent-pink: #ec4899;
+        --accent-green: #10b981;
+        --text-main: #ffffff;
+        --text-dim: #9ca3af;
+    }
 
-        .page-container {
-            max-width: 680px;
-            margin: 0 auto;
-            padding: 4rem 1.25rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+    body {
+        background: var(--bg-deep);
+        color: var(--text-main);
+        font-family: 'Inter', sans-serif;
+        overflow-x: hidden;
+        -webkit-font-smoothing: antialiased;
+    }
 
-        /* The main rounded Obsidian container */
-        .obsidian-card {
-            background-color: var(--navy-card);
-            border: 1px solid rgba(255, 255, 255, 0.03);
-            border-radius: 2.5rem;
-            padding: 3rem;
-            width: 100%;
-            margin-bottom: 2rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
+    /* Animated background orbs */
+    .page-bg {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        overflow: hidden;
+        pointer-events: none;
+    }
 
-        /* Section header with the blue vertical pill */
-        .pill-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            font-weight: 700;
-            font-size: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
+    .page-bg::before,
+    .page-bg::after {
+        content: '';
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(120px);
+        opacity: 0.12;
+    }
 
-        .pill-header::before {
-            content: "";
-            width: 5px;
-            height: 24px;
-            background-color: var(--primary-blue);
-            border-radius: 99px;
-            display: block;
-        }
+    .page-bg::before {
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, #3b82f6, transparent);
+        top: -15%;
+        left: -10%;
+        animation: float 22s ease-in-out infinite;
+    }
 
-        /* Sub-boxes (Consent and List items) */
-        .inner-box {
-            background-color: var(--navy-inner);
-            padding: 1.75rem;
-            border-radius: 1.25rem;
-            margin-bottom: 1.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.02);
-        }
+    .page-bg::after {
+        width: 700px;
+        height: 700px;
+        background: radial-gradient(circle, #f59e0b, transparent);
+        bottom: -20%;
+        right: -15%;
+        animation: float 28s ease-in-out infinite reverse;
+    }
 
-        .inner-box p {
-            color: var(--text-dim);
-            line-height: 1.7;
-            font-size: 1rem;
-        }
+    @keyframes float {
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        33% { transform: translate(40px, -40px) scale(1.1); }
+        66% { transform: translate(-30px, 30px) scale(0.9); }
+    }
 
-        /* Checkmark list items */
-        .check-item {
-            background-color: var(--navy-inner);
-            padding: 1.25rem 1.5rem;
-            border-radius: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 0.75rem;
-            border: 1px solid rgba(255, 255, 255, 0.02);
-        }
+    .page-container {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 5rem 1.5rem;
+        position: relative;
+        z-index: 1;
+    }
 
-        .check-icon {
-            color: var(--primary-blue);
-            flex-shrink: 0;
-        }
+    /* Glass card with glow */
+    .glass-card {
+        background: linear-gradient(135deg, rgba(21, 27, 35, 0.9) 0%, rgba(17, 24, 39, 0.9) 100%);
+        backdrop-filter: blur(40px) saturate(180%);
+        border: 1px solid rgba(59, 130, 246, 0.15);
+        border-radius: 2.5rem;
+        padding: 3.5rem;
+        width: 100%;
+        margin-bottom: 2.5rem;
+        box-shadow: 
+            0 25px 50px -12px rgba(0, 0, 0, 0.8),
+            0 0 80px rgba(59, 130, 246, 0.08),
+            inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        position: relative;
+        overflow: hidden;
+    }
 
-        .check-text {
-            color: var(--text-dim);
-            font-size: 0.95rem;
-            font-weight: 500;
-        }
+    .glass-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -50%;
+        width: 200%;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.5), transparent);
+        animation: shimmer 3s linear infinite;
+    }
 
-        /* Footer Action Button */
-        .btn-blue {
-            background-color: var(--primary-blue);
-            color: #ffffff;
-            font-weight: 700;
-            padding: 1.15rem;
-            border-radius: 1rem;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
-            text-decoration: none;
-            margin-top: 1.5rem;
-        }
+    @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
 
-        .btn-blue:hover {
-            transform: translateY(-2px);
-            filter: brightness(1.1);
-        }
+    /* Title gradient */
+    .page-title {
+        font-size: 3rem;
+        font-weight: 900;
+        letter-spacing: -0.03em;
+        line-height: 1.1;
+        margin-bottom: 1rem;
+    }
 
-        .secondary-text {
-            color: var(--text-dim);
-            line-height: 1.7;
-            font-size: 1rem;
-            margin-bottom: 2rem;
-        }
+    .title-gradient {
+        background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 50%, #f59e0b 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        filter: drop-shadow(0 0 30px rgba(59, 130, 246, 0.5));
+    }
 
-        @media (max-width: 640px) {
-            .obsidian-card { padding: 2rem 1.5rem; border-radius: 2rem; }
-            .pill-header { font-size: 1.25rem; }
-            .text-5xl { font-size: 2.75rem !important; }
-        }
-    </style>
-</head>
-<body>
+    /* Section header with gradient pill */
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        font-weight: 800;
+        font-size: 1.75rem;
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
 
-    <div class="page-container">
-        
-        <div class="text-center mb-12">
-            <h1 class="text-6xl font-black tracking-tighter mb-4">
-                Privacy <span class="text-blue-500">Policy</span>
-            </h1>
-            <p class="text-gray-500 text-xl font-medium">
-                At <span class="text-white">AniFusionStream</span>, your privacy is one of our top priorities.
-            </p>
+    .pill-icon {
+        width: 3rem;
+        height: 3rem;
+        border-radius: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .pill-icon::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        opacity: 0.2;
+        transition: opacity 0.3s ease;
+    }
+
+    .pill-blue {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(6, 182, 212, 0.2));
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        color: #3b82f6;
+    }
+
+    .pill-blue::before {
+        background: linear-gradient(135deg, #3b82f6, #06b6d4);
+    }
+
+    .pill-purple {
+        background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(236, 72, 153, 0.2));
+        border: 1px solid rgba(168, 85, 247, 0.3);
+        color: #a855f7;
+    }
+
+    .pill-green {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 182, 212, 0.2));
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        color: #10b981;
+    }
+
+    .pill-amber {
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(236, 72, 153, 0.2));
+        border: 1px solid rgba(245, 158, 11, 0.3);
+        color: #f59e0b;
+    }
+
+    /* Inner boxes */
+    .inner-box {
+        background: rgba(28, 35, 45, 0.6);
+        padding: 2rem;
+        border-radius: 1.5rem;
+        margin-bottom: 2rem;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        transition: all 0.4s ease;
+    }
+
+    .inner-box:hover {
+        background: rgba(28, 35, 45, 0.8);
+        border-color: rgba(59, 130, 246, 0.2);
+        transform: translateX(5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .inner-box p {
+        color: var(--text-dim);
+        line-height: 1.8;
+        font-size: 1.05rem;
+        margin: 0;
+    }
+
+    /* Checkmark items */
+    .check-item {
+        background: rgba(28, 35, 45, 0.6);
+        padding: 1.5rem;
+        border-radius: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        margin-bottom: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        transition: all 0.4s ease;
+        backdrop-filter: blur(10px);
+    }
+
+    .check-item:hover {
+        background: rgba(28, 35, 45, 0.9);
+        border-color: rgba(59, 130, 246, 0.3);
+        transform: translateX(8px);
+        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
+    }
+
+    .check-icon {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 0.75rem;
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(6, 182, 212, 0.2));
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        color: #3b82f6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: all 0.3s ease;
+    }
+
+    .check-item:hover .check-icon {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(6, 182, 212, 0.3));
+        transform: scale(1.1) rotate(5deg);
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+    }
+
+    .check-text {
+        color: var(--text-dim);
+        font-size: 1rem;
+        font-weight: 600;
+        line-height: 1.6;
+    }
+
+    /* Gradient button */
+    .btn-gradient {
+        background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+        color: #ffffff;
+        font-weight: 900;
+        padding: 1.25rem;
+        border-radius: 1rem;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        text-decoration: none;
+        position: relative;
+        overflow: hidden;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-size: 0.875rem;
+    }
+
+    .btn-gradient::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .btn-gradient:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(59, 130, 246, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-gradient:hover::before {
+        left: 100%;
+    }
+
+    .intro-text {
+        font-size: 1.25rem;
+        font-weight: 600;
+        line-height: 1.8;
+        margin-bottom: 2.5rem;
+        color: #e5e7eb;
+    }
+
+    .secondary-text {
+        color: var(--text-dim);
+        line-height: 1.8;
+        font-size: 1.05rem;
+        margin-bottom: 2rem;
+    }
+
+    @media (max-width: 640px) {
+        .glass-card { padding: 2.5rem 1.5rem; border-radius: 2rem; }
+        .page-title { font-size: 2.25rem; }
+        .section-header { font-size: 1.35rem; }
+        .pill-icon { width: 2.5rem; height: 2.5rem; }
+        .inner-box, .check-item { padding: 1.5rem; }
+    }
+</style>
+
+<div class="page-bg"></div>
+
+<div class="page-container">
+    
+    <div class="text-center mb-16">
+        <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-500 to-cyan-600 mb-6 shadow-2xl shadow-blue-500/50">
+            <i class="fas fa-shield-alt text-white text-3xl"></i>
         </div>
-
-        <div class="obsidian-card">
-            
-            <div class="pill-header">Consent</div>
-            <div class="inner-box">
-                <p>By using our website, you hereby consent to our Privacy Policy and agree to its terms.</p>
-            </div>
-
-            <div class="pill-header">Information We Collect</div>
-            <p class="secondary-text">
-                We collect your name, email, and other personal data when you register an account, post a comment, or contact us directly. This information is kept secure and is never sold to third parties.
-            </p>
-
-            <div class="pill-header">How We Use Your Information</div>
-            
-            <div class="check-item">
-                <svg class="check-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                <span class="check-text">To improve and personalize your experience</span>
-            </div>
-
-            <div class="check-item">
-                <svg class="check-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                <span class="check-text">To communicate with you directly</span>
-            </div>
-
-            <div class="check-item">
-                <svg class="check-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                <span class="check-text">To prevent fraud and secure the platform</span>
-            </div>
-
-            <div class="check-item">
-                <svg class="check-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                <span class="check-text">To analyze usage and improve the website</span>
-            </div>
-
-            <div class="mt-8"></div>
-
-            <div class="pill-header">Cookies & Web Beacons</div>
-            <p class="secondary-text">
-                We use cookies to store your preferences, keep you logged into your account securely, and optimize your user experience based on your browser type or other information.
-            </p>
-
-            <div class="pill-header">Your Data Protection Rights</div>
-            <p class="secondary-text">
-                Under GDPR and CCPA, you have the right to access, correct, erase, restrict, or object to our use of your personal data. If you would like to exercise any of these rights, please contact us.
-            </p>
-
-            <div class="pill-header">Children's Privacy</div>
-            <p class="secondary-text mb-0">
-                We do not knowingly collect any personal identifiable information from children under the age of 13. If you think that your child provided this kind of information on our website, we strongly encourage you to contact us immediately and we will promptly remove such information.
-            </p>
-        </div>
-
-        <div class="obsidian-card text-center">
-            <h2 class="text-2xl font-bold mb-4">Privacy Concerns?</h2>
-            <p class="text-gray-400 leading-relaxed px-4">
-                If you have any questions, concerns, or requests regarding your personal data and privacy, please don't hesitate to reach out to our team.
-            </p>
-
-            <a href="/contact-us" class="btn-blue">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7 8.941L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                Contact Us
-            </a>
-        </div>
-
+        <h1 class="page-title">
+            Privacy <span class="title-gradient">Policy</span>
+        </h1>
+        <p class="text-gray-400 text-xl font-medium">
+            At <span class="text-white font-bold">AniFusionStream</span>, your privacy is one of our top priorities.
+        </p>
     </div>
 
-</body>
-</html>
-<%- include('partials/footer') %>
+    <div class="glass-card">
+        
+        <div class="section-header">
+            <div class="pill-icon pill-blue">
+                <i class="fas fa-handshake"></i>
+            </div>
+            Consent
+        </div>
+        <div class="inner-box">
+            <p>By using our website, you hereby consent to our Privacy Policy and agree to its terms.</p>
+        </div>
+
+        <div class="section-header">
+            <div class="pill-icon pill-purple">
+                <i class="fas fa-database"></i>
+            </div>
+            Information We Collect
+        </div>
+        <p class="secondary-text">
+            We collect your name, email, and other personal data when you register an account, post a comment, or contact us directly. This information is kept secure and is never sold to third parties.
+        </p>
+
+        <div class="section-header">
+            <div class="pill-icon pill-green">
+                <i class="fas fa-cogs"></i>
+            </div>
+            How We Use Your Information
+        </div>
+        
+        <div class="check-item">
+            <div class="check-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <span class="check-text">To improve and personalize your experience</span>
+        </div>
+
+        <div class="check-item">
+            <div class="check-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <span class="check-text">To communicate with you directly</span>
+        </div>
+
+        <div class="check-item">
+            <div class="check-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <span class="check-text">To prevent fraud and secure the platform</span>
+        </div>
+
+        <div class="check-item">
+            <div class="check-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <span class="check-text">To analyze usage and improve the website</span>
+        </div>
+
+        <div class="mt-8"></div>
+
+        <div class="section-header">
+            <div class="pill-icon pill-amber">
+                <i class="fas fa-cookie-bite"></i>
+            </div>
+            Cookies & Web Beacons
+        </div>
+        <p class="secondary-text">
+            We use cookies to store your preferences, keep you logged into your account securely, and optimize your user experience based on your browser type or other information.
+        </p>
+
+        <div class="section-header">
+            <div class="pill-icon pill-blue">
+                <i class="fas fa-user-shield"></i>
+            </div>
+            Your Data Protection Rights
+        </div>
+        <p class="secondary-text">
+            Under GDPR and CCPA, you have the right to access, correct, erase, restrict, or object to our use of your personal data. If you would like to exercise any of these rights, please contact us.
+        </p>
+
+        <div class="section-header">
+            <div class="pill-icon pill-purple">
+                <i class="fas fa-child"></i>
+            </div>
+            Children's Privacy
+        </div>
+        <p class="secondary-text mb-0">
+            We do not knowingly collect any personal identifiable information from children under the age of 13. If you think that your child provided this kind of information on our website, we strongly encourage you to contact us immediately and we will promptly remove such information.
+        </p>
+    </div>
+
+    <div class="glass-card text-center">
+        <h2 class="text-2xl font-black mb-4 flex items-center justify-center gap-3">
+            <i class="fas fa-question-circle text-blue-500"></i>
+            Privacy Concerns?
+        </h2>
+        <p class="text-gray-400 leading-relaxed px-4 mb-8">
+            If you have any questions, concerns, or requests regarding your personal data and privacy, please don't hesitate to reach out to our team.
+        </p>
+
+        <a href="/contact-us" class="btn-gradient">
+            <i class="fas fa-paper-plane"></i>
+            Contact Us
+        </a>
+    </div>
+
+</div>
+
+<%- include("partials/footer") %>

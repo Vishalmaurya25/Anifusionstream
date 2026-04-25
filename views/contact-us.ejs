@@ -1,149 +1,406 @@
-<%- include('partials/header') %>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact Us | AniFusionStream</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-deep: #0f1014;
-            --card-navy: #151b23;
-            --input-dark: #1c232d;
-            --primary-blue: #3b82f6;
-            --text-muted: #9ca3af;
-        }
+<%- include("partials/header") %>
 
-        /* Centering Wrapper */
-        .main-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center; /* Centers horizontally */
-            justify-content: center; /* Centers vertically */
-            min-height: 80vh; /* Takes up most of the screen height */
-            width: 100%;
-            margin: 0 auto;
-            padding: 2rem 1rem;
-        }
+<style>
+    :root {
+        --bg-deep: #0b0e11;
+        --card-navy: #151b23;
+        --input-dark: #1c232d;
+        --primary-blue: #3b82f6;
+        --primary-amber: #f59e0b;
+        --primary-cyan: #06b6d4;
+        --text-muted: #9ca3af;
+    }
 
-        body { 
-            background-color: var(--bg-deep); 
-            color: #ffffff; 
-            font-family: 'Inter', sans-serif; 
-        }
+    body {
+        background: var(--bg-deep);
+        color: #ffffff;
+        font-family: 'Inter', sans-serif;
+        overflow-x: hidden;
+        -webkit-font-smoothing: antialiased;
+    }
 
-        .ui-card {
-            background-color: var(--card-navy);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+    /* Animated background orbs */
+    .auth-bg {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        overflow: hidden;
+        pointer-events: none;
+    }
+
+    .auth-bg::before,
+    .auth-bg::after {
+        content: '';
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(120px);
+        opacity: 0.15;
+    }
+
+    .auth-bg::before {
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, #3b82f6, transparent);
+        top: -10%;
+        left: -10%;
+        animation: float 20s ease-in-out infinite;
+    }
+
+    .auth-bg::after {
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, #f59e0b, transparent);
+        bottom: -15%;
+        right: -10%;
+        animation: float 25s ease-in-out infinite reverse;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        33% { transform: translate(30px, -30px) scale(1.1); }
+        66% { transform: translate(-20px, 20px) scale(0.9); }
+    }
+
+    .main-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: calc(100vh - 76px);
+        padding: 3rem 1.25rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Glass card */
+    .auth-card {
+        background: linear-gradient(135deg, rgba(21, 27, 35, 0.9) 0%, rgba(17, 24, 39, 0.9) 100%);
+        backdrop-filter: blur(40px) saturate(180%);
+        border: 1px solid rgba(59, 130, 246, 0.15);
+        border-radius: 2.5rem;
+        width: 100%;
+        max-width: 580px;
+        padding: 3rem 2.5rem;
+        box-shadow: 
+            0 25px 50px -12px rgba(0, 0, 0, 0.8),
+            0 0 80px rgba(59, 130, 246, 0.1),
+            inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        position: relative;
+        overflow: visible;
+    }
+
+    .auth-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -50%;
+        width: 200%;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.5), transparent);
+        animation: shimmer 3s linear infinite;
+    }
+
+    @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+
+    /* Gradient title */
+    .page-title {
+        font-size: 2.75rem;
+        font-weight: 900;
+        letter-spacing: -0.03em;
+        line-height: 1.1;
+        margin-bottom: 1rem;
+    }
+
+    .title-gradient {
+        background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 50%, #f59e0b 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        filter: drop-shadow(0 0 30px rgba(59, 130, 246, 0.5));
+    }
+
+    /* Input with floating label */
+    .input-group {
+        position: relative;
+        margin-bottom: 1.75rem;
+    }
+
+    .input-field, .select-field {
+        background: rgba(28, 35, 45, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 1rem;
+        color: #ffffff;
+        padding: 1.25rem 1rem 1.25rem 3rem;
+        width: 100%;
+        font-size: 0.95rem;
+        font-weight: 500;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-sizing: border-box;
+    }
+
+    .select-field {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        cursor: pointer;
+        color-scheme: dark;
+    }
+
+    .select-field option {
+        background: #1c232d;
+        color: #ffffff;
+        padding: 1rem;
+        border: none;
+    }
+
+    .select-field option:hover,
+    .select-field option:focus,
+    .select-field option:checked {
+        background: rgba(59, 130, 246, 0.3);
+        color: #ffffff;
+    }
+
+    .select-field option:disabled {
+        color: #6b7280;
+        background: #151b23;
+    }
+
+    textarea.input-field {
+        padding-top: 1.25rem;
+        resize: vertical;
+        min-height: 120px;
+    }
+
+    .input-field:focus, .select-field:focus {
+        outline: none;
+        border-color: rgba(59, 130, 246, 0.5);
+        background: rgba(28, 35, 45, 0.8);
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1), 0 8px 25px rgba(59, 130, 246, 0.15);
+        transform: translateY(-2px);
+    }
+
+    .input-icon {
+        position: absolute;
+        left: 1rem;
+        top: 1.25rem;
+        color: var(--text-muted);
+        transition: all 0.3s ease;
+        pointer-events: none;
+        z-index: 2;
+    }
+
+    .input-field:focus ~ .input-icon,
+    .select-field:focus ~ .input-icon {
+        color: var(--primary-blue);
+        transform: scale(1.1);
+    }
+
+    .input-label {
+        position: absolute;
+        left: 3rem;
+        top: 1.25rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        transition: all 0.3s ease;
+        pointer-events: none;
+        background: var(--input-dark);
+        padding: 0 0.5rem;
+        z-index: 2;
+    }
+
+    .input-field:focus ~ .input-label,
+    .input-field:not(:placeholder-shown) ~ .input-label,
+    .select-field:focus ~ .input-label,
+    .select-field:valid ~ .input-label {
+        top: 0;
+        transform: translateY(-50%);
+        font-size: 0.65rem;
+        color: var(--primary-blue);
+    }
+
+    /* Select arrow */
+    .select-wrapper {
+        position: relative;
+    }
+
+    .select-arrow {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        pointer-events: none;
+        transition: all 0.3s ease;
+        z-index: 2;
+    }
+
+    .select-field:focus ~ .select-arrow {
+        color: var(--primary-blue);
+        transform: translateY(-50%) rotate(180deg);
+    }
+
+    /* Gradient button */
+    .auth-button {
+        background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+        color: #ffffff;
+        font-weight: 900;
+        padding: 1.25rem;
+        border-radius: 1rem;
+        width: 100%;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        font-size: 0.875rem;
+        border: none;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .auth-button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .auth-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(59, 130, 246, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+
+    .auth-button:hover::before {
+        left: 100%;
+    }
+
+    /* Flash messages */
+    .flash-message {
+        padding: 1rem 1.25rem;
+        border-radius: 1rem;
+        margin-bottom: 1.5rem;
+        font-size: 0.875rem;
+        font-weight: 700;
+        text-align: center;
+        backdrop-filter: blur(10px);
+        animation: slideDown 0.4s ease;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .flash-error {
+        background: rgba(239, 68, 68, 0.15);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: #fca5a5;
+    }
+
+    .flash-success {
+        background: rgba(59, 130, 246, 0.15);
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        color: #93c5fd;
+    }
+
+    @media (max-width: 640px) {
+        .auth-card {
+            padding: 2.5rem 1.5rem;
             border-radius: 2rem;
-            width: 100%;
-            max-width: 550px; /* Limits width on laptop */
-            margin-left: auto;
-            margin-right: auto;
         }
-
-        .ui-label {
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            margin-bottom: 0.75rem;
-            display: block;
+        .page-title {
+            font-size: 2.25rem;
         }
+    }
+</style>
 
-        .ui-input {
-            background-color: var(--input-dark);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 0.75rem;
-            color: #ffffff;
-            padding: 1.1rem;
-            width: 100%;
-        }
+<div class="auth-bg"></div>
 
-        .ui-input:focus {
-            outline: none;
-            border-color: var(--primary-blue);
-            box-shadow: 0 0 0 1px var(--primary-blue);
-        }
-
-        .ui-button {
-            background-color: var(--primary-blue);
-            color: #ffffff;
-            font-weight: 700;
-            padding: 1.1rem;
-            border-radius: 0.75rem;
-            width: 100%;
-            transition: 0.3s;
-        }
-
-        .ui-button:hover {
-            filter: brightness(1.1);
-            transform: translateY(-1px);
-        }
-    </style>
-</head>
-<body>
-
-    <div class="main-wrapper">
-        
-        <div class="text-center mb-10">
-            <h1 class="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight">
-                Contact <span class="text-blue-500">Us</span>
-            </h1>
-            <p class="text-gray-400 text-base md:text-lg">
-                Have a question, feedback, or a business inquiry? <br class="hidden md:block"> Send us a message!
-            </p>
+<div class="main-wrapper">
+    
+    <div class="text-center mb-12">
+        <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-500 to-cyan-600 mb-6 shadow-2xl shadow-blue-500/50">
+            <i class="fas fa-envelope text-white text-3xl"></i>
         </div>
-
-        <div class="ui-card p-8 md:p-12">
-            
-            <% if (messages.error) { %>
-                <div class="bg-red-500/10 border border-red-500/50 text-red-400 p-4 rounded-xl mb-6 text-sm font-bold text-center">
-                    <%= messages.error %>
-                </div>
-            <% } %>
-            <% if (messages.success) { %>
-                <div class="bg-blue-500/10 border border-blue-500/50 text-blue-400 p-4 rounded-xl mb-6 text-sm font-bold text-center">
-                    <%= messages.success %>
-                </div>
-            <% } %>
-
-            <form action="/contact-us" method="POST">
-                <div class="mb-6">
-                    <label class="ui-label">Your Name</label>
-                    <input type="text" name="name" class="ui-input" placeholder="Your Name" required>
-                </div>
-
-                <div class="mb-6">
-                    <label class="ui-label">Email Address</label>
-                    <input type="email" name="email" class="ui-input" placeholder="Your Email" required>
-                </div>
-
-                <div class="mb-6">
-                    <label class="ui-label">Subject</label>
-                    <select name="subject" class="ui-input" style="appearance: none;" required>
-                        <option value="" disabled selected>Select a subject</option>
-                        <option value="Copyright Complaint">Copyright Complaint</option>
-                        <option value="Anime Suggestion">Anime Suggestion</option>
-                        <option value="Dead Link Report">Dead Link Report</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-
-                <div class="mb-8">
-                    <label class="ui-label">Message</label>
-                    <textarea name="message" rows="4" class="ui-input" placeholder="Your Message" required></textarea>
-                </div>
-
-                <button type="submit" class="ui-button">
-                    Send Message
-                </button>
-            </form>
-        </div>
+        <h1 class="page-title">
+            Contact <span class="title-gradient">Us</span>
+        </h1>
+        <p class="text-gray-400 text-lg font-medium max-w-md mx-auto">
+            Have a question, feedback, copyright issue, or a business inquiry?<br>Send us a message!
+        </p>
     </div>
 
-</body>
-</html>
+    <div class="auth-card">
+        
+        <% if (messages.error) { %>
+            <div class="flash-message flash-error">
+                <i class="fas fa-exclamation-circle mr-2"></i>
+                <%= messages.error %>
+            </div>
+        <% } %>
+        <% if (messages.success) { %>
+            <div class="flash-message flash-success">
+                <i class="fas fa-check-circle mr-2"></i>
+                <%= messages.success %>
+            </div>
+        <% } %>
+
+        <form action="/contact-us" method="POST">
+            <div class="input-group">
+                <input type="text" name="name" id="name" class="input-field" placeholder=" " required>
+                <label for="name" class="input-label">Your Name</label>
+                <i class="fas fa-user input-icon"></i>
+            </div>
+
+            <div class="input-group">
+                <input type="email" name="email" id="email" class="input-field" placeholder=" " required>
+                <label for="email" class="input-label">Email Address</label>
+                <i class="fas fa-envelope input-icon"></i>
+            </div>
+
+            <div class="input-group select-wrapper">
+                <select name="subject" id="subject" class="select-field" required>
+                    <option value="" disabled selected hidden></option>
+                    <option value="Copyright Complaint">Copyright Complaint</option>
+                    <option value="Anime Suggestion">Anime Suggestion</option>
+                    <option value="Dead Link Report">Dead Link Report</option>
+                    <option value="Other">Other</option>
+                </select>
+                <label for="subject" class="input-label">Subject</label>
+                <i class="fas fa-tag input-icon"></i>
+                <i class="fas fa-chevron-down select-arrow"></i>
+            </div>
+
+            <div class="input-group">
+                <textarea name="message" id="message" rows="4" class="input-field" placeholder=" " required></textarea>
+                <label for="message" class="input-label">Message</label>
+                <i class="fas fa-comment-dots input-icon"></i>
+            </div>
+
+            <button type="submit" class="auth-button">
+                <span class="relative z-10 flex items-center justify-center gap-2">
+                    <i class="fas fa-paper-plane"></i>
+                    Send Message
+                </span>
+            </button>
+        </form>
+    </div>
+</div>
+
 <%- include('partials/footer') %>

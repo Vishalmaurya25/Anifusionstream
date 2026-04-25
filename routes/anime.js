@@ -5,20 +5,37 @@ const Episode = require('../models/Episode');
 const Comment = require('../models/Comment');
 const { ensureAuthenticatedUser, ensureAuthenticatedAdmin } = require('../middleware/auth');
 const mongoose = require('mongoose');
+const rateLimit = require('express-rate-limit');
+const sanitizeHtml = require('sanitize-html');
+
+// Rate limiter for comments - 5 comments per minute
+const commentLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000,
+    max: 5,
+    message: 'Too many comments. Please wait.',
+});
+
+// Helper: Validate MongoDB ID
+const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
+
+// Helper: Sanitize comment - no HTML allowed
+const cleanComment = (text) => sanitizeHtml(text.trim(), {
+    allowedTags: [],
+    allowedAttributes: {}
+});
 
 /**
  * GET /:id
- * View Anime Details - Optimized for Premium Performance
+ * View Anime Details - NOW PROTECTED: Login required
  */
-router.get('/:id', async (req, res) => {
+router.get('/:id', ensureAuthenticatedUser, async (req, res) => {
     try {
         const { id } = req.params;
 
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).render('error', { message: 'Invalid anime ID', session: req.session });
+        if (!isValidId(id)) {
+            return res.status(404).render('404');
         }
 
-        // Fetch Anime with full population
         const anime = await Anime.findById(id)
             .populate('genres')
             .populate({
@@ -26,202 +43,78 @@ router.get('/:id', async (req, res) => {
                 model: 'Episode'
             });
 
-        if (!anime) {
-            return res.status(404).render('error', { message: 'Anime not found', session: req.session });
-        }
+        if (!anime) return res.status(404).render('404');
 
-        // Fetch Comments and Replies in a cleaner structure
+        // Fetch top-level comments and populate nested replies + users
         const comments = await Comment.find({ anime: id, parentComment: null })
-            .populate('user')
+            .populate('user', 'username')
             .populate({
                 path: 'replies',
-                populate: { path: 'user' }
-            });
+                populate: { path: 'user', select: 'username' }
+            })
+            .sort({ createdAt: -1 })
+            .lean();
 
-        // Fetch 8 random anime for the "Suggested" section (Premium UX feature)
+        // Suggested titles
         const randomAnimes = await Anime.aggregate([
-            { $match: { _id: { $ne: anime._id } } },
+            { $match: { _id: { $ne: new mongoose.Types.ObjectId(id) } } },
             { $sample: { size: 8 } }
         ]);
 
-        res.render('anime-detail', { 
-            anime, 
-            comments, 
-            session: req.session, 
-            randomAnimes 
+        res.render('anime-detail', {
+            anime,
+            comments,
+            session: req.session,
+            randomAnimes
         });
 
     } catch (error) {
-        console.error('Error viewing anime details:', error);
-        res.status(500).render('error', { message: 'Internal Server Error', session: req.session });
+        console.error('View Anime Error:', error);
+        res.status(500).render('404');
     }
 });
 
-/**
- * POST /delete-episode/:animeId/:seasonId/:episodeId
- * Admin only: Episode Removal Logic
- */
-router.post('/delete-episode/:animeId/:seasonId/:episodeId', ensureAuthenticatedAdmin, async (req, res) => {
-    try {
-        const { animeId, seasonId, episodeId } = req.params;
-
-        if (![animeId, seasonId, episodeId].every(id => mongoose.Types.ObjectId.isValid(id))) {
-            return res.status(400).render('error', { message: 'Invalid ID provided', session: req.session });
-        }
-
-        const anime = await Anime.findById(animeId);
-        if (!anime) return res.status(404).render('error', { message: 'Anime not found', session: req.session });
-
-        const season = anime.seasons.id(seasonId);
-        if (!season) return res.status(404).render('error', { message: 'Season not found', session: req.session });
-
-        // Filter out the deleted episode
-        season.episodes = season.episodes.filter(ep => ep._id.toString() !== episodeId);
-        await anime.save();
-
-        res.redirect(`/anime/${animeId}`);
-    } catch (error) {
-        console.error('Error deleting episode:', error);
-        res.status(500).render('error', { message: 'Error deleting episode', session: req.session });
-    }
-});
-
-/**
- * GET /edit-episode/:animeId/:seasonId/:episodeId
- * Admin only: Load Episode Editor
- */
-router.get('/edit-episode/:animeId/:seasonId/:episodeId', ensureAuthenticatedAdmin, async (req, res) => {
-    try {
-        const { animeId, seasonId, episodeId } = req.params;
-
-        if (![animeId, seasonId, episodeId].every(id => mongoose.Types.ObjectId.isValid(id))) {
-            return res.status(400).render('error', { message: 'Invalid ID', session: req.session });
-        }
-
-        const anime = await Anime.findById(animeId);
-        const episode = await Episode.findById(episodeId);
-
-        if (!anime || !episode) {
-            return res.status(404).render('error', { message: 'Content not found', session: req.session });
-        }
-
-        const season = anime.seasons.id(seasonId);
-        
-        res.render('admin-edit-episode', { 
-            anime, 
-            season, 
-            episode, 
-            session: req.session, 
-            messages: req.flash() 
-        });
-    } catch (error) {
-        console.error('Error loading edit page:', error);
-        res.redirect('back');
-    }
-});
-
-/**
- * POST /edit-episode/:animeId/:seasonId/:episodeId
- * Admin only: Update Logic (Includes Season Migration)
- */
-router.post('/edit-episode/:animeId/:seasonId/:episodeId', ensureAuthenticatedAdmin, async (req, res) => {
-    const { animeId, seasonId, episodeId } = req.params;
-    const { episodeNumber, title, videoUrl, embedCode, seasonNumber } = req.body;
-
-    // 1. Validation Logic
-    const episodeNum = Number(episodeNumber);
-    const newSeasonNum = Number(seasonNumber);
-
-    if (!episodeNumber || isNaN(episodeNum) || episodeNum <= 0 || !title?.trim() || isNaN(newSeasonNum)) {
-        req.flash('error', 'Please provide valid episode details and season number.');
-        return res.redirect(`/anime/edit-episode/${animeId}/${seasonId}/${episodeId}`);
-    }
-
-    try {
-        // 2. Embed Code Generation (UX Improvement: fallback to standard iframe)
-        let finalEmbedCode = embedCode?.trim() || '';
-        if (videoUrl && !finalEmbedCode) {
-            finalEmbedCode = `<iframe src="${videoUrl.trim()}" style="border:0;height:360px;width:640px;max-width:100%" allowFullScreen="true" allowtransparency allow="autoplay" scrolling="no" frameborder="0"></iframe>`;
-        }
-
-        // 3. Update Episode Document
-        await Episode.findByIdAndUpdate(episodeId, {
-            episodeNumber: episodeNum,
-            title: title.trim(),
-            videoUrl: videoUrl?.trim() || '',
-            embedCode: finalEmbedCode,
-            seasonNumber: newSeasonNum
-        });
-
-        // 4. Update Anime Season Association
-        const anime = await Anime.findById(animeId);
-        const oldSeason = anime.seasons.id(seasonId);
-
-        if (oldSeason && oldSeason.seasonNumber !== newSeasonNum) {
-            // Remove from old
-            oldSeason.episodes = oldSeason.episodes.filter(eid => eid.toString() !== episodeId);
-            
-            // Find or create new season
-            let newSeason = anime.seasons.find(s => s.seasonNumber === newSeasonNum);
-            if (!newSeason) {
-                newSeason = anime.seasons.create({ seasonNumber: newSeasonNum, episodes: [] });
-                anime.seasons.push(newSeason);
-            }
-            
-            if (!newSeason.episodes.some(eid => eid.toString() === episodeId)) {
-                newSeason.episodes.push(episodeId);
-            }
-        } else if (oldSeason) {
-            if (!oldSeason.episodes.some(eid => eid.toString() === episodeId)) {
-                oldSeason.episodes.push(episodeId);
-            }
-        }
-
-        // Cleanup empty seasons for a cleaner DB
-        anime.seasons = anime.seasons.filter(s => s.episodes?.length > 0);
-        await anime.save();
-
-        req.flash('success', 'Episode updated successfully.');
-        res.redirect(`/anime/${animeId}`);
-
-    } catch (error) {
-        console.error('Update Error:', error);
-        req.flash('error', `Update failed: ${error.message}`);
-        res.redirect(`/anime/edit-episode/${animeId}/${seasonId}/${episodeId}`);
-    }
-});
+// ==========================================
+// COMMENT SYSTEM (USER & ADMIN)
+// ==========================================
 
 /**
  * POST /comment/:animeId
- * Standard User/Admin Comments
  */
-router.post('/comment/:animeId', async (req, res) => {
+router.post('/comment/:animeId', ensureAuthenticatedUser, commentLimiter, async (req, res) => {
     const { animeId } = req.params;
     const { content } = req.body;
 
-    if (!content?.trim()) {
-        req.flash('error', 'Comment content cannot be empty.');
+    if (!isValidId(animeId)) {
+        req.flash('error', 'Invalid anime.');
+        return res.redirect('/');
+    }
+
+    const cleanContent = cleanComment(content || '');
+    if (!cleanContent || cleanContent.length < 2) {
+        req.flash('error', 'Comment too short.');
         return res.redirect(`/anime/${animeId}`);
     }
 
-    if (!req.session.user && !req.session.isAdminAuthenticated) {
-        req.flash('error', 'Please log in to comment.');
-        return res.redirect('/user/login');
+    if (cleanContent.length > 500) {
+        req.flash('error', 'Comment too long. Max 500 characters.');
+        return res.redirect(`/anime/${animeId}`);
     }
 
     try {
         const comment = new Comment({
             anime: animeId,
-            user: req.session.user ? req.session.user._id : null,
-            username: req.session.isAdminAuthenticated ? 'AnimeFusionStream' : (req.session.user?.username || 'Guest'),
-            email: req.session.user?.email || '',
-            isAdmin: !!req.session.isAdminAuthenticated,
-            content: content.trim()
+            user: req.session.userId || req.session.adminId,
+            username: req.session.username || req.session.adminUsername || 'Staff',
+            content: cleanContent,
+            isAdmin:!!req.session.isAdminAuthenticated
         });
+
         await comment.save();
         res.redirect(`/anime/${animeId}`);
     } catch (error) {
-        req.flash('error', 'Error adding comment.');
+        console.error('Comment post error:', error);
+        req.flash('error', 'Failed to post comment.');
         res.redirect(`/anime/${animeId}`);
     }
 });
@@ -229,123 +122,292 @@ router.post('/comment/:animeId', async (req, res) => {
 /**
  * POST /comment/reply/:animeId/:commentId
  */
-router.post('/comment/reply/:animeId/:commentId', async (req, res) => {
+router.post('/comment/reply/:animeId/:commentId', ensureAuthenticatedUser, commentLimiter, async (req, res) => {
     const { animeId, commentId } = req.params;
     const { content } = req.body;
 
-    if (!content?.trim() || !req.session.user && !req.session.isAdminAuthenticated) {
-        req.flash('error', 'Content required or not logged in.');
+    if (!isValidId(animeId) ||!isValidId(commentId)) {
+        req.flash('error', 'Invalid ID.');
+        return res.redirect('/');
+    }
+
+    const cleanContent = cleanComment(content || '');
+    if (!cleanContent || cleanContent.length < 2) {
+        req.flash('error', 'Reply too short.');
         return res.redirect(`/anime/${animeId}`);
     }
 
     try {
-        const parentComment = await Comment.findById(commentId);
-        if (!parentComment) return res.redirect(`/anime/${animeId}`);
+        const parent = await Comment.findById(commentId);
+        if (!parent) {
+            req.flash('error', 'Parent comment not found.');
+            return res.redirect(`/anime/${animeId}`);
+        }
 
         const reply = new Comment({
             anime: animeId,
-            user: req.session.user ? req.session.user._id : null,
-            username: req.session.isAdminAuthenticated ? 'AnimeFusionStream' : (req.session.user?.username || ''),
-            email: req.session.user?.email || '',
-            isAdmin: !!req.session.isAdminAuthenticated,
-            content: content.trim(),
-            parentComment: commentId
+            user: req.session.userId || req.session.adminId,
+            username: req.session.username || req.session.adminUsername || 'Staff',
+            content: cleanContent,
+            parentComment: commentId,
+            isAdmin:!!req.session.isAdminAuthenticated
         });
-        
-        await reply.save();
-        parentComment.replies.push(reply._id);
-        await parentComment.save();
+
+        const savedReply = await reply.save();
+        parent.replies.push(savedReply._id);
+        await parent.save();
 
         res.redirect(`/anime/${animeId}`);
     } catch (error) {
+        console.error('Reply error:', error);
         res.redirect(`/anime/${animeId}`);
     }
 });
 
 /**
  * POST /comment/delete/:animeId/:commentId
- * Logic for recursive deletion of nested replies
+ * Strict Security: Admin OR Owner only
  */
-router.post('/comment/delete/:animeId/:commentId', async (req, res) => {
+router.post('/comment/delete/:animeId/:commentId', ensureAuthenticatedUser, async (req, res) => {
     const { animeId, commentId } = req.params;
 
+    if (!isValidId(animeId) ||!isValidId(commentId)) {
+        req.flash('error', 'Invalid ID.');
+        return res.redirect('/');
+    }
+
     try {
-        const comment = await Comment.findById(commentId).populate('user');
+        const comment = await Comment.findById(commentId);
         if (!comment) return res.redirect(`/anime/${animeId}`);
 
-        const isAdmin = !!req.session.isAdminAuthenticated;
-        const isOwner = req.session.user && comment.user && comment.user._id.toString() === req.session.user._id.toString();
+        const isAdmin =!!req.session.isAdminAuthenticated;
+        const currentId = req.session.userId || req.session.adminId;
+        const isOwner = currentId && comment.user && currentId.toString() === comment.user.toString();
 
-        if (!isOwner && !isAdmin) {
-            req.flash('error', 'Unauthorized action.');
+        if (!isAdmin &&!isOwner) {
+            req.flash('error', 'Security Violation: Unauthorized deletion attempt.');
             return res.redirect(`/anime/${animeId}`);
         }
 
-        // Recursive deletion helper
-        const recursiveDelete = async (cid) => {
-            const replies = await Comment.find({ parentComment: cid });
-            for (const reply of replies) {
-                await recursiveDelete(reply._id);
-                await Comment.findByIdAndDelete(reply._id);
+        const cleanDelete = async (id) => {
+            const replies = await Comment.find({ parentComment: id });
+            for (const r of replies) {
+                await cleanDelete(r._id);
+                await Comment.findByIdAndDelete(r._id);
             }
         };
 
-        await recursiveDelete(commentId);
+        await cleanDelete(commentId);
 
-        // Remove reference from parent if it's a reply
         if (comment.parentComment) {
-            await Comment.findByIdAndUpdate(comment.parentComment, {
-                $pull: { replies: commentId }
-            });
+            await Comment.findByIdAndUpdate(comment.parentComment, { $pull: { replies: commentId } });
         }
 
         await Comment.findByIdAndDelete(commentId);
+        req.flash('success', 'Comment removed.');
         res.redirect(`/anime/${animeId}`);
+
     } catch (error) {
-        req.flash('error', 'Error deleting comment.');
+        console.error('Delete Comment Error:', error);
         res.redirect(`/anime/${animeId}`);
+    }
+});
+
+// ==========================================
+// ADMIN: CATALOG MANAGEMENT
+// ==========================================
+
+// FIXED: Now only needs episodeId, anime found automatically
+router.post('/delete-episode/:episodeId', ensureAuthenticatedAdmin, async (req, res) => {
+    try {
+        const { episodeId } = req.params;
+        if (!isValidId(episodeId)) {
+            req.flash('error', 'Invalid ID format.');
+            return res.redirect('back');
+        }
+
+        const episode = await Episode.findById(episodeId);
+        if (!episode) {
+            req.flash('error', 'Episode not found.');
+            return res.redirect('back');
+        }
+
+        const anime = await Anime.findOne({ 'seasons.episodes': episodeId });
+        if (anime) {
+            anime.seasons.forEach(season => {
+                season.episodes = season.episodes.filter(ep => ep.toString()!== episodeId);
+            });
+            // Remove empty seasons
+            anime.seasons = anime.seasons.filter(s => s.episodes.length > 0);
+            await anime.save();
+        }
+
+        await Episode.findByIdAndDelete(episodeId);
+        req.flash('success', 'Episode deleted.');
+        res.redirect(anime? `/anime/${anime._id}` : '/admin/dashboard');
+    } catch (error) {
+        console.error('Delete episode error:', error);
+        res.redirect('back');
+    }
+});
+
+// FIXED: Simplified route - only episodeId needed
+router.get('/edit-episode/:episodeId', ensureAuthenticatedAdmin, async (req, res) => {
+    try {
+        const { episodeId } = req.params;
+        if (!isValidId(episodeId)) {
+            req.flash('error', 'Invalid ID.');
+            return res.redirect('/admin/dashboard');
+        }
+
+        const episode = await Episode.findById(episodeId).lean();
+        if (!episode) {
+            req.flash('error', 'Episode not found.');
+            return res.redirect('/admin/dashboard');
+        }
+
+        // Find parent anime
+        const anime = await Anime.findOne({ 'seasons.episodes': episodeId }).lean();
+        if (!anime) {
+            req.flash('error', 'Parent anime not found.');
+            return res.redirect('/admin/dashboard');
+        }
+
+        const season = anime.seasons.find(s => 
+            s.episodes.some(ep => ep.toString() === episodeId)
+        );
+
+        res.render('admin-edit-episode', { 
+            anime, 
+            season, 
+            episode,
+            messages: req.flash()
+        });
+    } catch (error) {
+        console.error('Edit episode GET error:', error);
+        res.redirect('/admin/dashboard');
+    }
+});
+
+// FIXED: Handle seasonNumber change + duplicate check + movie/series logic
+router.post('/edit-episode/:episodeId', ensureAuthenticatedAdmin, async (req, res) => {
+    const { episodeId } = req.params;
+    const { title, videoUrl, imageUrl, embedCode, episodeNumber, seasonNumber } = req.body;
+
+    if (!isValidId(episodeId)) {
+        req.flash('error', 'Invalid ID.');
+        return res.redirect('back');
+    }
+
+    try {
+        const epNum = Number(episodeNumber);
+        const sNum = Number(seasonNumber);
+
+        if (!epNum ||!sNum || epNum < 1 || sNum < 1) {
+            req.flash('error', 'Invalid season or episode number.');
+            return res.redirect('back');
+        }
+
+        const oldEpisode = await Episode.findById(episodeId);
+        if (!oldEpisode) {
+            req.flash('error', 'Episode not found.');
+            return res.redirect('back');
+        }
+
+        const anime = await Anime.findOne({ 'seasons.episodes': episodeId });
+        if (!anime) {
+            req.flash('error', 'Parent anime not found.');
+            return res.redirect('back');
+        }
+
+        // For movies, force S1E1
+        const finalSeasonNum = anime.type === 'movie'? 1 : sNum;
+        const finalEpNum = anime.type === 'movie'? 1 : epNum;
+
+        // Check duplicate if season/episode changed (skip for movies)
+        if (anime.type!== 'movie' && (oldEpisode.seasonNumber!== finalSeasonNum || oldEpisode.episodeNumber!== finalEpNum)) {
+            const targetSeason = anime.seasons.find(s => s.seasonNumber === finalSeasonNum);
+            if (targetSeason) {
+                const duplicate = await Episode.findOne({
+                    _id: { $in: targetSeason.episodes, $ne: episodeId },
+                    episodeNumber: finalEpNum
+                });
+                if (duplicate) {
+                    req.flash('error', `Episode ${finalEpNum} already exists in Season ${finalSeasonNum}.`);
+                    return res.redirect('back');
+                }
+            }
+        }
+
+        // Update episode
+        await Episode.findByIdAndUpdate(episodeId, {
+            title: title.trim(),
+            videoUrl: videoUrl?.trim() || '',
+            imageUrl: imageUrl?.trim() || '',
+            embedCode: embedCode?.trim() || '',
+            episodeNumber: finalEpNum,
+            seasonNumber: finalSeasonNum
+        });
+
+        // If season changed, move episode to new season array
+        if (oldEpisode.seasonNumber!== finalSeasonNum) {
+            // Remove from old season
+            anime.seasons.forEach(season => {
+                season.episodes = season.episodes.filter(ep => ep.toString()!== episodeId);
+            });
+            // Remove empty seasons
+            anime.seasons = anime.seasons.filter(s => s.episodes.length > 0);
+
+            // Add to new season
+            let newSeason = anime.seasons.find(s => s.seasonNumber === finalSeasonNum);
+            if (!newSeason) {
+                anime.seasons.push({ seasonNumber: finalSeasonNum, episodes: [episodeId] });
+            } else {
+                if (!newSeason.episodes.includes(episodeId)) {
+                    newSeason.episodes.push(episodeId);
+                }
+            }
+            await anime.save();
+        }
+
+        req.flash('success', `${anime.type === 'movie'? 'Movie' : 'Episode'} updated.`);
+        res.redirect(`/anime/${anime._id}`);
+    } catch (error) {
+        console.error('Edit episode error:', error);
+        req.flash('error', 'Update failed.');
+        res.redirect('back');
     }
 });
 
 /**
  * GET /
- * Latest Episodes Feed - Redesigned with flatMap for Speed
+ * Latest Releases Feed - PUBLIC
  */
 router.get('/', async (req, res) => {
     try {
         const animes = await Anime.find({})
-            .populate('genres')
-            .populate({
-                path: 'seasons.episodes',
-                model: 'Episode'
-            })
-            .lean(); // Lean for faster read-only performance
+            .populate({ path: 'seasons.episodes', model: 'Episode' })
+            .lean();
 
-        // Optimized flattening of episodes
-        const latestEpisodes = animes.flatMap(anime => 
-            (anime.seasons || []).flatMap(season => 
-                (season.episodes || [])
-                    .filter(ep => ep.videoUrl || ep.embedCode)
-                    .map(episode => ({
-                        _id: episode._id,
-                        title: episode.title,
-                        episodeNumber: episode.episodeNumber,
-                        seasonNumber: season.seasonNumber,
-                        animeId: anime._id,
-                        animeTitle: anime.title,
-                        videoUrl: episode.videoUrl,
-                        embedCode: episode.embedCode,
-                        createdAt: episode.createdAt
-                    }))
+        const latestEpisodes = animes.flatMap(anime =>
+            (anime.seasons || []).flatMap(season =>
+                (season.episodes || []).map(episode => ({
+               ...episode,
+                    animeId: anime._id,
+                    animeTitle: anime.name,
+                    animeImage: anime.imageUrl,
+                    seasonNumber: season.seasonNumber,
+                    type: anime.type || 'series'
+                }))
             )
         )
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-        .slice(0, 10);
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .slice(0, 12);
 
-        res.render('latest-episodes', { latestEpisodes, session: req.session });
+        res.render('latest-episodes', { latestEpisodes });
     } catch (error) {
-        console.error('Error fetching latest episodes:', error);
-        res.status(500).render('error', { message: 'Error loading feed', session: req.session });
+        console.error('Latest episodes error:', error);
+        res.status(500).render('404');
     }
 });
 

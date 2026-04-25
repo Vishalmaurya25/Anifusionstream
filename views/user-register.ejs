@@ -6,168 +6,350 @@
         --card-navy: #151b23;
         --input-dark: #1c232d;
         --primary-blue: #3b82f6;
+        --primary-amber: #f59e0b;
+        --primary-cyan: #06b6d4;
         --text-muted: #9ca3af;
     }
 
-    body { 
-        background-color: var(--bg-deep); 
-        color: #ffffff; 
-        font-family: 'Inter', sans-serif; 
+    body {
+        background: var(--bg-deep);
+        color: #ffffff;
+        font-family: 'Inter', sans-serif;
+        overflow-x: hidden;
     }
 
-    /* Standardized Centering Wrapper */
+    /* Animated background orbs - Blue & Amber */
+    .auth-bg {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        overflow: hidden;
+        pointer-events: none;
+    }
+
+    .auth-bg::before,
+    .auth-bg::after {
+        content: '';
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(120px);
+        opacity: 0.15;
+    }
+
+    .auth-bg::before {
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, #3b82f6, transparent);
+        top: -10%;
+        right: -10%;
+        animation: float 20s ease-in-out infinite;
+    }
+
+    .auth-bg::after {
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, #f59e0b, transparent);
+        bottom: -15%;
+        left: -10%;
+        animation: float 25s ease-in-out infinite reverse;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        33% { transform: translate(-30px, 30px) scale(1.1); }
+        66% { transform: translate(20px, -20px) scale(0.9); }
+    }
+
+    /* Center wrapper */
     .auth-wrapper {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        min-height: 85vh;
-        padding: 3rem 1.25rem;
+        min-height: calc(100vh - 76px);
+        padding: 2rem 1.25rem;
+        position: relative;
+        z-index: 1;
     }
 
-    .ui-card {
-        background-color: var(--card-navy);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(20px);
+    /* Glass card with blue/amber glow */
+    .auth-card {
+        background: linear-gradient(135deg, rgba(21, 27, 35, 0.9) 0%, rgba(17, 24, 39, 0.9) 100%);
+        backdrop-filter: blur(40px) saturate(180%);
+        border: 1px solid rgba(59, 130, 246, 0.15);
         border-radius: 2.5rem;
         width: 100%;
         max-width: 480px;
-        padding: 3.5rem 2.5rem;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+        padding: 3rem 2.5rem;
+        box-shadow: 
+            0 25px 50px -12px rgba(0, 0, 0, 0.8),
+            0 0 80px rgba(59, 130, 246, 0.1),
+            inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        position: relative;
+        overflow: hidden;
     }
 
-    .ui-label {
+    .auth-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -50%;
+        width: 200%;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.5), transparent);
+        animation: shimmer 3s linear infinite;
+    }
+
+    @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+
+    /* Gradient title - Blue to Amber */
+    .auth-title {
+        font-size: 2.5rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+    }
+
+    .auth-title-gradient {
+        background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 50%, #f59e0b 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        filter: drop-shadow(0 0 30px rgba(59, 130, 246, 0.5));
+    }
+
+    /* Modern input with floating label */
+    .input-group {
+        position: relative;
+        margin-bottom: 1.75rem;
+    }
+
+    .input-field {
+        background: rgba(28, 35, 45, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 1rem;
+        color: #ffffff;
+        padding: 1.25rem 1rem 1.25rem 3rem;
+        width: 100%;
+        font-size: 0.95rem;
+        font-weight: 500;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-sizing: border-box;
+    }
+
+    .input-field:focus {
+        outline: none;
+        border-color: rgba(59, 130, 246, 0.5);
+        background: rgba(28, 35, 45, 0.8);
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1), 0 8px 25px rgba(59, 130, 246, 0.15);
+        transform: translateY(-2px);
+    }
+
+    .input-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        transition: all 0.3s ease;
+        pointer-events: none;
+    }
+
+    .input-field:focus ~ .input-icon {
+        color: var(--primary-blue);
+        transform: translateY(-50%) scale(1.1);
+    }
+
+    .input-label {
+        position: absolute;
+        left: 3rem;
+        top: 50%;
+        transform: translateY(-50%);
         font-size: 0.75rem;
-        font-weight: 800;
+        font-weight: 700;
         color: var(--text-muted);
         text-transform: uppercase;
         letter-spacing: 0.1em;
-        margin-bottom: 0.6rem;
-        display: block;
-    }
-
-    .ui-input {
-        background-color: var(--input-dark);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: 1rem;
-        color: #ffffff;
-        padding: 1.1rem;
-        width: 100%;
         transition: all 0.3s ease;
-        font-size: 0.95rem;
+        pointer-events: none;
+        background: var(--input-dark);
+        padding: 0 0.5rem;
     }
 
-    .ui-input:focus {
-        outline: none;
-        border-color: var(--primary-blue);
-        box-shadow: 0 0 0 1px var(--primary-blue);
-        background-color: #232a33;
+    .input-field:focus ~ .input-label,
+    .input-field:not(:placeholder-shown) ~ .input-label {
+        top: 0;
+        font-size: 0.65rem;
+        color: var(--primary-blue);
     }
 
-    .ui-button {
-        background-color: var(--primary-blue);
-        color: #ffffff;
-        font-weight: 800;
-        padding: 1.1rem;
-        border-radius: 1rem;
-        width: 100%;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        border: none;
-        margin-top: 1.5rem;
-        cursor: pointer;
-    }
-
-    .ui-button:hover {
-        transform: translateY(-2px);
-        filter: brightness(1.1);
-        box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
-    }
-
-    /* Password Toggle Integration */
-    .password-container {
-        position: relative;
-    }
-
-    .toggle-btn {
+    /* Password toggle */
+    .password-toggle {
         position: absolute;
         right: 1rem;
         top: 50%;
         transform: translateY(-50%);
         color: var(--text-muted);
-        transition: color 0.2s;
+        transition: all 0.3s ease;
         background: none;
         border: none;
         cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 0.5rem;
     }
 
-    .toggle-btn:hover { color: #fff; }
+    .password-toggle:hover {
+        color: #ffffff;
+        background: rgba(59, 130, 246, 0.1);
+    }
 
-    .footer-link {
+    /* Gradient button - Blue to Cyan */
+    .auth-button {
+        background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+        color: #ffffff;
+        font-weight: 900;
+        padding: 1.25rem;
+        border-radius: 1rem;
+        width: 100%;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        font-size: 0.875rem;
+        border: none;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .auth-button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .auth-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(59, 130, 246, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+
+    .auth-button:hover::before {
+        left: 100%;
+    }
+
+    .auth-button:active {
+        transform: translateY(-1px);
+    }
+
+    /* Links */
+    .auth-link {
         color: var(--text-muted);
-        font-size: 0.85rem;
+        font-size: 0.875rem;
         font-weight: 600;
-    }
-
-    .footer-link a {
-        color: var(--primary-blue);
-        font-weight: 800;
+        transition: all 0.3s ease;
         text-decoration: none;
+        position: relative;
     }
 
-    .footer-link a:hover {
-        text-decoration: underline;
+    .auth-link::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #3b82f6, #06b6d4);
+        transition: width 0.3s ease;
+    }
+
+    .auth-link:hover {
+        color: #3b82f6;
+    }
+
+    .auth-link:hover::after {
+        width: 100%;
+    }
+
+    .auth-link-primary {
+        background: linear-gradient(135deg, #3b82f6, #06b6d4);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        font-weight: 800;
+    }
+
+    @media (max-width: 640px) {
+        .auth-card {
+            padding: 2.5rem 1.5rem;
+            border-radius: 2rem;
+        }
+        .auth-title {
+            font-size: 2rem;
+        }
     }
 </style>
 
+<div class="auth-bg"></div>
+
 <div class="auth-wrapper">
     <div class="text-center mb-10">
-        <h1 class="text-4xl md:text-5xl font-black tracking-tighter uppercase">
-            Join <span class="text-blue-500">AniFusion</span>
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-600 mb-6 shadow-lg shadow-blue-500/50">
+            <i class="fas fa-user-plus text-white text-2xl"></i>
+        </div>
+        <h1 class="auth-title">
+            Join <span class="auth-title-gradient">AniFusionstream</span>
         </h1>
-        <p class="text-gray-500 mt-2 font-medium">Create your elite anime account</p>
+        <p class="text-gray-400 mt-3 font-medium">Create your Anime account</p>
     </div>
 
-    <div class="ui-card">
-        <% if (typeof messages !== 'undefined' && messages.length > 0) { %>
-            <div class="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl mb-8 text-xs font-bold text-center uppercase tracking-widest">
-                <%= messages %>
-            </div>
-        <% } %>
+    <div class="auth-card">
+        <%- include('partials/flash') %>
 
         <form action="/user/register" method="POST">
-            <div class="mb-6">
-                <label class="ui-label">Username</label>
-                <input type="text" name="username" class="ui-input" placeholder="EliteWatcher" required>
+            <!-- Username Input -->
+            <div class="input-group">
+                <input type="text" name="username" id="username" class="input-field" placeholder=" " required>
+                <label for="username" class="input-label">Username</label>
+                <i class="fas fa-user input-icon"></i>
             </div>
 
-            <div class="mb-6">
-                <label class="ui-label">Email Address</label>
-                <input type="email" name="email" class="ui-input" placeholder="you@example.com" required>
+            <!-- Email Input -->
+            <div class="input-group">
+                <input type="email" name="email" id="email" class="input-field" placeholder=" " required>
+                <label for="email" class="input-label">Email Address</label>
+                <i class="fas fa-envelope input-icon"></i>
             </div>
 
-            <div class="mb-8">
-                <label class="ui-label">Password</label>
-                <div class="password-container">
-                    <input type="password" name="password" id="password" class="ui-input" placeholder="••••••••" required>
-                    <button type="button" id="toggle-password" class="toggle-btn">
-                        <svg id="eye-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                        </svg>
-                    </button>
-                </div>
+            <!-- Password Input -->
+            <div class="input-group">
+                <input type="password" name="password" id="password" class="input-field" placeholder=" " required>
+                <label for="password" class="input-label">Password</label>
+                <i class="fas fa-lock input-icon"></i>
+                <button type="button" id="toggle-password" class="password-toggle">
+                    <svg id="eye-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    </svg>
+                </button>
             </div>
 
-            <button type="submit" class="ui-button">
-                Create Account
+            <button type="submit" class="auth-button mt-2">
+                <span class="relative z-10">Create Account</span>
             </button>
 
-            <div class="mt-10 text-center">
-                <p class="footer-link">
-                    Already part of the squad? <br class="md:hidden">
-                    <a href="/user/login" class="ml-1">Log in here</a>
+            <div class="mt-8 text-center">
+                <p class="text-gray-400 text-sm font-medium">
+                    Already in? 
+                    <a href="/user/login" class="auth-link-primary ml-1">Log in</a>
                 </p>
             </div>
         </form>
@@ -184,11 +366,11 @@
         passwordInput.setAttribute('type', type);
 
         if (type === 'text') {
-            eyeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />`;
+            eyeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />`;
         } else {
             eyeIcon.innerHTML = `
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
             `;
         }
     });

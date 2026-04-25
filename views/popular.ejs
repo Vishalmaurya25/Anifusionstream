@@ -10,8 +10,8 @@
 
         <div class="flex justify-center mb-12">
             <div class="glass-tab-container p-1.5 rounded-full flex gap-2">
-                <button class="tab-btn active" onclick="switchTab(event, 'series')">TV Series</button>
-                <button class="tab-btn" onclick="switchTab(event, 'movies')">Movies</button>
+                <button class="tab-btn active" data-tab="series">TV Series</button>
+                <button class="tab-btn" data-tab="movies">Movies</button>
             </div>
         </div>
 
@@ -28,14 +28,14 @@
                     <div class="popular-glass-card group">
                         <div class="relative overflow-hidden rounded-2xl aspect-[3/4]">
                             <img src="<%= item.img %>" alt="<%= item.title %>" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                            <div class="absolute top-2 left-2 bg-blue-600 text-white text-[10px] font-black px-2 py-1 rounded-lg shadow-lg">#<%= index + 1 %></div>
+                            <div class="absolute top-2 left-2 bg-blue-600 text-white text- font-black px-2 py-1 rounded-lg shadow-lg">#<%= index + 1 %></div>
                             <div class="absolute inset-0 bg-gradient-to-t from-[#0b0e11] via-transparent to-transparent opacity-60"></div>
                         </div>
                         <div class="mt-4 px-1 text-center">
                             <h3 class="text-white font-bold text-sm md:text-base truncate group-hover:text-blue-400 transition-colors"><%= item.title %></h3>
                             <div class="flex items-center justify-center gap-2 mt-1">
-                                <span class="text-blue-500 text-[10px] font-black uppercase tracking-tighter">★ <%= item.rating %></span>
-                                <span class="text-gray-500 text-[10px] font-bold italic"><%= item.year %></span>
+                                <span class="text-blue-500 text- font-black uppercase tracking-tighter">★ <%= item.rating %></span>
+                                <span class="text-gray-500 text- font-bold italic"><%= item.year %></span>
                             </div>
                         </div>
                     </div>
@@ -43,7 +43,7 @@
             </div>
         </div>
 
-        <div id="movies" class="tab-content animate-fade-in">
+        <div id="movies" class="tab-content animate-fade-in" style="display: none;">
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
                 <% const movies = [
                     { title: "Demon Slayer: Mugen Train", rating: 8.4, duration: "117 min.", year: 2020, img: "/images/Demon Slayer.png" },
@@ -56,14 +56,14 @@
                     <div class="popular-glass-card group">
                         <div class="relative overflow-hidden rounded-2xl aspect-[3/4]">
                             <img src="<%= item.img %>" alt="<%= item.title %>" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                            <div class="absolute top-2 left-2 bg-blue-600 text-white text-[10px] font-black px-2 py-1 rounded-lg shadow-lg">#<%= index + 1 %></div>
+                            <div class="absolute top-2 left-2 bg-blue-600 text-white text- font-black px-2 py-1 rounded-lg shadow-lg">#<%= index + 1 %></div>
                             <div class="absolute inset-0 bg-gradient-to-t from-[#0b0e11] via-transparent to-transparent opacity-60"></div>
                         </div>
                         <div class="mt-4 px-1 text-center">
                             <h3 class="text-white font-bold text-sm md:text-base truncate group-hover:text-blue-400 transition-colors"><%= item.title %></h3>
                             <div class="flex items-center justify-center gap-2 mt-1">
-                                <span class="text-blue-500 text-[10px] font-black uppercase tracking-tighter">★ <%= item.rating %></span>
-                                <span class="text-gray-500 text-[10px] font-bold italic"><%= item.year %></span>
+                                <span class="text-blue-500 text- font-black uppercase tracking-tighter">★ <%= item.rating %></span>
+                                <span class="text-gray-500 text- font-bold italic"><%= item.year %></span>
                             </div>
                         </div>
                     </div>
@@ -75,7 +75,6 @@
 </section>
 
 <style>
-    /* Navy Obsidian & Glassmorphism Theme */
     .popular-section { background-color: transparent; }
 
     .glass-tab-container {
@@ -94,6 +93,9 @@
         text-transform: uppercase;
         letter-spacing: 1px;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: none;
+        background: transparent;
+        cursor: pointer;
     }
 
     .tab-btn.active {
@@ -129,19 +131,33 @@
 </style>
 
 <script>
-    function switchTab(event, tabId) {
-        // Hide all contents
-        const contents = document.querySelectorAll('.tab-content');
-        contents.forEach(content => content.classList.remove('active'));
-
-        // Deactivate all buttons
-        const buttons = document.querySelectorAll('.tab-btn');
-        buttons.forEach(btn => btn.classList.remove('active'));
-
-        // Show selected tab content
-        document.getElementById(tabId).classList.add('active');
+    // FIXED: Use event delegation and data attributes
+    document.addEventListener('DOMContentLoaded', function() {
+        const tabButtons = document.querySelectorAll('.tab-btn');
         
-        // Mark current button as active
-        event.currentTarget.classList.add('active');
-    }
+        tabButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const tabId = this.dataset.tab;
+                
+                // Hide all contents
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                    content.style.display = 'none';
+                });
+
+                // Deactivate all buttons
+                tabButtons.forEach(b => b.classList.remove('active'));
+
+                // Show selected tab content
+                const selectedTab = document.getElementById(tabId);
+                if (selectedTab) {
+                    selectedTab.classList.add('active');
+                    selectedTab.style.display = 'block';
+                }
+                
+                // Mark current button as active
+                this.classList.add('active');
+            });
+        });
+    });
 </script>

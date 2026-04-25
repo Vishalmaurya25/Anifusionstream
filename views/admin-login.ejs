@@ -1,5 +1,4 @@
 <%- include('partials/header') %>
-
 <style>
     :root {
         --bg-deep: #0b0e11;
@@ -32,7 +31,7 @@
         border-radius: 2.5rem;
         width: 100%;
         max-width: 450px;
-        padding: 4rem 2.5rem;
+        padding: 3.5rem 2.5rem;
         box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.7);
     }
 
@@ -56,6 +55,7 @@
         transition: all 0.3s ease;
         font-size: 0.95rem;
         font-weight: 500;
+        box-sizing: border-box;
     }
 
     .ui-input:focus {
@@ -89,16 +89,16 @@
     .admin-badge {
         background: rgba(59, 130, 246, 0.1);
         color: var(--primary-blue);
-        padding: 4px 12px;
+        padding: 6px 16px;
         border-radius: 99px;
         font-size: 10px;
         font-weight: 900;
         letter-spacing: 2px;
         text-transform: uppercase;
         border: 1px solid rgba(59, 130, 246, 0.2);
+        display: inline-block;
     }
 
-    /* Password Toggle Alignment */
     .field-group { position: relative; }
 
     .toggle-btn {
@@ -120,6 +120,7 @@
         font-size: 0.8rem;
         font-weight: 700;
         transition: color 0.2s;
+        text-decoration: none;
     }
 
     .secondary-link:hover { color: #fff; text-decoration: underline; }
@@ -133,23 +134,19 @@
         <h1 class="text-4xl md:text-5xl font-black tracking-tighter uppercase">
             Admin <span class="text-blue-500">Portal</span>
         </h1>
-        <p class="text-gray-500 mt-2 font-medium">Restricted Access • AniFusionStream Core</p>
+        <p class="text-gray-500 mt-2 font-medium">Restricted Access • AniFusion Core</p>
     </div>
 
     <div class="ui-card">
-        <% if (typeof messages !== 'undefined' && messages.length > 0) { %>
-            <div class="bg-red-500/10 border border-red-500/30 text-red-400 p-4 rounded-2xl mb-8 text-xs font-black text-center uppercase tracking-widest">
-                <i class="fas fa-exclamation-triangle mr-2"></i> <%= messages %>
-            </div>
-        <% } %>
+        <%- include('partials/flash') %>
 
         <form action="/admin/login" method="POST">
             <div class="mb-6">
                 <label class="ui-label">Administrator ID</label>
-                <input type="text" name="username" class="ui-input" placeholder="Username" required>
+                <input type="text" name="username" class="ui-input" placeholder="Enter Username" required>
             </div>
 
-            <div class="mb-10">
+            <div class="mb-8">
                 <label class="ui-label">Access Key</label>
                 <div class="field-group">
                     <input type="password" name="password" id="password" class="ui-input" placeholder="••••••••" required>
@@ -167,7 +164,7 @@
             </button>
 
             <div class="mt-10 flex flex-col items-center gap-3">
-                <a href="/admin/forgot-password" class="secondary-link">Reset Admin Key?</a>
+                <a href="/admin/forgot-password" class="secondary-link uppercase tracking-widest text-[10px]">Reset Admin Key?</a>
                 <a href="/admin/register" class="text-[10px] text-blue-500/60 font-black uppercase tracking-widest hover:text-blue-400">System Registration</a>
             </div>
         </form>

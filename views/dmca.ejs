@@ -1,202 +1,413 @@
 <%- include("partials/header") %>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DMCA Policy | AniFusionStream</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        /* Exact Obsidian Navy Color Palette */
-        :root {
-            --bg-deep: #0b0e11;      /* The darkest background */
-            --navy-card: #151b23;    /* Main Navy Blue for containers */
-            --navy-inner: #1c232d;   /* Darker Navy for sub-boxes and buttons */
-            --primary-blue: #3b82f6;  /* Accent Electric Blue */
-            --accent-purple: #a855f7; /* Accent Purple */
-            --text-main: #ffffff;
-            --text-dim: #9ca3af;
-        }
 
-        body { 
-            background-color: var(--bg-deep); 
-            color: var(--text-main); 
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            -webkit-font-smoothing: antialiased;
-        }
+<style>
+    :root {
+        --bg-deep: #0b0e11;
+        --card-navy: #151b23;
+        --input-dark: #1c232d;
+        --primary-blue: #3b82f6;
+        --primary-amber: #f59e0b;
+        --primary-cyan: #06b6d4;
+        --accent-purple: #a855f7;
+        --text-main: #ffffff;
+        --text-dim: #9ca3af;
+    }
 
-        /* Forces everything to stay centered and tidy */
-        .page-container {
-            max-width: 680px;
-            margin: 0 auto;
-            padding: 5rem 1.5rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+    body {
+        background: var(--bg-deep);
+        color: var(--text-main);
+        font-family: 'Inter', sans-serif;
+        overflow-x: hidden;
+        -webkit-font-smoothing: antialiased;
+    }
 
-        /* The Main Navy Cards */
-        .obsidian-card {
-            background-color: var(--navy-card);
-            border: 1px solid rgba(255, 255, 255, 0.03);
-            border-radius: 2.5rem; /* Matches the high roundness in your image */
-            padding: 3rem;
-            width: 100%;
-            margin-bottom: 2.5rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
+    /* Animated background orbs */
+    .page-bg {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        overflow: hidden;
+        pointer-events: none;
+    }
 
-        /* Inner detail boxes with colored borders */
+    .page-bg::before,
+    .page-bg::after {
+        content: '';
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(120px);
+        opacity: 0.12;
+    }
+
+    .page-bg::before {
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, #3b82f6, transparent);
+        top: -15%;
+        left: -10%;
+        animation: float 22s ease-in-out infinite;
+    }
+
+    .page-bg::after {
+        width: 700px;
+        height: 700px;
+        background: radial-gradient(circle, #f59e0b, transparent);
+        bottom: -20%;
+        right: -15%;
+        animation: float 28s ease-in-out infinite reverse;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        33% { transform: translate(40px, -40px) scale(1.1); }
+        66% { transform: translate(-30px, 30px) scale(0.9); }
+    }
+
+    .page-container {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 5rem 1.5rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Glass card with glow */
+    .glass-card {
+        background: linear-gradient(135deg, rgba(21, 27, 35, 0.9) 0%, rgba(17, 24, 39, 0.9) 100%);
+        backdrop-filter: blur(40px) saturate(180%);
+        border: 1px solid rgba(59, 130, 246, 0.15);
+        border-radius: 2.5rem;
+        padding: 3.5rem;
+        width: 100%;
+        margin-bottom: 2.5rem;
+        box-shadow: 
+            0 25px 50px -12px rgba(0, 0, 0, 0.8),
+            0 0 80px rgba(59, 130, 246, 0.08),
+            inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .glass-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -50%;
+        width: 200%;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.5), transparent);
+        animation: shimmer 3s linear infinite;
+    }
+
+    @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+
+    /* Title gradient */
+    .page-title {
+        font-size: 3rem;
+        font-weight: 900;
+        letter-spacing: -0.03em;
+        line-height: 1.1;
+        margin-bottom: 1rem;
+    }
+
+    .title-gradient {
+        background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 50%, #f59e0b 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        filter: drop-shadow(0 0 30px rgba(59, 130, 246, 0.5));
+    }
+
+    /* Detail boxes with gradient border */
+    .detail-box {
+        background: rgba(28, 35, 45, 0.6);
+        padding: 2rem;
+        border-radius: 1.5rem;
+        margin: 2rem 0;
+        position: relative;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        transition: all 0.4s ease;
+    }
+
+    .detail-box::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        border-radius: 2px;
+        transition: all 0.4s ease;
+    }
+
+    .detail-box:hover {
+        transform: translateX(5px);
+        background: rgba(28, 35, 45, 0.8);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .box-blue::before {
+        background: linear-gradient(180deg, #3b82f6, #06b6d4);
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
+    }
+
+    .box-purple::before {
+        background: linear-gradient(180deg, #a855f7, #ec4899);
+        box-shadow: 0 0 20px rgba(168, 85, 247, 0.6);
+    }
+
+    .detail-box:hover::before {
+        width: 6px;
+        box-shadow: 0 0 30px currentColor;
+    }
+
+    .detail-box h3 {
+        font-weight: 800;
+        font-size: 1.25rem;
+        margin-bottom: 0.75rem;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .detail-box p {
+        color: var(--text-dim);
+        line-height: 1.8;
+        font-size: 0.975rem;
+    }
+
+    .box-icon {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .icon-blue {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(6, 182, 212, 0.2));
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        color: #3b82f6;
+    }
+
+    .icon-purple {
+        background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(236, 72, 153, 0.2));
+        border: 1px solid rgba(168, 85, 247, 0.3);
+        color: #a855f7;
+    }
+
+    /* Intro text */
+    .intro-text {
+        font-size: 1.25rem;
+        font-weight: 600;
+        line-height: 1.7;
+        margin-bottom: 2.5rem;
+        color: #e5e7eb;
+    }
+
+    .body-text {
+        color: var(--text-dim);
+        line-height: 1.8;
+        font-size: 1.05rem;
+        margin: 2rem 0;
+    }
+
+    .body-text strong {
+        color: #ffffff;
+        font-weight: 700;
+    }
+
+    /* Action buttons */
+    .action-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        width: 100%;
+        padding: 1.25rem;
+        border-radius: 1rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-size: 0.875rem;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        text-decoration: none;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-glass {
+        background: rgba(28, 35, 45, 0.8);
+        color: #ffffff;
+        margin-bottom: 1rem;
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        backdrop-filter: blur(10px);
+    }
+
+    .btn-glass:hover {
+        transform: translateY(-3px);
+        border-color: rgba(59, 130, 246, 0.5);
+        background: rgba(59, 130, 246, 0.15);
+        box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-gradient {
+        background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+        color: #ffffff;
+        box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-gradient::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .btn-gradient:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(59, 130, 246, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-gradient:hover::before {
+        left: 100%;
+    }
+
+    .section-header {
+        font-size: 2rem;
+        font-weight: 900;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .header-icon {
+        width: 3rem;
+        height: 3rem;
+        border-radius: 1rem;
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(6, 182, 212, 0.2));
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #3b82f6;
+    }
+
+    .legal-footer {
+        text-align: center;
+        color: #6b7280;
+        font-size: 0.8rem;
+        font-style: italic;
+        line-height: 1.8;
+        padding: 2rem 1rem 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.03);
+        margin-top: 2rem;
+    }
+
+    @media (max-width: 640px) {
+        .glass-card {
+            padding: 2.5rem 1.5rem;
+            border-radius: 2rem;
+        }
+        .page-title {
+            font-size: 2.25rem;
+        }
+        .section-header {
+            font-size: 1.5rem;
+        }
         .detail-box {
-            background-color: var(--navy-inner);
-            padding: 1.75rem;
-            border-radius: 1.25rem;
-            margin: 1.5rem 0;
-            border-left: 5px solid transparent;
+            padding: 1.5rem;
         }
+    }
+</style>
 
-        .border-blue { border-left-color: var(--primary-blue); }
-        .border-purple { border-left-color: var(--accent-purple); }
+<div class="page-bg"></div>
 
-        .detail-box h3 {
-            font-weight: 700;
-            font-size: 1.15rem;
-            margin-bottom: 0.6rem;
-            color: #ffffff;
-        }
-
-        .detail-box p {
-            color: var(--text-dim);
-            line-height: 1.7;
-            font-size: 0.95rem;
-        }
-
-        /* Typography spacing */
-        .intro-text {
-            font-size: 1.2rem;
-            font-weight: 500;
-            line-height: 1.6;
-            margin-bottom: 2rem;
-        }
-
-        .body-text {
-            color: var(--text-dim);
-            line-height: 1.7;
-            font-size: 1rem;
-        }
-
-        /* Actions/Buttons in Navy Blue */
-        .action-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            padding: 1.15rem;
-            border-radius: 1rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-            transition: all 0.3s ease;
-            text-decoration: none;
-        }
-
-        .btn-navy {
-            background-color: var(--navy-inner);
-            color: #ffffff;
-            margin-bottom: 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .btn-blue {
-            background-color: var(--primary-blue);
-            color: #ffffff;
-            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
-        }
-
-        .action-btn:hover {
-            transform: translateY(-2px);
-            filter: brightness(1.2);
-        }
-
-        .copyright-header {
-            font-size: 1.75rem;
-            font-weight: 800;
-            margin-bottom: 1rem;
-        }
-
-        .legal-footer {
-            text-align: center;
-            color: #4b5563;
-            font-size: 0.8rem;
-            font-style: italic;
-            line-height: 1.8;
-            padding: 0 1rem;
-        }
-    </style>
-</head>
-<body>
-
-    <div class="page-container">
-        
-        <div class="text-center mb-16">
-            <h1 class="text-5xl font-black tracking-tighter mb-4">
-                DMCA <span class="text-blue-500">Policy</span>
-            </h1>
-            <p class="text-gray-500 text-xl font-medium">
-                Digital Millennium Copyright Act Notice
-            </p>
+<div class="page-container">
+    
+    <div class="text-center mb-16">
+        <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-500 to-cyan-600 mb-6 shadow-2xl shadow-blue-500/50">
+            <i class="fas fa-gavel text-white text-3xl"></i>
         </div>
-
-        <div class="obsidian-card">
-            <p class="intro-text">
-                We respect the intellectual property rights of others and expect our users to do the same.
-            </p>
-
-            <div class="detail-box border-blue">
-                <h3>No Hosted Content:</h3>
-                <p>
-                    We do not store any copyright-protected content on our servers. All posts are for educational and promotional purposes only. Any linked content is hosted on non-affiliated, third-party websites.
-                </p>
-            </div>
-
-            <p class="body-text my-8">
-                Content shown on <span class="text-white font-bold">AniFusionStream</span> is indexed from non-affiliated third-party sources—functioning similarly to how search engines operate. We do not directly host, upload, or control any of the video files.
-            </p>
-
-            <div class="detail-box border-purple">
-                <h3>Promotional Use Only:</h3>
-                <p>
-                    This website is meant strictly for private use. All materials are shared solely for testing, introductory, and promotional purposes. We highly encourage all users to purchase official media directly from official sources to support the original creators and publishers.
-                </p>
-            </div>
-        </div>
-
-        <div class="obsidian-card text-center">
-            <h2 class="copyright-header">Copyright Infringement?</h2>
-            <p class="body-text mb-10">
-                If you are a copyright holder or a legal representative and believe your work has been posted without permission, please reach out to us with proof of ownership, and we will take prompt action.
-            </p>
-
-            <a href="mailto:anifusionstream@gmail.com" class="action-btn btn-navy">
-                Email Directly
-            </a>
-
-            <a href="/contact-us" class="action-btn btn-blue">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7 8.941L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-                Contact Form
-            </a>
-        </div>
-
-        <div class="legal-footer">
-            By continuing to browse this site, you affirm your understanding and compliance with this DMCA policy. All materials are believed to be in the public domain and are the property of their respective owners.
-        </div>
-
+        <h1 class="page-title">
+            DMCA <span class="title-gradient">Policy</span>
+        </h1>
+        <p class="text-gray-400 text-xl font-medium">
+            Digital Millennium Copyright Act Notice
+        </p>
     </div>
 
-</body>
-</html>
+    <div class="glass-card">
+        <p class="intro-text">
+            We respect the intellectual property rights of others and expect our users to do the same.
+        </p>
+
+        <div class="detail-box box-blue">
+            <h3>
+                <div class="box-icon icon-blue">
+                    <i class="fas fa-server"></i>
+                </div>
+                No Hosted Content
+            </h3>
+            <p>
+                We do not store any copyright-protected content on our servers. All posts are for educational and promotional purposes only. Any linked content is hosted on non-affiliated, third-party websites.
+            </p>
+        </div>
+
+        <p class="body-text">
+            Content shown on <strong>AniFusionStream</strong> is indexed from non-affiliated third-party sources—functioning similarly to how search engines operate. We do not directly host, upload, or control any of the video files.
+        </p>
+
+        <div class="detail-box box-purple">
+            <h3>
+                <div class="box-icon icon-purple">
+                    <i class="fas fa-bullhorn"></i>
+                </div>
+                Promotional Use Only
+            </h3>
+            <p>
+                This website is meant strictly for private use. All materials are shared solely for testing, introductory, and promotional purposes. We highly encourage all users to purchase official media directly from official sources to support the original creators and publishers.
+            </p>
+        </div>
+    </div>
+
+    <div class="glass-card text-center">
+        <h2 class="section-header">
+            <div class="header-icon">
+                <i class="fas fa-copyright"></i>
+            </div>
+            Copyright Infringement?
+        </h2>
+        <p class="body-text mb-10">
+            If you are a copyright holder or a legal representative and believe your work has been posted without permission, please reach out to us with proof of ownership, and we will take prompt action.
+        </p>
+
+        <a href="mailto:anifusionstream@gmail.com" class="action-btn btn-glass">
+            <i class="fas fa-envelope"></i>
+            Email Directly
+        </a>
+
+        <a href="/contact-us" class="action-btn btn-gradient">
+            <i class="fas fa-paper-plane"></i>
+            Contact Form
+        </a>
+    </div>
+
+    <div class="legal-footer">
+        By continuing to browse this site, you affirm your understanding and compliance with this DMCA policy. All materials are believed to be in the public domain and are the property of their respective owners.
+    </div>
+
+</div>
+
 <%- include("partials/footer") %>

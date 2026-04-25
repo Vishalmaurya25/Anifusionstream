@@ -1,379 +1,797 @@
-
 const express = require('express');
 const router = express.Router();
+const bcrypt = require('bcryptjs');
+const mongoose = require('mongoose');
+const rateLimit = require('express-rate-limit');
+const { clearSessionCache } = require('../middleware/auth');
+
+// Models
 const Anime = require('../models/Anime');
 const Episode = require('../models/Episode');
 const Genre = require('../models/Genre');
 const Admin = require('../models/Admin');
-const Contact = require('../models/Contact'); 
-const bcrypt = require('bcryptjs');
+const Contact = require('../models/Contact');
+
+// Middleware
 const { ensureAuthenticatedAdmin } = require('../middleware/auth');
 
-// --- 1. AUTHENTICATION (LOGIN) ---
-
-router.get('/login', (req, res) => {
-    res.render('admin-login', { messages: req.flash(), session: req.session });
+// Rate limiter for auth routes
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    message: 'Too many attempts. Try again later.',
+    standardHeaders: true,
+    legacyHeaders: false,
 });
 
-router.post('/login', async (req, res) => {
+// Helper: Validate MongoDB ID
+const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
+
+// ==========================================
+// 1. AUTHENTICATION (LOGIN & REGISTER)
+// ==========================================
+
+router.get('/login', (req, res) => {
+    res.render('admin-login');
+});
+
+router.post('/login', authLimiter, async (req, res) => {
     try {
-        const { username, password } = req.body;
+        let { username, password } = req.body;
+        if (!username ||!password) {
+            req.flash('error', 'Administrator ID and Access Key are required.');
+            return res.redirect('/admin/login');
+        }
+
+        username = username.toLowerCase().trim();
         const admin = await Admin.findOne({ username });
-        
-        if (!admin || !(await bcrypt.compare(password, admin.password))) {
-            req.flash('error', 'Invalid Administrator Credentials');
+
+        if (!admin ||!(await bcrypt.compare(password, admin.password))) {
+            req.flash('error', 'Invalid security credentials.');
             return res.redirect('/admin/login');
         }
 
         req.session.isAdminAuthenticated = true;
-        req.session.adminUsername = admin.username; 
-        res.redirect('/admin/dashboard');
+        req.session.adminId = admin._id.toString();
+        req.session.adminUsername = admin.username;
+
+        req.session.save(() => {
+            req.flash('success', 'Authorization successful. Welcome back.');
+            res.redirect('/admin/dashboard');
+        });
     } catch (err) {
-        req.flash('error', 'Login system error');
+        console.error("Admin Login Error:", err);
+        req.flash('error', 'Security system failure.');
         res.redirect('/admin/login');
     }
 });
 
-// --- 2. REGISTRATION (WITH ADMIN CODE) ---
-
 router.get('/register', (req, res) => {
-    res.render('admin-register', { messages: req.flash(), session: req.session });
+    res.render('admin-register');
 });
 
-router.post('/register', async (req, res) => {
+router.post('/register', authLimiter, async (req, res) => {
     try {
-        const { username, password, confirmPassword, adminCode } = req.body;
+        let { username, password, confirmPassword, adminCode } = req.body;
 
-        // Verify Master Admin Code from .env
-        if (adminCode !== process.env.ADMIN_CODE) {
-            req.flash('error', 'Unauthorized: Invalid Master Admin Code');
+        if (!process.env.ADMIN_CODE || adminCode!== process.env.ADMIN_CODE) {
+            req.flash('error', 'Access Denied: Invalid Master Admin Code.');
             return res.redirect('/admin/register');
         }
 
-        if (password !== confirmPassword) {
-            req.flash('error', 'Passwords do not match');
+        if (password!== confirmPassword) {
+            req.flash('error', 'Security Alert: Passwords do not match.');
             return res.redirect('/admin/register');
         }
 
-        const existingAdmin = await Admin.findOne({ username });
-        if (existingAdmin) {
-            req.flash('error', 'Username already exists in system');
+        if (password.length < 8) {
+            req.flash('error', 'Key Strength: Password must be at least 8 characters.');
             return res.redirect('/admin/register');
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const newAdmin = new Admin({
-            username,
-            password: hashedPassword
-        });
+        username = username.toLowerCase().trim();
+        if (await Admin.findOne({ username })) {
+            req.flash('error', 'ID Conflict: Administrator already exists.');
+            return res.redirect('/admin/register');
+        }
 
-        await newAdmin.save();
-        req.flash('success', 'Admin registered successfully. Please login.');
+        const hashed = await bcrypt.hash(password, 12);
+        await Admin.create({ username, password: hashed });
+
+        req.flash('success', 'Registration authorized. Please login to your new console.');
         res.redirect('/admin/login');
     } catch (err) {
-        req.flash('error', 'Registration system error');
+        console.error("Admin Register Error:", err);
+        req.flash('error', 'System registration failed.');
         res.redirect('/admin/register');
     }
 });
 
-// --- 3. FORGOT PASSWORD (STEP 1: IDENTITY VERIFY) ---
+// ==========================================
+// 2. PASSWORD RECOVERY (FORGOT/RESET)
+// ==========================================
 
 router.get('/forgot-password', (req, res) => {
-    res.render('admin-forgot-password', { messages: req.flash(), session: req.session });
+    res.render('admin-forgot-password');
 });
 
-router.post('/forgot-password', async (req, res) => {
+router.post('/forgot-password', authLimiter, async (req, res) => {
     try {
         const { username, adminCode } = req.body;
-
-        // Check Admin Code
-        if (adminCode !== process.env.ADMIN_CODE) {
-            req.flash('error', 'Security Verification Failed: Invalid Code');
+        if (!process.env.ADMIN_CODE || adminCode!== process.env.ADMIN_CODE) {
+            req.flash('error', 'Security Violation: Invalid Master Code.');
             return res.redirect('/admin/forgot-password');
         }
 
-        const admin = await Admin.findOne({ username });
+        const admin = await Admin.findOne({ username: username.toLowerCase().trim() });
         if (!admin) {
-            req.flash('error', 'Admin record not found');
+            req.flash('error', 'ID Not Found: Administrator does not exist.');
             return res.redirect('/admin/forgot-password');
         }
 
-        // Set session permissions to access the reset page
         req.session.canResetAdminPassword = true;
-        req.session.resetAdminUsername = username;
+        req.session.resetAdminUsername = admin.username;
 
-        res.redirect('/admin/reset-password');
+        req.session.save(() => {
+            req.flash('success', 'Identity confirmed. Proceeding to Key Reset.');
+            res.redirect('/admin/reset-password');
+        });
     } catch (err) {
-        req.flash('error', 'Recovery system error');
+        console.error('Forgot password error:', err);
         res.redirect('/admin/forgot-password');
     }
 });
 
-// --- 4. RESET PASSWORD (STEP 2: NEW PASSWORD) ---
-
 router.get('/reset-password', (req, res) => {
-    // Prevent direct access without verification
-    if (!req.session.canResetAdminPassword) {
-        req.flash('error', 'Access denied. Please verify your admin code first.');
+    if (!req.session.canResetAdminPassword ||!req.session.resetAdminUsername) {
+        req.flash('error', 'Session expired. Start again.');
         return res.redirect('/admin/forgot-password');
     }
-    res.render('admin-reset-password', { messages: req.flash(), session: req.session });
+    res.render('admin-reset-password');
 });
 
 router.post('/reset-password', async (req, res) => {
     try {
-        const { password } = req.body; 
-        const username = req.session.resetAdminUsername;
-
-        if (!req.session.canResetAdminPassword || !username) {
-            req.flash('error', 'Session expired. Please verify again.');
+        if (!req.session.canResetAdminPassword ||!req.session.resetAdminUsername) {
+            req.flash('error', 'Session expired.');
             return res.redirect('/admin/forgot-password');
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
-        await Admin.findOneAndUpdate({ username }, { password: hashedPassword });
+        const { password, confirmPassword } = req.body;
+        const username = req.session.resetAdminUsername;
 
-        // Clear reset session flags
-        req.session.canResetAdminPassword = false;
-        req.session.resetAdminUsername = null;
+        if (password!== confirmPassword) {
+            req.flash('error', 'Passwords do not match.');
+            return res.redirect('/admin/reset-password');
+        }
 
-        req.flash('success', 'Admin password updated successfully!');
-        res.redirect('/admin/login');
+        if (!password || password.length < 8) {
+            req.flash('error', 'Key Insufficient: Security length not met.');
+            return res.redirect('/admin/reset-password');
+        }
+
+        const hashed = await bcrypt.hash(password, 12);
+        await Admin.findOneAndUpdate({ username }, { password: hashed });
+
+        delete req.session.canResetAdminPassword;
+        delete req.session.resetAdminUsername;
+
+        req.session.save(() => {
+            req.flash('success', 'Master access key updated. System relogin required.');
+            res.redirect('/admin/login');
+        });
     } catch (err) {
-        req.flash('error', 'Failed to update password');
+        console.error('Reset password error:', err);
         res.redirect('/admin/reset-password');
     }
 });
 
-// --- 5. DASHBOARD CORE ---
+// ==========================================
+// 3. DASHBOARD & SYSTEM MONITORING
+// ==========================================
 
 router.get('/dashboard', ensureAuthenticatedAdmin, async (req, res) => {
     try {
-        const userMessages = await Contact.find().sort({ createdAt: -1 }).lean() || [];
+        const userMessages = await Contact.find().sort({ createdAt: -1 }).lean();
         const animes = await Anime.find()
-            .populate('genres')
-            .populate({
-                path: 'seasons.episodes',
-                model: 'Episode'
-            })
-            .lean(); 
-        
-        res.render('admin-dashboard', { 
-            animes: animes || [], 
-            userMessages: userMessages, 
-            session: req.session,
-            messages: req.flash() 
+         .populate('genres')
+         .populate({ path: 'seasons.episodes', model: 'Episode' })
+         .lean();
+
+        animes.forEach(anime => {
+            if (anime.seasons) {
+                anime.seasons.sort((a, b) => a.seasonNumber - b.seasonNumber);
+                anime.seasons.forEach(season => {
+                    if (season.episodes) {
+                        season.episodes.sort((a, b) => a.episodeNumber - b.episodeNumber);
+                    }
+                });
+            }
+        });
+
+        res.render('admin-dashboard', {
+            animes: animes || [],
+            userMessages: userMessages || []
         });
     } catch (err) {
-        console.error("Dashboard Load Error:", err);
-        res.status(500).send("Dashboard Error");
+        console.error("Dashboard Error:", err);
+        res.status(500).send("Critical Core Failure");
     }
 });
-
-// --- 6. REPORT MANAGEMENT ---
 
 router.post('/delete-message/:id', ensureAuthenticatedAdmin, async (req, res) => {
     try {
+        if (!isValidId(req.params.id)) {
+            req.flash('error', 'Invalid ID format.');
+            return res.redirect('/admin/dashboard');
+        }
         await Contact.findByIdAndDelete(req.params.id);
-        req.flash('success', 'Report archived.');
-        res.redirect('/admin/dashboard');
+        req.flash('success', 'Intelligence report cleared.');
     } catch (err) {
-        req.flash('error', 'Failed to delete report.');
-        res.redirect('/admin/dashboard');
+        req.flash('error', 'Protocol failure: Could not delete report.');
     }
+    res.redirect('/admin/dashboard');
 });
 
-// --- 7. ANIME MANAGEMENT ---
+// ==========================================
+// 4. ANIME MANAGEMENT (CRUD)
+// ==========================================
 
 router.get('/add-anime', ensureAuthenticatedAdmin, async (req, res) => {
-    const genres = await Genre.find().lean();
-    res.render('admin-add-anime', { genres, session: req.session });
+    try {
+        const genres = await Genre.find().lean();
+        res.render('admin-add-anime', { genres });
+    } catch (err) {
+        res.redirect('/admin/dashboard');
+    }
 });
 
 router.post('/add-anime', ensureAuthenticatedAdmin, async (req, res) => {
     try {
-        // ADDED: specialInfo is now captured from req.body
-        const { name, imageUrl, description, genres, specialInfo } = req.body; 
-        const anime = new Anime({
-            name,
-            imageUrl,
-            description,
-            specialInfo: specialInfo || '', // SAVING TO DB
-            genres: Array.isArray(genres) ? genres : (genres ? [genres] : [])
+        const { name, imageUrl, description, genres, specialInfo, type } = req.body;
+        if (!name ||!name.trim()) {
+            req.flash('error', 'Anime name is required.');
+            return res.redirect('/admin/add-anime');
+        }
+        await Anime.create({
+            name: name.trim(),
+            imageUrl: imageUrl?.trim() || '',
+            description: description?.trim() || '',
+            specialInfo: specialInfo?.trim() || '',
+            genres: Array.isArray(genres)? genres : (genres? [genres] : []),
+            type: type || 'series'
         });
-        await anime.save();
+        req.flash('success', 'Catalog Updated: New anime title initialized.');
         res.redirect('/admin/dashboard');
     } catch (err) {
-        req.flash('error', 'Error adding anime');
-        res.redirect('/admin/add-anime');
+        console.error('Add anime error:', err);
+        req.flash('error', 'Protocol failure: Anime not added.');
+        res.redirect('/admin/dashboard');
     }
 });
 
-// --- GET EDIT PAGE ---
 router.get('/edit-anime/:id', ensureAuthenticatedAdmin, async (req, res) => {
     try {
-        // Fetching with .lean() automatically includes specialInfo if it exists in DB
-        const anime = await Anime.findById(req.params.id).populate('genres').lean();
-        const genres = await Genre.find().lean();
-        
-        if (!anime) {
-            req.flash('error', 'Anime not found');
+        if (!isValidId(req.params.id)) {
+            req.flash('error', 'Invalid anime ID.');
             return res.redirect('/admin/dashboard');
         }
-
-        res.render('admin-edit-anime', { 
-            anime, 
-            genres, 
-            session: req.session, 
-            messages: req.flash() 
-        });
+        const anime = await Anime.findById(req.params.id).populate('genres').lean();
+        const genres = await Genre.find().lean();
+        if (!anime) return res.redirect('/admin/dashboard');
+        res.render('admin-edit-anime', { anime, genres });
     } catch (err) {
         res.redirect('/admin/dashboard');
     }
 });
 
-// --- POST UPDATE DATA ---
 router.post('/edit-anime/:id', ensureAuthenticatedAdmin, async (req, res) => {
     try {
-        // 1. Capture 'specialInfo' from the form body
-        const { name, imageUrl, description, genres, specialInfo } = req.body;
-
-        // 2. Pass it into the update object
+        if (!isValidId(req.params.id)) {
+            req.flash('error', 'Invalid anime ID.');
+            return res.redirect('/admin/dashboard');
+        }
+        const { name, imageUrl, description, genres, specialInfo, type } = req.body;
         await Anime.findByIdAndUpdate(req.params.id, {
-            name,
-            imageUrl,
-            description,
-            specialInfo: specialInfo || '', // Ensures it updates the field in DB
-            genres: Array.isArray(genres) ? genres : (genres ? [genres] : [])
+            name: name.trim(),
+            imageUrl: imageUrl?.trim() || '',
+            description: description?.trim() || '',
+            specialInfo: specialInfo?.trim() || '',
+            genres: Array.isArray(genres)? genres : (genres? [genres] : []),
+            type: type || 'series',
+            updatedAt: new Date()
         });
-
-        req.flash('success', 'Anime metadata updated!');
+        req.flash('success', 'Metadata Refined: Anime details saved.');
         res.redirect('/admin/dashboard');
     } catch (err) {
-        console.error("Update Error:", err);
-        req.flash('error', 'Update failed');
-        res.redirect(`/admin/edit-anime/${req.params.id}`);
+        console.error('Edit anime error:', err);
+        req.flash('error', 'Catalog Error: Update failed.');
+        res.redirect('/admin/dashboard');
     }
 });
 
 router.post('/delete-anime/:id', ensureAuthenticatedAdmin, async (req, res) => {
     try {
-        await Anime.findByIdAndDelete(req.params.id);
+        if (!isValidId(req.params.id)) {
+            req.flash('error', 'Invalid anime ID.');
+            return res.redirect('/admin/dashboard');
+        }
+        const anime = await Anime.findById(req.params.id);
+        if (anime) {
+            for (const season of anime.seasons) {
+                await Episode.deleteMany({ _id: { $in: season.episodes } });
+            }
+            await anime.deleteOne();
+            req.flash('success', 'Wiped: Title and associated data removed.');
+        }
         res.redirect('/admin/dashboard');
     } catch (err) {
+        console.error('Delete anime error:', err);
+        req.flash('error', 'Wipe Protocol Failure.');
         res.redirect('/admin/dashboard');
     }
 });
 
-// --- 8. EPISODE MANAGEMENT ---
+// ==========================================
+// 5. EPISODE MANAGEMENT (CRUD)
+// ==========================================
 
 router.get('/add-episode/:animeId', ensureAuthenticatedAdmin, async (req, res) => {
-    const anime = await Anime.findById(req.params.animeId).lean();
-    res.render('admin-add-episode', { anime, session: req.session, messages: req.flash() });
+    try {
+        if (!isValidId(req.params.animeId)) {
+            req.flash('error', 'Invalid anime ID.');
+            return res.redirect('/admin/dashboard');
+        }
+        const anime = await Anime.findById(req.params.animeId).lean();
+        if (!anime) {
+            req.flash('error', 'Anime not found');
+            return res.redirect('/admin/dashboard');
+        }
+        res.render('admin-add-episode', { anime });
+    } catch (err) {
+        console.error('Get Add Episode Error:', err);
+        req.flash('error', 'Something went wrong');
+        res.redirect('/admin/dashboard');
+    }
 });
 
 router.post('/add-episode/:animeId', ensureAuthenticatedAdmin, async (req, res) => {
-    const { seasonNumber, episodeNumber, title, videoUrl, embedCode, imageUrl } = req.body;
     try {
-        let finalEmbedCode = embedCode?.trim() || '';
-        if (videoUrl && !finalEmbedCode) {
-            finalEmbedCode = `<iframe src="${videoUrl.trim()}" style="border:0;height:360px;width:640px;max-width:100%" allowFullScreen="true" scrolling="no" frameborder="0"></iframe>`;
-        }
-        const episode = new Episode({
-            title: title.trim(),
-            videoUrl: videoUrl?.trim() || '',
-            embedCode: finalEmbedCode,
-            imageUrl: imageUrl?.trim() || '',
-            episodeNumber: Number(episodeNumber),
-            seasonNumber: Number(seasonNumber)
-        });
-        await episode.save();
+        const { animeId } = req.params;
+        let { seasonNumber, episodeNumber, title, videoUrl, imageUrl, embedCode } = req.body;
 
-        const anime = await Anime.findById(req.params.animeId);
-        let season = anime.seasons.find(s => s.seasonNumber === Number(seasonNumber));
-        if (season) {
-            season.episodes.push(episode._id);
-        } else {
-            anime.seasons.push({ seasonNumber: Number(seasonNumber), episodes: [episode._id] });
+        if (!isValidId(animeId)) {
+            req.flash('error', 'Invalid anime ID in URL');
+            return res.redirect('/admin/dashboard');
         }
+
+        const anime = await Anime.findById(animeId);
+        if (!anime) {
+            req.flash('error', 'Anime not found in database');
+            return res.redirect('/admin/dashboard');
+        }
+
+        title = title?.trim();
+        videoUrl = videoUrl?.trim() || '';
+        embedCode = embedCode?.trim() || '';
+        imageUrl = imageUrl?.trim() || '';
+
+        if (!title) {
+            req.flash('error', 'Episode title is required');
+            return res.redirect(`/admin/add-episode/${animeId}`);
+        }
+
+        if (!videoUrl &&!embedCode) {
+            req.flash('error', 'Either Video URL or Embed Code is required');
+            return res.redirect(`/admin/add-episode/${animeId}`);
+        }
+
+        const season = anime.type === 'movie'? 1 : parseInt(seasonNumber);
+        const episode = anime.type === 'movie'? 1 : parseInt(episodeNumber);
+
+        if (isNaN(season) || isNaN(episode) || season < 1 || episode < 1) {
+            req.flash('error', 'Invalid season or episode number');
+            return res.redirect(`/admin/add-episode/${animeId}`);
+        }
+
+        const existingSeason = anime.seasons.find(s => s.seasonNumber === season);
+        if (existingSeason) {
+            const duplicateCheck = await Episode.findOne({
+                _id: { $in: existingSeason.episodes },
+                episodeNumber: episode
+            });
+
+            if (duplicateCheck) {
+                req.flash('error', `Season ${season} Episode ${episode} already exists`);
+                return res.redirect(`/admin/add-episode/${animeId}`);
+            }
+        }
+
+        const newEpisode = await Episode.create({
+            title,
+            seasonNumber: season,
+            episodeNumber: episode,
+            imageUrl,
+            videoUrl,
+            embedCode,
+            anime: animeId
+        });
+
+        let seasonObj = anime.seasons.find(s => s.seasonNumber === season);
+
+        if (!seasonObj) {
+            anime.seasons.push({
+                seasonNumber: season,
+                episodes: [newEpisode._id]
+            });
+        } else {
+            seasonObj.episodes.push(newEpisode._id);
+        }
+
+        anime.seasons.sort((a, b) => a.seasonNumber - b.seasonNumber);
         await anime.save();
+
+        req.flash('success', `Deployment Success: S${season} E${episode} is live.`);
         res.redirect('/admin/dashboard');
-    } catch (error) {
+
+    } catch (err) {
+        console.error('Add Episode Error:', err);
+
+        if (err.name === 'ValidationError') {
+            const errors = Object.values(err.errors).map(e => e.message);
+            req.flash('error', `Validation Error: ${errors.join(', ')}`);
+        } else if (err.code === 11000) {
+            req.flash('error', 'This episode already exists in this season');
+        } else {
+            req.flash('error', 'Deployment Failed: ' + err.message);
+        }
+
         res.redirect(`/admin/add-episode/${req.params.animeId}`);
     }
 });
 
-router.post('/delete-episode/:animeId/:seasonId/:episodeId', ensureAuthenticatedAdmin, async (req, res) => {
-    const { animeId, seasonId, episodeId } = req.params;
+router.get('/edit-episode/:id', ensureAuthenticatedAdmin, async (req, res) => {
     try {
-        const anime = await Anime.findById(animeId);
-        const season = anime.seasons.id(seasonId);
-        if (season) {
-            season.episodes = season.episodes.filter(ep => ep.toString() !== episodeId);
-            await anime.save();
+        if (!isValidId(req.params.id)) {
+            req.flash('error', 'Invalid episode ID.');
+            return res.redirect('/admin/dashboard');
         }
-        res.redirect('/admin/dashboard');
+        const episodeId = req.params.id;
+        const episode = await Episode.findById(episodeId).lean();
+        if (!episode) {
+            req.flash('error', 'Signal Lost: Episode not found.');
+            return res.redirect('/admin/dashboard');
+        }
+
+        const anime = await Anime.findOne({ "seasons.episodes": episodeId }).lean();
+        const season = anime? anime.seasons.find(s =>
+            s.episodes.some(e => e.toString() === episodeId)
+        ) : null;
+
+        res.render('admin-edit-episode', { episode, anime, season });
     } catch (err) {
+        console.error("Episode Edit GET Error:", err);
         res.redirect('/admin/dashboard');
     }
 });
 
-// --- 9. GENRE MANAGEMENT ---
+router.post('/edit-episode/:id', ensureAuthenticatedAdmin, async (req, res) => {
+    try {
+        if (!isValidId(req.params.id)) {
+            req.flash('error', 'Invalid episode ID.');
+            return res.redirect('/admin/dashboard');
+        }
+
+        let { episodeNumber, seasonNumber, title, videoUrl, imageUrl, embedCode } = req.body;
+        const episodeId = req.params.id;
+
+        title = title?.trim();
+        videoUrl = videoUrl?.trim() || '';
+        embedCode = embedCode?.trim() || '';
+        imageUrl = imageUrl?.trim() || '';
+
+        const newSeason = parseInt(seasonNumber);
+        const newEpisodeNum = parseInt(episodeNumber);
+
+        if (!title || isNaN(newSeason) || isNaN(newEpisodeNum) || newSeason < 1 || newEpisodeNum < 1) {
+            req.flash('error', 'Invalid season, episode number or title.');
+            return res.redirect(`/admin/edit-episode/${episodeId}`);
+        }
+
+        if (!videoUrl &&!embedCode) {
+            req.flash('error', 'Either Video URL or Embed Code is required');
+            return res.redirect(`/admin/edit-episode/${episodeId}`);
+        }
+
+        const oldEpisode = await Episode.findById(episodeId);
+        if (!oldEpisode) {
+            req.flash('error', 'Episode not found.');
+            return res.redirect('/admin/dashboard');
+        }
+
+        const oldSeasonNumber = oldEpisode.seasonNumber;
+        const oldEpisodeNumber = oldEpisode.episodeNumber;
+
+        const anime = await Anime.findOne({ "seasons.episodes": episodeId });
+        if (!anime) {
+            req.flash('error', 'Parent anime not found.');
+            return res.redirect('/admin/dashboard');
+        }
+
+        const finalSeasonNum = anime.type === 'movie'? 1 : newSeason;
+        const finalEpNum = anime.type === 'movie'? 1 : newEpisodeNum;
+
+        if (anime.type!== 'movie' && (oldSeasonNumber!== finalSeasonNum || oldEpisodeNumber!== finalEpNum)) {
+            const targetSeason = anime.seasons.find(s => s.seasonNumber === finalSeasonNum);
+            if (targetSeason) {
+                const duplicateCheck = await Episode.findOne({
+                    _id: { $in: targetSeason.episodes, $ne: episodeId },
+                    episodeNumber: finalEpNum
+                });
+
+                if (duplicateCheck) {
+                    req.flash('error', `Season ${finalSeasonNum} Episode ${finalEpNum} already exists`);
+                    return res.redirect(`/admin/edit-episode/${episodeId}`);
+                }
+            }
+        }
+
+        await Episode.findByIdAndUpdate(episodeId, {
+            episodeNumber: finalEpNum,
+            seasonNumber: finalSeasonNum,
+            title,
+            videoUrl,
+            imageUrl,
+            embedCode
+        });
+
+        if (oldSeasonNumber!== finalSeasonNum) {
+            await Anime.updateOne(
+                { _id: anime._id, "seasons.seasonNumber": oldSeasonNumber },
+                { $pull: { "seasons.$.episodes": episodeId } }
+            );
+
+            await Anime.updateOne(
+                { _id: anime._id },
+                { $pull: { seasons: { episodes: { $size: 0 } } } }
+            );
+
+            const seasonExists = await Anime.findOne({
+                _id: anime._id,
+                "seasons.seasonNumber": finalSeasonNum
+            });
+
+            if (seasonExists) {
+                await Anime.updateOne(
+                    { _id: anime._id, "seasons.seasonNumber": finalSeasonNum },
+                    { $addToSet: { "seasons.$.episodes": episodeId } }
+                );
+            } else {
+                await Anime.updateOne(
+                    { _id: anime._id },
+                    {
+                        $push: {
+                            seasons: {
+                                seasonNumber: finalSeasonNum,
+                                episodes: [episodeId]
+                            }
+                        }
+                    }
+                );
+            }
+
+            const updatedAnime = await Anime.findById(anime._id);
+            updatedAnime.seasons.sort((a, b) => a.seasonNumber - b.seasonNumber);
+            await updatedAnime.save();
+        }
+
+        req.flash('success', `Episode updated: S${finalSeasonNum} E${finalEpNum}`);
+        res.redirect('/admin/dashboard');
+
+    } catch (err) {
+        console.error('Edit episode error:', err);
+        if (err.code === 11000) {
+            req.flash('error', 'This episode number already exists in this season');
+        } else {
+            req.flash('error', 'Re-encryption failed: ' + err.message);
+        }
+        res.redirect(`/admin/edit-episode/${req.params.id}`);
+    }
+});
+
+// FIXED: Delete episode route - only needs episodeId
+router.post('/delete-episode/:episodeId', ensureAuthenticatedAdmin, async (req, res) => {
+    try {
+        const { episodeId } = req.params;
+
+        if (!isValidId(episodeId)) {
+            req.flash('error', 'Invalid ID format.');
+            return res.redirect('/admin/dashboard');
+        }
+
+        const episode = await Episode.findById(episodeId);
+        if (!episode) {
+            req.flash('error', 'Episode not found.');
+            return res.redirect('/admin/dashboard');
+        }
+
+        const anime = await Anime.findOne({ 'seasons.episodes': episodeId });
+        if (anime) {
+            anime.seasons.forEach(season => {
+                season.episodes = season.episodes.filter(ep => ep.toString()!== episodeId);
+            });
+            anime.seasons = anime.seasons.filter(s => s.episodes.length > 0);
+            await anime.save();
+        }
+
+        await Episode.findByIdAndDelete(episodeId);
+        req.flash('success', 'Episode deleted successfully.');
+        res.redirect('/admin/dashboard');
+    } catch (err) {
+        console.error('Delete episode error:', err);
+        req.flash('error', 'Operation failure: ' + err.message);
+        res.redirect('/admin/dashboard');
+    }
+});
+
+router.post('/delete-season/:animeId/:seasonId', ensureAuthenticatedAdmin, async (req, res) => {
+    try {
+        const { animeId, seasonId } = req.params;
+
+        if (!isValidId(animeId) ||!isValidId(seasonId)) {
+            req.flash('error', 'Invalid ID format.');
+            return res.redirect('/admin/dashboard');
+        }
+
+        const anime = await Anime.findById(animeId);
+        if (!anime) {
+            req.flash('error', 'Anime not found.');
+            return res.redirect('/admin/dashboard');
+        }
+
+        const season = anime.seasons.id(seasonId);
+        if (!season) {
+            req.flash('error', 'Season not found.');
+            return res.redirect('/admin/dashboard');
+        }
+
+        const seasonNumber = season.seasonNumber;
+        const episodeCount = season.episodes.length;
+
+        if (season.episodes && season.episodes.length > 0) {
+            await Episode.deleteMany({ _id: { $in: season.episodes } });
+            console.log(`✅ Deleted ${episodeCount} episodes from Season ${seasonNumber}`);
+        }
+
+        anime.seasons = anime.seasons.filter(s => s._id.toString()!== seasonId);
+        await anime.save();
+
+        req.flash('success', `Season ${seasonNumber} and ${episodeCount} episodes deleted successfully.`);
+        res.redirect('/admin/dashboard');
+
+    } catch (err) {
+        console.error('Delete season error:', err);
+        req.flash('error', 'Failed to delete season: ' + err.message);
+        res.redirect('/admin/dashboard');
+    }
+});
+
+// ==========================================
+// 6. GENRE MANAGEMENT (CATEGORIES)
+// ==========================================
 
 router.get('/manage-categories', ensureAuthenticatedAdmin, async (req, res) => {
-    const genres = await Genre.find().lean();
-    res.render('admin-manage-categories', { genres, session: req.session });
+    try {
+        const genres = await Genre.aggregate([
+            {
+                $addFields: {
+                    isLatest: {
+                        $cond: {
+                            if: { $regexMatch: { input: "$name", regex: /latest/i } },
+                            then: 0,
+                            else: 1
+                        }
+                    }
+                }
+            },
+            {
+                $sort: {
+                    isLatest: 1,
+                    sequence: 1,
+                    name: 1
+                }
+            }
+        ]);
+        res.render('admin-manage-categories', { genres });
+    } catch (err) {
+        res.redirect('/admin/dashboard');
+    }
 });
 
 router.post('/add-genre', ensureAuthenticatedAdmin, async (req, res) => {
     try {
-        await Genre.create({ name: req.body.name.trim() });
-        res.redirect('/admin/manage-categories');
+        const name = req.body.name?.trim();
+        if (!name) {
+            req.flash('error', 'Category name required.');
+            return res.redirect('/admin/manage-categories');
+        }
+        if (await Genre.findOne({ name })) {
+            req.flash('error', 'Category already exists.');
+            return res.redirect('/admin/manage-categories');
+        }
+        await Genre.create({ name, sequence: 9999 });
+        req.flash('success', 'New Category Blueprint added.');
     } catch (err) {
-        res.redirect('/admin/manage-categories');
+        req.flash('error', 'Failed to add category.');
     }
+    res.redirect('/admin/manage-categories');
 });
 
-// --- DELETE GENRE ---
-router.post('/delete-genre/:id', ensureAuthenticatedAdmin, async (req, res) => {
-    try {
-        const genreId = req.params.id;
-
-        // 1. Remove the genre from the database
-        await Genre.findByIdAndDelete(genreId);
-
-        // 2. (Optional but Recommended) Remove this genre ID from all Anime documents
-        // This prevents "dead" IDs from staying in your anime genre arrays
-        await Anime.updateMany(
-            { genres: genreId }, 
-            { $pull: { genres: genreId } }
-        );
-
-        req.flash('success', 'Category removed successfully.');
-        res.redirect('/admin/manage-categories');
-    } catch (err) {
-        console.error("Delete Genre Error:", err);
-        req.flash('error', 'Failed to delete category.');
-        res.redirect('/admin/manage-categories');
-    }
-});
-
-// --- EDIT GENRE (Update) ---
 router.post('/edit-genre/:id', ensureAuthenticatedAdmin, async (req, res) => {
     try {
-        const { name } = req.body;
-        await Genre.findByIdAndUpdate(req.params.id, { name: name.trim() });
-        
-        req.flash('success', 'Category updated.');
-        res.redirect('/admin/manage-categories');
+        if (!isValidId(req.params.id)) {
+            req.flash('error', 'Invalid category ID.');
+            return res.redirect('/admin/manage-categories');
+        }
+        await Genre.findByIdAndUpdate(req.params.id, { name: req.body.name.trim() });
+        req.flash('success', 'Category recalibrated.');
     } catch (err) {
-        req.flash('error', 'Update failed.');
-        res.redirect('/admin/manage-categories');
+        req.flash('error', 'Recalibration failed.');
     }
+    res.redirect('/admin/manage-categories');
 });
 
-router.get('/logout', (req, res) => {
-    req.session.destroy(() => res.redirect('/admin/login'));
+router.post('/delete-genre/:id', ensureAuthenticatedAdmin, async (req, res) => {
+    try {
+        if (!isValidId(req.params.id)) {
+            req.flash('error', 'Invalid category ID.');
+            return res.redirect('/admin/manage-categories');
+        }
+        const id = req.params.id;
+        await Genre.findByIdAndDelete(id);
+        await Anime.updateMany({ genres: id }, { $pull: { genres: id } });
+        req.flash('success', 'Category Updated from all linked titles.');
+    } catch (err) {
+        req.flash('error', 'Purge failed.');
+    }
+    res.redirect('/admin/manage-categories');
+});
+
+router.post('/update-genre-sequence/:id', ensureAuthenticatedAdmin, async (req, res) => {
+    try {
+        if (!isValidId(req.params.id)) {
+            req.flash('error', 'Invalid category ID.');
+            return res.redirect('/admin/manage-categories');
+        }
+        const sequence = req.body.sequence? parseInt(req.body.sequence) : 9999;
+
+        if (sequence < 1 || sequence > 999) {
+            req.flash('error', 'Sequence must be between 1-999.');
+            return res.redirect('/admin/manage-categories');
+        }
+
+        await Genre.findByIdAndUpdate(req.params.id, { sequence });
+        req.flash('success', 'Category sequence updated.');
+    } catch (err) {
+        req.flash('error', 'Sequence update failed.');
+    }
+    res.redirect('/admin/manage-categories');
+});
+
+// ==========================================
+// 7. TERMINATE SESSION (LOGOUT)
+// ==========================================
+router.post('/logout', (req, res) => {
+    const sessionId = req.session?.id;
+
+    req.session.destroy((err) => {
+        if (err) {
+            console.error("Admin Session Deconstruction Error:", err);
+        }
+        clearSessionCache(sessionId);
+        res.clearCookie('connect.sid', { path: '/' });
+        res.redirect('/admin/login');
+    });
 });
 
 module.exports = router;
