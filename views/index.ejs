@@ -80,12 +80,12 @@
                 </a>
             </div>
 
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
+            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 md:gap-4">
                 <% animes.forEach(anime => { %>
                     <div class="anime-card-glass rounded-xl md:rounded-2xl p-1.5 transition-all">
                         <a href="/anime/<%= anime._id %>">
                             <img src="<%= anime.imageUrl %>" alt="<%= anime.name %>" class="w-full aspect-[2/3] object-cover rounded-lg md:rounded-xl shadow-lg">
-                            <p class="text-center mt-2 text-white font-bold text-[10px] md:text-sm line-clamp-2 leading-tight h-7 md:h-10 px-1">
+                            <p class="text-center mt-2 text-white font-bold text-[11px] md:text-sm line-clamp-2 leading-tight h-7 md:h-10 px-1">
                                 <%= anime.name %>
                             </p>
                         </a>
@@ -109,7 +109,7 @@
             </button>
         </div>
 
-        <div id="watch-history-grid" class="grid grid-cols-3 lg:grid-cols-4 gap-2 md:gap-6">
+        <div id="watch-history-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
             <!-- JS will populate -->
         </div>
     </section>
@@ -122,9 +122,9 @@
             <h2 class="text-base md:text-2xl font-black text-white tracking-tight">Latest Release</h2>
         </div>
 
-        <div class="grid grid-cols-3 lg:grid-cols-4 gap-2 md:gap-6">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
             <% latestEpisodes.slice(0, 20).forEach(function(episode, index) { %>
-                <div class="episode-glass-card group cursor-pointer p-1 rounded-lg md:rounded-xl border border-white/5 transition-all <%= index >= 9? 'hidden lg:block' : '' %>"
+                <div class="episode-glass-card group cursor-pointer p-1.5 rounded-lg md:rounded-xl border border-white/5 transition-all <%= index >= 9? 'hidden lg:block' : '' %>"
                      data-anime-id="<%= episode.anime? episode.anime._id : '' %>"
                      data-anime-name="<%= episode.anime? episode.anime.name : 'Unknown' %>"
                      data-anime-img="<%= episode.anime && episode.anime.imageUrl? episode.anime.imageUrl : '/images/default.png' %>"
@@ -137,21 +137,21 @@
                                  class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
 
                             <% if(episode.anime && episode.anime.type === 'movie') { %>
-                                <div class="absolute top-0.5 left-0.5 md:top-1 md:left-1 bg-red-600/90 backdrop-blur-md text-[6px] md:text-[8px] font-black text-white px-1.5 py-0.5 rounded border border-white/10 uppercase">
+                                <div class="absolute top-1 left-1 md:top-1.5 md:left-1.5 bg-red-600/90 backdrop-blur-md text-[9px] md:text-[10px] font-black text-white px-2 py-0.5 rounded border border-white/10 uppercase">
                                     MOVIE
                                 </div>
                             <% } else { %>
-                                <div class="absolute top-0.5 left-0.5 md:top-1 md:left-1 bg-black/80 backdrop-blur-md text-[6px] md:text-[8px] font-black text-white px-1 py-0.5 rounded border border-white/10 uppercase">
+                                <div class="absolute top-1 left-1 md:top-1.5 md:left-1.5 bg-black/80 backdrop-blur-md text-[9px] md:text-[10px] font-black text-white px-2 py-0.5 rounded border border-white/10 uppercase">
                                     S<%= episode.seasonNumber %> E<%= episode.episodeNumber %>
                                 </div>
                             <% } %>
                         </div>
 
-                        <div class="mt-1.5 text-center">
-                            <h3 class="text-white text-[8px] md:text-xs font-bold line-clamp-2 leading-tight h-[20px] md:h-[32px]">
+                        <div class="mt-2 text-center">
+                            <h3 class="text-white text-xs md:text-sm font-bold line-clamp-2 leading-tight h-8 md:h-10">
                                 <%= episode.anime? episode.anime.name : 'Unknown Anime' %>
                             </h3>
-                            <p class="text-gray-500 text-[7px] md:text-[9px] uppercase font-black tracking-tighter">
+                            <p class="text-gray-500 text-[10px] md:text-[11px] uppercase font-black tracking-wider mt-0.5">
                                 <% if(episode.anime && episode.anime.type === 'movie') { %>
                                     Film
                                 <% } else { %>
@@ -188,14 +188,14 @@
                             <%= genre.name %>
                         </h2>
                     </div>
-                    <a href="/search?genre=<%= genre._id %>" class="text-gray-500 text-[8px] md:text-[10px] font-black uppercase tracking-widest hover:text-white transition-colors">
+                    <a href="/search?genre=<%= genre._id %>" class="text-gray-500 text-[10px] md:text-[11px] font-black uppercase tracking-widest hover:text-white transition-colors">
                         View All →
                     </a>
                 </div>
 
-                <div class="anime-scroll flex gap-2.5 md:gap-5 overflow-x-auto pb-4 snap-x">
+                <div class="anime-scroll flex gap-3 md:gap-5 overflow-x-auto pb-4 snap-x">
                     <% genreAnimes.forEach(anime => { %>
-                        <div class="anime-card-glass flex-shrink-0 w-[110px] md:w-48 snap-center p-1 md:p-1.5 rounded-xl">
+                        <div class="anime-card-glass flex-shrink-0 w-[130px] sm:w-[140px] md:w-48 snap-center p-1 md:p-1.5 rounded-xl">
                             <a href="/anime/<%= anime._id %>" class="group">
                                 <div class="relative rounded-lg md:rounded-2xl overflow-hidden border border-white/5 shadow-2xl">
                                     <img src="<%= anime.imageUrl %>" class="w-full aspect-[2/3] object-cover group-hover:scale-105 transition-transform duration-700">
@@ -203,12 +203,12 @@
                                     <%
                                     const daysDiff = (new Date() - new Date(anime.updatedAt)) / (1000 * 60 * 60 * 24);
                                     if(daysDiff <= 3) { %>
-                                    <div class="absolute top-1 left-1 bg-green-600/90 backdrop-blur-md text-[6px] md:text-[8px] font-black text-white px-1.5 py-0.5 rounded border border-white/10">
+                                    <div class="absolute top-1.5 left-1.5 bg-green-600/90 backdrop-blur-md text-[8px] md:text-[9px] font-black text-white px-2 py-0.5 rounded border border-white/10">
                                         UPDATED
                                     </div>
                                     <% } %>
                                 </div>
-                                <p class="mt-2 text-white text-[10px] md:text-sm font-bold text-center line-clamp-2 leading-tight h-7 md:h-10 group-hover:text-blue-400">
+                                <p class="mt-2 text-white text-[11px] md:text-sm font-bold text-center line-clamp-2 leading-tight h-7 md:h-10 group-hover:text-blue-400">
                                     <%= anime.name %>
                                 </p>
                             </a>
@@ -232,20 +232,20 @@
                         <%= genre.name %>
                     </h2>
                 </div>
-                <a href="/search?genre=<%= genre._id %>" class="text-gray-500 text-[8px] md:text-[10px] font-black uppercase tracking-widest hover:text-white transition-colors">
+                <a href="/search?genre=<%= genre._id %>" class="text-gray-500 text-[10px] md:text-[11px] font-black uppercase tracking-widest hover:text-white transition-colors">
                     View All →
                 </a>
             </div>
 
-            <div class="anime-scroll flex gap-2.5 md:gap-5 overflow-x-auto pb-4 snap-x">
+            <div class="anime-scroll flex gap-3 md:gap-5 overflow-x-auto pb-4 snap-x">
                 <% genreAnimes.forEach(anime => { %>
-                    <div class="anime-card-glass flex-shrink-0 w-[110px] md:w-48 snap-center p-1 md:p-1.5 rounded-xl">
+                    <div class="anime-card-glass flex-shrink-0 w-[130px] sm:w-[140px] md:w-48 snap-center p-1 md:p-1.5 rounded-xl">
                         <a href="/anime/<%= anime._id %>" class="group">
                             <div class="relative rounded-lg md:rounded-2xl overflow-hidden border border-white/5 shadow-2xl">
                                 <img src="<%= anime.imageUrl %>" class="w-full aspect-[2/3] object-cover group-hover:scale-105 transition-transform duration-700">
                                 <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                             </div>
-                            <p class="mt-2 text-white text-[10px] md:text-sm font-bold text-center line-clamp-2 leading-tight h-7 md:h-10 group-hover:text-blue-400">
+                            <p class="mt-2 text-white text-[11px] md:text-sm font-bold text-center line-clamp-2 leading-tight h-7 md:h-10 group-hover:text-blue-400">
                                 <%= anime.name %>
                             </p>
                         </a>
@@ -280,25 +280,25 @@
                             <%= genre.name %>
                         </h2>
                     </div>
-                    <a href="/search?genre=<%= genre._id %>" class="text-gray-500 text-[8px] md:text-[10px] font-black uppercase tracking-widest hover:text-white transition-colors">
+                    <a href="/search?genre=<%= genre._id %>" class="text-gray-500 text-[10px] md:text-[11px] font-black uppercase tracking-widest hover:text-white transition-colors">
                         View All →
                     </a>
                 </div>
 
-                <div class="anime-scroll flex gap-2.5 md:gap-5 overflow-x-auto pb-4 snap-x justify-start">
+                <div class="anime-scroll flex gap-3 md:gap-5 overflow-x-auto pb-4 snap-x justify-start">
                     <% genreAnimes.forEach(anime => { %>
-                        <div class="anime-card-glass flex-shrink-0 w-[110px] md:w-48 snap-center p-1 md:p-1.5 rounded-xl">
+                        <div class="anime-card-glass flex-shrink-0 w-[130px] sm:w-[140px] md:w-48 snap-center p-1 md:p-1.5 rounded-xl">
                             <a href="/anime/<%= anime._id %>" class="group">
                                 <div class="relative rounded-lg md:rounded-2xl overflow-hidden border border-white/5 shadow-2xl">
                                     <img src="<%= anime.imageUrl %>" class="w-full aspect-[2/3] object-cover group-hover:scale-105 transition-transform duration-700">
                                     <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                     
                                     
-                                    <div class="absolute top-1 right-1 bg-red-600/80 backdrop-blur-md text-[6px] md:text-[8px] font-black text-white px-1.5 py-0.5 rounded border border-white/10">
+                                    <div class="absolute top-1 right-1 bg-red-600/80 backdrop-blur-md text-[8px] md:text-[9px] font-black text-white px-2 py-0.5 rounded border border-white/10">
                            MOVIE
                                 </div>
                           </div> <!-- ← Ye closing div missing tha -->
-                      <p class="mt-2 text-white text-[10px] md:text-sm font-bold text-center line-clamp-2 leading-tight h-7 md:h-10 group-hover:text-red-400">
+                      <p class="mt-2 text-white text-[11px] md:text-sm font-bold text-center line-clamp-2 leading-tight h-7 md:h-10 group-hover:text-red-400">
                        <%= anime.name %>
                        </p>
                        </a>
@@ -431,7 +431,7 @@ function renderDaySchedule(day) {
                     </div>
                     <div class="text-right flex-shrink-0">
                         <div class="text-white text-sm md:text-lg font-black">${show.time}</div>
-                        <div class="text-gray-500 text-[8px] md:text-[10px] font-bold uppercase">IST</div>
+                        <div class="text-gray-500 text-[10px] md:text-[11px] font-bold uppercase">IST</div>
                     </div>
                 </div>
             `).join('')}
@@ -541,23 +541,23 @@ loadSchedule();
                     <div class="relative aspect-video overflow-hidden rounded-md md:rounded-lg">
                         <img src="${item.animeImg}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                         ${isMovie? `
-                            <div class="absolute top-0.5 left-0.5 md:top-1 md:left-1 bg-red-600/90 backdrop-blur-md text-[6px] md:text-[8px] font-black text-white px-1.5 py-0.5 rounded border border-white/10 uppercase">
+                            <div class="absolute top-0.5 left-0.5 md:top-1 md:left-1 bg-red-600/90 backdrop-blur-md text-[8px] md:text-[9px] font-black text-white px-2 py-0.5 rounded border border-white/10 uppercase">
                                 MOVIE
                             </div>
                         ` : `
-                            <div class="absolute top-0.5 left-0.5 md:top-1 md:left-1 bg-black/80 backdrop-blur-md text-[6px] md:text-[8px] font-black text-white px-1 py-0.5 rounded border border-white/10 uppercase">
+                            <div class="absolute top-0.5 left-0.5 md:top-1 md:left-1 bg-black/80 backdrop-blur-md text-[8px] md:text-[9px] font-black text-white px-1.5 py-0.5 rounded border border-white/10 uppercase">
                                 S${item.season} E${item.episode}
                             </div>
                         `}
-                        <div class="absolute top-0.5 right-0.5 md:top-1 md:right-1 bg-purple-600/80 backdrop-blur-md text-[6px] md:text-[8px] font-black text-white px-1 py-0.5 rounded">
+                        <div class="absolute top-0.5 right-0.5 md:top-1 md:right-1 bg-purple-600/80 backdrop-blur-md text-[8px] md:text-[9px] font-black text-white px-1.5 py-0.5 rounded">
                             CONTINUE
                         </div>
                     </div>
                     <div class="mt-1.5 text-center">
-                        <h3 class="text-white text-[8px] md:text-xs font-bold line-clamp-2 leading-tight h-[20px] md:h-[32px]">
+                        <h3 class="text-white text-[11px] md:text-xs font-bold line-clamp-2 leading-tight h-7 md:h-8">
                             ${item.animeName}
                         </h3>
-                        <p class="text-gray-500 text-[7px] md:text-[9px] uppercase font-black tracking-tighter">
+                        <p class="text-gray-500 text-[9px] md:text-[10px] uppercase font-black tracking-tighter">
                             ${isMovie? 'Film' : `Ep ${item.episode}`}
                                                 </p>
                     </div>
@@ -954,7 +954,8 @@ body { background-color: #0b0e11; color: #fff; overflow-x: hidden; }
 
 /* Mobile Optimization */
 @media (max-width: 640px) {
-    .anime-card-glass { padding: 0.5rem; }
+    .anime-card-glass { padding: 0.25rem; background: transparent; border: none; }
+    .anime-card-glass:hover { transform: none; box-shadow: none; background: transparent; }
 
     .search-modern {
         border-radius: 18px;
@@ -988,6 +989,9 @@ body { background-color: #0b0e11; color: #fff; overflow-x: hidden; }
         width: 10px;
         height: 10px;
     }
+    
+    /* Bigger cards like Toonstream */
+    .anime-scroll { gap: 12px !important; padding-left: 4px; }
 }
 
 /* SweetAlert2 Custom */
