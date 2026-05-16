@@ -1,0 +1,918 @@
+<%- include('partials/header') %>
+
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+    :root {
+        --bg-deep: #0b0e11;
+        --card-navy: #151b23;
+        --accent-blue: #3b82f6;
+        --accent-yellow: #facc15;
+        --accent-red: #ef4444;
+        --glass-border: rgba(255, 255, 255, 0.05);
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    html, body {
+        background-color: var(--bg-deep);
+        font-family: 'Inter', sans-serif;
+        color: #f3f4f6;
+        overflow-x: hidden;
+        max-width: 100%;
+    }
+
+.glass-card {
+        background: rgba(21, 27, 35, 0.6);
+        backdrop-filter: blur(12px);
+        border: 1px solid var(--glass-border);
+        border-radius: 1.5rem;
+        width: 100%;
+        max-width: 100%;
+    }
+
+.episode-card {
+        background: var(--card-navy);
+        border: 1px solid var(--glass-border);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border-radius: 1.25rem;
+        overflow: hidden;
+        width: 100%;
+        max-width: 100%;
+    }
+
+.episode-card:hover {
+        transform: translateY(-8px);
+        border-color: var(--accent-blue);
+        box-shadow: 0 20px 40px -15px rgba(59, 130, 246, 0.5);
+    }
+
+.ep-image-container {
+        position: relative;
+        aspect-ratio: 16/9;
+        overflow: hidden;
+    }
+
+.ep-image-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.6s ease;
+        filter: brightness(0.8);
+    }
+
+.episode-card:hover.ep-image-container img { transform: scale(1.1); filter: brightness(1); }
+
+.play-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.3);
+        opacity: 0;
+        transition: all 0.4s ease;
+        pointer-events: none;
+    }
+
+.episode-card:hover.play-overlay { opacity: 1; }
+
+.play-icon-circle {
+        width: 45px; height: 45px;
+        background: var(--accent-blue);
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 0 20px var(--accent-blue);
+    }
+
+.player-control-btn {
+        background: rgba(59, 130, 246, 0.15);
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        color: #3b82f6;
+        padding: 8px 16px;
+        border-radius: 10px;
+        font-weight: 900;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+.player-control-btn:hover:not(:disabled) {
+        background: rgba(59, 130, 246, 0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    }
+
+.player-control-btn:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.1);
+        color: #6b7280;
+    }
+
+.player-control-btn.season-display {
+        background: rgba(250, 204, 21, 0.15);
+        border-color: rgba(250, 204, 21, 0.3);
+        color: #facc15;
+        pointer-events: none;
+    }
+
+.movie-badge {
+        background: rgba(239, 68, 68, 0.15);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: #fca5a5;
+        padding: 6px 14px;
+        border-radius: 10px;
+        font-weight: 900;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+.play-movie-btn {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: #ffffff;
+        padding: 1rem 2rem;
+        border-radius: 1rem;
+        font-weight: 900;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        border: none;
+        box-shadow: 0 10px 30px rgba(239, 68, 68, 0.4);
+    }
+
+.play-movie-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(239, 68, 68, 0.6);
+    }
+
+.comment-thread {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        width: 100%;
+        max-width: 100%;
+    }
+
+.comment-node {
+        position: relative;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 1rem;
+        padding: 1rem;
+        transition: all 0.3s ease;
+        width: 100%;
+        max-width: 100%;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+.comment-node:hover {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(59, 130, 246, 0.3);
+    }
+
+.reply-node {
+        background: rgba(59, 130, 246, 0.06);
+        border: 1px solid rgba(59, 130, 246, 0.15);
+        border-radius: 0.875rem;
+        padding: 0.875rem;
+        position: relative;
+        width: 100%;
+        max-width: 100%;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    @media (min-width: 641px) {
+.reply-node {
+            margin-left: 1rem;
+            width: calc(100% - 1rem);
+        }
+.reply-thread-line {
+            position: absolute;
+            left: -1rem;
+            top: -1rem;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, #3b82f6, rgba(59, 130, 246, 0.1));
+            border-radius: 2px;
+        }
+.reply-thread-line::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 1.5rem;
+            width: 0.75rem;
+            height: 2px;
+            background: #3b82f6;
+            border-radius: 2px;
+        }
+    }
+
+    @media (max-width: 640px) {
+.reply-node {
+            margin-left: 0;
+            border-left: 3px solid #3b82f6;
+            padding-left: 0.75rem;
+            width: 100%;
+        }
+.reply-thread-line {
+            display: none;
+        }
+    }
+
+.reply-container {
+        position: relative;
+        margin-top: 1rem;
+        width: 100%;
+        max-width: 100%;
+    }
+
+.action-btn {
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 6px 10px;
+        border-radius: 6px;
+        transition: all 0.2s;
+        min-width: 32px;
+        min-height: 28px;
+        justify-content: center;
+        cursor: pointer;
+        border: none;
+        flex-shrink: 0;
+    }
+
+.reply-trigger {
+        color: #3b82f6;
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(59, 130, 246, 0.2);
+    }
+.reply-trigger:hover {
+        background: rgba(59, 130, 246, 0.2);
+        transform: translateY(-1px);
+    }
+
+.delete-trigger {
+        color: #ef4444!important;
+        background: rgba(239, 68, 68, 0.15)!important;
+        border: 1px solid rgba(239, 68, 68, 0.3)!important;
+        opacity: 1!important;
+    }
+.delete-trigger:hover {
+        opacity: 1;
+        background: rgba(239, 68, 68, 0.3)!important;
+        transform: translateY(-1px);
+    }
+
+.staff-tag {
+        background: #3b82f6;
+        color: white;
+        font-size: 8px;
+        padding: 2px 6px;
+        border-radius: 4px;
+        margin-left: 6px;
+        font-weight: 900;
+        flex-shrink: 0;
+    }
+
+.comment-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 9px;
+        font-weight: 900;
+        text-transform: uppercase;
+        padding: 2px 8px;
+        border-radius: 6px;
+        letter-spacing: 0.5px;
+        flex-shrink: 0;
+    }
+
+.comment-badge.reply {
+        background: rgba(59, 130, 246, 0.2);
+        color: #60a5fa;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    #player-container video, #player-container iframe { width: 100%; height: 100%; border-radius: 8px; }
+
+.icon-svg {
+        width: 1em;
+        height: 1em;
+        fill: currentColor;
+        flex-shrink: 0;
+    }
+
+.container {
+        max-width: 100%;
+        width: 100%;
+    }
+</style>
+
+<div id="anime-data"
+     data-anime="<%= JSON.stringify({
+        imageUrl: anime.imageUrl,
+        _id: anime._id,
+        name: anime.name,
+        type: anime.type || 'series',
+        seasons: anime.seasons.map((season, sIdx) => ({
+            seasonNumber: season.seasonNumber,
+            episodes: season.episodes.map((episode, eIdx) => ({
+                episodeNumber: episode.episodeNumber,
+                title: episode.title,
+                videoUrl: episode.videoUrl || '',
+                embedCode: episode.embedCode || '',
+                imageUrl: episode.imageUrl || ''
+            }))
+        }))
+     }).replace(/"/g, '&quot;') %>"></div>
+
+<div class="container mx-auto px-4 py-8 max-w-6xl">
+
+    <div class="glass-card mb-10 p-6 md:p-8 flex flex-col md:flex-row gap-8 items-center">
+        <div class="relative group flex-shrink-0">
+            <img src="<%= anime.imageUrl %>" alt="<%= anime.name %>"
+                 class="w-full md:w-64 rounded-xl shadow-2xl object-cover transition-transform duration-500 hover:scale-105">
+        </div>
+
+        <div class="flex-1 space-y-4 min-w-0">
+            <h1 class="text-3xl md:text-5xl font-black tracking-tighter uppercase leading-tight break-words">
+                <% const nameParts = anime.name.split(' '); %>
+                <span class="text-white"><%= nameParts[0] %></span>
+                <span class="text-yellow-400"><%= nameParts.slice(1).join(' ') %></span>
+            </h1>
+
+            <div class="flex flex-wrap gap-3 text- font-bold uppercase tracking-widest text-gray-400">
+                <span class="bg-white/5 px-3 py-1.5 rounded-full border border-white/5">📅 <%= anime.year || '2024' %></span>
+                <span class="bg-blue-500/10 text-blue-400 px-3 py-1.5 rounded-full border border-blue-500/20">HD Dual Audio</span>
+                <% if(anime.type === 'movie') { %>
+                <span class="movie-badge">🎬 Movie</span>
+                <% } else { %>
+                <span class="bg-purple-500/10 text-purple-400 px-3 py-1.5 rounded-full border border-purple-500/20">📺 Series</span>
+                <% } %>
+            </div>
+
+            <p class="text-gray-300 leading-relaxed font-medium text-base border-l-2 border-blue-500 pl-4 break-words">
+                <%= anime.description %>
+            </p>
+        </div>
+    </div>
+
+    <div id="video-area" class="mb-12 hidden">
+        <div class="glass-card p-2 shadow-2xl overflow-hidden">
+            <div id="player-container" class="relative w-full aspect-video bg-black rounded-lg overflow-hidden"></div>
+        </div>
+
+        <div id="player-controls" class="mt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <h2 id="active-video-title" class="text-lg md:text-xl font-black text-white uppercase tracking-tight flex-1 min-w-0 break-words"></h2>
+
+            <div class="flex items-center gap-2 w-full sm:w-auto flex-wrap">
+                <button id="prev-btn" class="player-control-btn flex-1 sm:flex-none" type="button">
+                    <i class="fas fa-backward"></i> Prev
+                </button>
+                <button id="season-display-btn" class="player-control-btn season-display" type="button">
+                    <i class="fas fa-layer-group"></i> S1
+                </button>
+                <button id="next-btn" class="player-control-btn flex-1 sm:flex-none" type="button">
+                    Next <i class="fas fa-forward"></i>
+                </button>
+                <button type="button" data-action="close-player" class="text-xs font-bold text-gray-500 hover:text-white uppercase tracking-widest px-2 flex items-center gap-1 flex-shrink-0">
+                     <i class="fas fa-times"></i>Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SPECIAL INFO / PUBLIC ANNOUNCEMENT - FIXED -->
+<% if(anime.specialInfo && anime.specialInfo.trim()!== '') { %>
+<div class="max-w-6xl mx-auto mb-8">
+    <div class="glass-card p-4 md:p-6 border border-yellow-500/30 bg-gradient-to-r from-yellow-500/10 to-orange-500/5">
+        <div class="flex flex-col items-center text-center gap-3">
+            <div class="flex-shrink-0">
+                <svg class="w-8 h-8 text-yellow-500 mx-auto" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                </svg>
+            </div>
+            <div class="w-full">
+                <h3 class="text-sm md:text-base font-black text-yellow-400 uppercase tracking-wide mb-2">📢 Anime Update</h3>
+                <p class="text-white/90 text-sm md:text-base font-semibold leading-relaxed whitespace-pre-wrap"><%= anime.specialInfo %></p>
+            </div>
+        </div>
+    </div>
+</div>
+<% } %>
+
+    <!-- MOVIE vs SERIES CONDITIONAL -->
+    <% if(anime.type === 'movie') { %>
+        <!-- MOVIE MODE -->
+        <div class="text-center mb-12">
+            <% if(anime.seasons && anime.seasons[0] && anime.seasons[0].episodes && anime.seasons[0].episodes.length > 0) { %>
+            <button class="play-movie-btn"
+                    data-anime-id="<%= anime._id %>"
+                    data-anime-name="<%= anime.name %>"
+                    data-anime-img="<%= anime.imageUrl %>">
+                <i class="fas fa-play text-lg"></i>
+                Play Movie
+            </button>
+            <p class="text-gray-500 text-xs font-bold uppercase mt-4">Click to watch full movie</p>
+            <% } else { %>
+            <div class="glass-card p-8 text-center">
+                <p class="text-gray-600 font-bold uppercase text-sm">Movie file not uploaded yet</p>
+            </div>
+            <% } %>
+        </div>
+    <% } else { %>
+        <!-- SERIES MODE -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <h2 class="text-2xl font-black uppercase tracking-tighter flex items-center gap-3">
+                <div class="w-1.5 h-6 bg-blue-500 rounded-full flex-shrink-0"></div>
+                Library
+            </h2>
+            <select id="season-select" class="bg-gray-800 border border-white/10 text-white px-6 py-2 rounded-xl font-bold text-sm outline-none focus:ring-2 focus:ring-blue-500 w-full md:w-auto">
+                <% anime.seasons.forEach((season, index) => { %>
+                    <option value="<%= index %>">Season <%= season.seasonNumber %></option>
+                <% }) %>
+            </select>
+        </div>
+
+        <div id="episodes-container">
+            <% anime.seasons.forEach((season, seasonIndex) => { %>
+                <div class="season-section grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 <%= seasonIndex === 0? '' : 'hidden' %>" data-season="<%= seasonIndex %>">
+                    <% season.episodes.forEach((episode, epIndex) => { %>
+                        <div class="episode-card cursor-pointer group"
+                             data-season-index="<%= seasonIndex %>"
+                             data-episode-index="<%= epIndex %>"
+                             data-season-number="<%= season.seasonNumber %>"
+                             data-anime-id="<%= anime._id %>"
+                             data-anime-name="<%= anime.name %>"
+                             data-anime-img="<%= anime.imageUrl %>">
+                            <div class="ep-image-container">
+                                <img src="<%= episode.imageUrl || anime.imageUrl %>" loading="lazy">
+                                <div class="play-overlay">
+                                    <div class="play-icon-circle"><i class="fas fa-play text-white text-xs"></i></div>
+                                </div>
+                            </div>
+                            <div class="p-3">
+                                <h4 class="font-black text-sm text-white group-hover:text-blue-400 truncate">S<%= season.seasonNumber %> E<%= episode.episodeNumber %> - <%= episode.title %></h4>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            <% }) %>
+        </div>
+    <% } %>
+
+    <div class="mt-20 glass-card p-4 md:p-10">
+        <h2 class="text-2xl md:text-3xl font-black uppercase tracking-tighter mb-6 md:mb-10 flex items-center gap-3 md:gap-4 flex-wrap">
+            <i class="fas fa-comments text-blue-500 flex-shrink-0"></i>
+            <span>Community <span class="text-blue-500">Voice</span></span>
+        </h2>
+
+        <%- include('partials/flash') %>
+
+        <% if (session.isUserAuthenticated || session.isAdminAuthenticated) { %>
+            <form action="/anime/comment/<%= anime._id %>" method="POST" class="mb-8 md:mb-12">
+                <div class="relative group">
+                    <textarea name="content" rows="3" class="w-full p-4 md:p-6 rounded-2xl bg-black/40 border border-white/10 text-white focus:border-blue-500 outline-none transition-all placeholder-gray-600 text-sm md:text-base" placeholder="Share your thoughts..." required></textarea>
+                    <button type="submit" class="absolute bottom-3 md:bottom-4 right-3 md:right-4 bg-blue-600 text-white px-4 md:px-8 py-2 rounded-xl font-black uppercase text-xs tracking-widest hover:bg-blue-500 transition-all">Post</button>
+                </div>
+            </form>
+        <% } else { %>
+            <div class="mb-8 md:mb-10 p-6 md:p-8 bg-blue-500/5 border border-dashed border-blue-500/20 rounded-2xl text-center">
+                <p class="text-gray-400 font-bold uppercase tracking-widest text-xs md:text-sm">Join the conversation. <a href="/user/login" class="text-blue-500 hover:underline">Login to Comment</a></p>
+            </div>
+        <% } %>
+
+        <div class="comment-thread">
+            <%
+            function renderThreadedComments(commentList, depth = 0) {
+                commentList.forEach(function(comment) {
+                    const sessionID = (session.userId || session.adminId || '').toString();
+                    const commentOwnerID = (comment.user?._id || comment.user || '').toString();
+                    const isOwner = sessionID!== '' && sessionID === commentOwnerID;
+                    const isAdmin =!!session.isAdminAuthenticated;
+                    const isReply = depth > 0;
+            %>
+                    <div class="<%= isReply? 'reply-container' : '' %>">
+                        <div class="<%= isReply? 'reply-node' : 'comment-node' %>">
+                            <% if(isReply) { %><div class="reply-thread-line"></div><% } %>
+
+                            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-3">
+                                <div class="flex items-start gap-3 flex-1 min-w-0">
+                                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-xs font-black flex-shrink-0"><%= comment.username.charAt(0).toUpperCase() %></div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex flex-wrap items-center gap-2">
+                                            <span class="<%= comment.isAdmin? 'text-blue-400' : 'text-white' %> font-black text-xs uppercase truncate"><%= comment.username %></span>
+                                            <% if(comment.isAdmin) { %><span class="staff-tag">MOD</span><% } %>
+                                            <% if(isReply) { %><span class="comment-badge reply"><i class="fas fa-reply"></i> Reply</span><% } %>
+                                        </div>
+                                        <p class="text-gray-500 font-bold uppercase mt-0.5 text-xs"><%= new Date(comment.createdAt).toLocaleDateString('en-IN') %></p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center gap-2 flex-shrink-0">
+                                    <% if (session.isUserAuthenticated || session.isAdminAuthenticated) { %>
+                                        <button type="button" data-action="reply" data-comment-id="<%= comment._id %>" class="action-btn reply-trigger">
+                                            <i class="fas fa-reply"></i> Reply
+                                        </button>
+                                    <% } %>
+                                    <% if (isAdmin || isOwner) { %>
+                                        <button type="button" data-action="delete-comment" data-anime-id="<%= anime._id %>" data-comment-id="<%= comment._id %>" class="action-btn delete-trigger">
+                                          🗑️ <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    <% } %>
+                                </div>
+                            </div>
+
+                            <p class="text-sm text-gray-300 leading-relaxed break-words"><%= comment.content %></p>
+
+                            <div id="reply-form-<%= comment._id %>" class="hidden mt-4">
+                                <form action="/anime/comment/reply/<%= anime._id %>/<%= comment._id %>" method="POST">
+                                    <textarea name="content" rows="2" class="w-full p-3 md:p-4 rounded-xl bg-black/60 border border-blue-500/30 text-white outline-none text-sm" placeholder="Write a reply..." required></textarea>
+                                    <div class="flex gap-2 mt-2">
+                                        <button type="submit" class="bg-blue-600 text-white px-4 py-1.5 rounded-lg font-black uppercase text-xs">Send</button>
+                                        <button type="button" data-action="cancel-reply" data-comment-id="<%= comment._id %>" class="text-gray-500 font-black uppercase text-xs px-4 py-1.5">Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <% if (comment.replies && comment.replies.length > 0) { renderThreadedComments(comment.replies, depth + 1); } %>
+                    </div>
+            <% }); } %>
+
+            <% if (comments && comments.length > 0) { renderThreadedComments(comments); } else { %>
+                <p class="text-center py-10 text-gray-600 font-bold uppercase text-xs">No conversation yet.</p>
+            <% } %>
+        </div>
+    </div>
+
+    <div class="mt-12">
+        <h2 class="text-2xl font-black mb-6 uppercase tracking-tighter">Random<span class="text-blue-500">Titles</span></h2>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-6">
+            <% (randomAnimes || []).forEach(function(r) { %>
+                <div class="group bg-gray-800/50 rounded-xl p-2 hover:bg-gray-700/70 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-blue-500/20">
+                    <a href="/anime/<%= r._id %>">
+                        <div class="relative overflow-hidden rounded-lg mb-2">
+                            <img src="<%= r.imageUrl %>" class="w-full h-48 object-cover shadow-md transition-transform duration-300 group-hover:scale-110">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-2">
+                                <span class="text-xs font-bold text-white uppercase tracking-wider">Watch Now</span>
+                            </div>
+                        </div>
+                        <p class="text-center text-white group-hover:text-blue-400 font-bold text-xs truncate transition-colors"><%= r.name %></p>
+                    </a>
+                </div>
+            <% }); %>
+        </div>
+    </div>
+</div>
+
+<script type="application/json" id="user-data">
+    <%- JSON.stringify({
+        userId: session.userId || session.adminId || null,
+        isLoggedIn:!!(session.userId || session.adminId)
+    }) %>
+</script>
+
+<script>
+    const userData = JSON.parse(document.getElementById('user-data').textContent);
+    const animeDataElement = document.getElementById('anime-data');
+    const animeData = JSON.parse(animeDataElement.dataset.anime.replace(/&quot;/g, '"'));
+
+    const allEpisodes = [];
+    animeData.seasons.forEach((season, sIdx) => {
+        season.episodes.forEach((episode, eIdx) => {
+            allEpisodes.push({
+                seasonIndex: sIdx,
+                episodeIndex: eIdx,
+                seasonNumber: season.seasonNumber,
+                episodeNumber: episode.episodeNumber,
+                title: episode.title,
+                videoUrl: episode.videoUrl,
+                embedCode: episode.embedCode,
+                poster: episode.imageUrl || animeData.imageUrl
+            });
+        });
+    });
+
+    let currentEpisodeIndex = -1;
+
+    const seasonSelect = document.getElementById('season-select');
+    const seasonSections = document.querySelectorAll('.season-section');
+    const videoArea = document.getElementById('video-area');
+    const playerContainer = document.getElementById('player-container');
+    const videoTitleDisplay = document.getElementById('active-video-title');
+    const episodeCards = document.querySelectorAll('.episode-card');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const seasonDisplayBtn = document.getElementById('season-display-btn');
+    const playMovieBtn = document.querySelector('.play-movie-btn');
+
+    // MOVIE BUTTON HANDLER
+    if(playMovieBtn && animeData.type === 'movie' && allEpisodes.length > 0) {
+        playMovieBtn.addEventListener('click', () => {
+            currentEpisodeIndex = 0;
+            playEpisode(0);
+
+            const animeId = playMovieBtn.dataset.animeId;
+            const animeName = playMovieBtn.dataset.animeName;
+            const animeImg = playMovieBtn.dataset.animeImg;
+
+            if (animeId && animeName) {
+                saveToHistory({
+                    animeId,
+                    animeName,
+                    animeImg,
+                    season: 1,
+                    episode: 1
+                });
+            }
+        });
+    }
+
+    if(seasonSelect) {
+        seasonSelect.addEventListener('change', (e) => {
+            const selected = e.target.value;
+            seasonSections.forEach(s => s.dataset.season === selected? s.classList.remove('hidden') : s.classList.add('hidden'));
+            closePlayer();
+        });
+    }
+
+    episodeCards.forEach((card) => {
+        card.addEventListener('click', () => {
+            const seasonIdx = parseInt(card.dataset.seasonIndex);
+            const epIdx = parseInt(card.dataset.episodeIndex);
+            currentEpisodeIndex = allEpisodes.findIndex(ep => ep.seasonIndex === seasonIdx && ep.episodeIndex === epIdx);
+            playEpisode(currentEpisodeIndex);
+
+            const animeId = card.dataset.animeId;
+            const animeName = card.dataset.animeName;
+            const animeImg = card.dataset.animeImg;
+            const season = card.dataset.seasonNumber;
+            const episode = allEpisodes[currentEpisodeIndex]?.episodeNumber;
+
+            if (animeId && animeName) {
+                saveToHistory({
+                    animeId,
+                    animeName,
+                    animeImg,
+                    season: parseInt(season),
+                    episode: parseInt(episode)
+                });
+            }
+        });
+    });
+
+    function playEpisode(index) {
+        if (index < 0 || index >= allEpisodes.length) return;
+
+        currentEpisodeIndex = index;
+        const ep = allEpisodes[index];
+
+        playerContainer.innerHTML = '';
+        if (ep.embedCode && ep.embedCode.trim()!== '') {
+            playerContainer.innerHTML = ep.embedCode;
+            const iframe = playerContainer.querySelector('iframe');
+            if (iframe) iframe.className = "w-full h-full border-0";
+        } else if (ep.videoUrl) {
+            playerContainer.innerHTML = `<video controls autoplay poster="${ep.poster}"><source src="${ep.videoUrl}" type="video/mp4"></video>`;
+        }
+
+        // MOVIE vs SERIES TITLE
+        if(animeData.type === 'movie') {
+            videoTitleDisplay.textContent = `${animeData.name}`;
+        } else {
+            videoTitleDisplay.textContent = `S${ep.seasonNumber} Ep ${ep.episodeNumber}: ${ep.title}`;
+        }
+
+        if(seasonDisplayBtn) {
+            seasonDisplayBtn.innerHTML = animeData.type === 'movie'? `<i class="fas fa-film"></i> Movie` : `<i class="fas fa-layer-group"></i> S${ep.seasonNumber}`;
+        }
+
+        // NEXT/PREV ONLY FOR SERIES
+        if(animeData.type === 'movie') {
+            if(prevBtn) prevBtn.disabled = true;
+            if(nextBtn) nextBtn.disabled = true;
+        } else {
+            const currentSeason = ep.seasonNumber;
+            const prevEpisode = allEpisodes[index - 1];
+            const nextEpisode = allEpisodes[index + 1];
+
+            if(prevBtn) prevBtn.disabled =!prevEpisode || prevEpisode.seasonNumber!== currentSeason;
+            if(nextBtn) nextBtn.disabled =!nextEpisode || nextEpisode.seasonNumber!== currentSeason;
+        }
+
+        videoArea.classList.remove('hidden');
+        videoArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    if(prevBtn) {
+        prevBtn.addEventListener('click', () => {
+            if (currentEpisodeIndex > 0 && animeData.type!== 'movie') {
+                const currentSeason = allEpisodes[currentEpisodeIndex].seasonNumber;
+                const prevEpisode = allEpisodes[currentEpisodeIndex - 1];
+                if(prevEpisode && prevEpisode.seasonNumber === currentSeason) {
+                    playEpisode(currentEpisodeIndex - 1);
+                }
+            }
+        });
+    }
+
+    if(nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            if (currentEpisodeIndex < allEpisodes.length - 1 && animeData.type!== 'movie') {
+                const currentSeason = allEpisodes[currentEpisodeIndex].seasonNumber;
+                const nextEpisode = allEpisodes[currentEpisodeIndex + 1];
+                if(nextEpisode && nextEpisode.seasonNumber === currentSeason) {
+                    playEpisode(currentEpisodeIndex + 1);
+                }
+            }
+        });
+    }
+
+    document.addEventListener('click', function(e) {
+        const target = e.target.closest('[data-action]');
+        if (!target) return;
+
+        const action = target.dataset.action;
+
+        if (action === 'close-player') {
+            closePlayer();
+        } else if (action === 'reply') {
+            toggleReplyForm(target.dataset.commentId);
+        } else if (action === 'cancel-reply') {
+            toggleReplyForm(target.dataset.commentId);
+        } else if (action === 'delete-comment') {
+            confirmDeleteComment(target.dataset.animeId, target.dataset.commentId);
+        }
+    });
+
+    function toggleReplyForm(id) {
+        const f = document.getElementById(`reply-form-${id}`);
+        if(f) {
+            f.classList.toggle('hidden');
+            if (!f.classList.contains('hidden')) {
+                f.querySelector('textarea').focus();
+            }
+        }
+    }
+
+    function closePlayer() {
+        const videoArea = document.getElementById('video-area');
+        const playerContainer = document.getElementById('player-container');
+        if(videoArea) videoArea.classList.add('hidden');
+        if(playerContainer) playerContainer.innerHTML = '';
+        currentEpisodeIndex = -1;
+    }
+
+    function confirmDeleteComment(animeId, commentId) {
+        Swal.fire({
+            title: 'Delete Comment?',
+            text: "This action cannot be undone.",
+            icon: 'warning',
+            background: '#0b0e11',
+            color: '#ffffff',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#1f2937',
+            confirmButtonText: 'Yes, delete it!',
+            customClass: {
+                popup: 'rounded-2xl border border-white/10 shadow-2xl'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/anime/comment/delete/${animeId}/${commentId}`;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        })
+    }
+
+    // ========== WATCH HISTORY LOGIC ==========
+    const HISTORY_KEY = `watchHistory_${userData.userId || 'guest'}`;
+    const MAX_HISTORY = 20;
+
+    function getWatchHistory() {
+        if (!userData.isLoggedIn) return [];
+        const data = localStorage.getItem(HISTORY_KEY);
+        return data? JSON.parse(data) : [];
+    }
+
+    function saveToHistory(animeData) {
+        if (!userData.isLoggedIn) return;
+
+        let history = getWatchHistory();
+        history = history.filter(item => item.animeId!== animeData.animeId);
+        history.unshift({
+...animeData,
+            watchedAt: Date.now()
+        });
+        history = history.slice(0, MAX_HISTORY);
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+        renderWatchHistory();
+    }
+
+    function renderWatchHistory() {
+        const history = getWatchHistory();
+        const section = document.getElementById('watch-history-section');
+        const grid = document.getElementById('watch-history-grid');
+
+        if (history.length === 0 ||!userData.isLoggedIn) {
+            if(section) section.classList.add('hidden');
+            return;
+        }
+
+        if(section) section.classList.remove('hidden');
+        if(grid) {
+            grid.innerHTML = '';
+            history.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'episode-glass-card group cursor-pointer p-1 rounded-lg md:rounded-xl border border-white/5 transition-all';
+                card.innerHTML = `
+                    <a href="/anime/${item.animeId}" class="block">
+                        <div class="relative aspect-video overflow-hidden rounded-md md:rounded-lg">
+                            <img src="${item.animeImg}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                            <div class="absolute top-0.5 left-0.5 md:top-1 md:left-1 bg-black/80 backdrop-blur-md text-[6px] md:text-[8px] font-black text-white px-1 py-0.5 rounded border-white/10 uppercase">
+                                S${item.season} E${item.episode}
+                            </div>
+                        </div>
+                        <div class="mt-1.5 text-center">
+                            <h3 class="text-white text-[8px] md:text-xs font-bold line-clamp-2 leading-tight">
+                                ${item.animeName}
+                            </h3>
+                            <p class="text-gray-500 text-[7px] md:text-[9px] uppercase font-black tracking-tighter">
+                                ep ${item.episode}
+                            </p>
+                        </div>
+                    </a>
+                `;
+                grid.appendChild(card);
+            });
+        }
+    }
+        window.confirmClearHistory = function() {
+        Swal.fire({
+            title: 'Wipe History?',
+            text: "This will permanently clear your recently watched anime.",
+            icon: 'warning',
+            background: '#0b0e11',
+            color: '#ffffff',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#1f2937',
+            confirmButtonText: 'Yes, clear it!',
+            customClass: {
+                popup: 'rounded-2xl border border-white/10 shadow-2xl'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                localStorage.removeItem(HISTORY_KEY);
+                renderWatchHistory();
+                Swal.fire({
+                    title: 'Cleared!',
+                    text: 'Your watch history has been deleted.',
+                    icon: 'success',
+                    background: '#0b0e11',
+                    color: '#ffffff',
+                    confirmButtonColor: '#3b82f6',
+                    timer: 2000,
+                    customClass: {
+                        popup: 'rounded-2xl border border-white/10'
+                    }
+                });
+            }
+        })
+    }
+
+    // Initialize on load
+    renderWatchHistory();
+</script>
+
+<%- include('partials/footer') %>

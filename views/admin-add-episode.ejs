@@ -1,0 +1,309 @@
+<%- include('partials/header') %>
+
+<style>
+    :root {
+        --bg-deep: #0b0e11;
+        --card-navy: #151b23;
+        --input-dark: #1c232d;
+        --primary-blue: #3b82f6;
+        --text-muted: #9ca3af;
+        --danger-red: #ef4444;
+        --success-green: #10b981;
+    }
+
+    body {
+        background-color: var(--bg-deep);
+        color: #ffffff;
+        font-family: 'Inter', sans-serif;
+    }
+
+   .admin-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 90vh;
+        width: 100%;
+        padding: 4rem 1.5rem;
+    }
+
+   .ui-card {
+        background-color: var(--card-navy);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        border-radius: 2.5rem;
+        width: 100%;
+        max-width: 650px;
+        padding: 3.5rem;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+   .ui-label {
+        font-size: 0.75rem;
+        font-weight: 800;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.6rem;
+        display: block;
+    }
+
+   .ui-input {
+        background-color: var(--input-dark);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 1rem;
+        color: #ffffff;
+        padding: 1.1rem;
+        width: 100%;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+        box-sizing: border-box;
+    }
+
+   .ui-input:focus {
+        outline: none;
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 1px var(--primary-blue);
+    }
+
+   .ui-button {
+        background-color: var(--primary-blue);
+        color: #ffffff;
+        font-weight: 800;
+        padding: 1.2rem;
+        border-radius: 1.25rem;
+        width: 100%;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        border: none;
+        cursor: pointer;
+        margin-top: 1rem;
+    }
+
+   .ui-button:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.1);
+        box-shadow: 0 15px 25px rgba(59, 130, 246, 0.3);
+    }
+
+   .ui-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+   .back-link {
+        color: var(--text-muted);
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-decoration: none;
+        margin-bottom: 2rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+   .back-link:hover { color: #fff; }
+
+   .input-hint {
+        font-size: 10px;
+        color: #64748b;
+        margin-top: 6px;
+        font-weight: 700;
+        text-transform: uppercase;
+        display: block;
+    }
+
+   .flash-alert {
+        padding: 1rem 1.25rem;
+        border-radius: 1rem;
+        margin-bottom: 1.5rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+   .flash-error {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: #fca5a5;
+    }
+
+   .flash-success {
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        color: #6ee7b7;
+    }
+
+   .form-error {
+        color: var(--danger-red);
+        font-size: 0.75rem;
+        font-weight: 700;
+        margin-top: 0.5rem;
+        display: none;
+    }
+
+   .form-error.show { display: block; }
+
+   .movie-notice {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 1rem;
+        padding: 1rem;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+   .movie-notice-icon {
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+
+   .movie-notice-text {
+        font-size: 0.75rem;
+        font-weight: 800;
+        color: #fca5a5;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        line-height: 1.4;
+    }
+
+    @media (max-width: 640px) {
+       .ui-card { padding: 2rem 1.5rem; }
+    }
+</style>
+
+<div class="admin-wrapper">
+    <div class="text-center mb-10">
+        <a href="/admin/dashboard" class="back-link">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+            Return to Dashboard
+        </a>
+        <h1 class="text-4xl md:text-5xl font-black tracking-tighter uppercase">
+            Add <span class="text-blue-500"><%= anime.type === 'movie'? 'Movie' : 'Episode' %></span>
+        </h1>
+        <p class="text-gray-500 mt-2 font-medium">Linking to: <span class="text-white font-bold"><%= anime.name %></span></p>
+    </div>
+
+    <div class="ui-card">
+        <!-- Flash Messages -->
+        <% if (messages && messages.error && messages.error.length > 0) { %>
+            <div class="flash-alert flash-error">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <%= messages.error %>
+            </div>
+        <% } %>
+        <% if (messages && messages.success && messages.success.length > 0) { %>
+            <div class="flash-alert flash-success">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <%= messages.success %>
+            </div>
+        <% } %>
+
+        <form action="/admin/add-episode/<%= anime._id %>" method="POST" id="episodeForm">
+
+            <!-- FIX: Movie ke liye Season/Episode hide -->
+            <% if(anime.type === 'movie') { %>
+            <div class="movie-notice">
+                <div class="movie-notice-icon">🎬</div>
+                <div class="movie-notice-text">
+                    Movie Mode: Season & Episode auto-set to 1.<br>
+                    Just add video URL or embed code below.
+                </div>
+            </div>
+            <input type="hidden" name="seasonNumber" value="1">
+            <input type="hidden" name="episodeNumber" value="1">
+            <% } else { %>
+            <div class="grid grid-cols-2 gap-5 mb-8">
+                <div>
+                    <label class="ui-label">Season</label>
+                    <input type="number" name="seasonNumber" placeholder="1" class="ui-input" required min="1" max="50">
+                </div>
+                <div>
+                    <label class="ui-label">Episode</label>
+                    <input type="number" name="episodeNumber" placeholder="1" class="ui-input" required min="1" max="999">
+                </div>
+            <% } %>
+
+            <div class="mb-8">
+                <label class="ui-label"><%= anime.type === 'movie'? 'Movie Title' : 'Episode Title' %></label>
+                <input type="text" name="title" placeholder="<%= anime.type === 'movie'? anime.name : 'e.g. The Awakening' %>" class="ui-input" required maxlength="200">
+            </div>
+
+            <div class="mb-8">
+                <label class="ui-label">Thumbnail URL <span class="text-[9px] bg-white/5 px-2 py-1 rounded ml-2">Optional</span></label>
+                <input type="url" name="imageUrl" placeholder="https://image-link.jpg" class="ui-input" maxlength="500">
+                <span class="input-hint">This acts as a "Poster" and will not block the play button.</span>
+            </div>
+
+            <div class="mb-8">
+                <label class="ui-label">Direct Video URL (MP4/HLS)</label>
+                <input type="url" name="videoUrl" id="videoUrl" placeholder="https://server.com/video.mp4" class="ui-input" maxlength="500">
+                <span class="input-hint">Use this for high-speed direct streaming.</span>
+            </div>
+
+            <div class="mb-10">
+                <label class="ui-label">Iframe / Embed Code</label>
+                <textarea name="embedCode" id="embedCode" rows="4" placeholder="Paste <iframe...> here" class="ui-input" maxlength="2000"></textarea>
+                <span class="input-hint">Preferred for third-party hosting (YouTube, G-Drive, etc).</span>
+                <div class="form-error" id="urlError">Either Video URL or Embed Code is required</div>
+            </div>
+
+            <button type="submit" class="ui-button" id="submitBtn">
+                Deploy <%= anime.type === 'movie'? 'Movie' : 'Episode' %>
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById('episodeForm');
+    const videoUrl = document.getElementById('videoUrl');
+    const embedCode = document.getElementById('embedCode');
+    const urlError = document.getElementById('urlError');
+    const submitBtn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', (e) => {
+        const hasVideoUrl = videoUrl.value.trim()!== '';
+        const hasEmbedCode = embedCode.value.trim()!== '';
+
+        if (!hasVideoUrl &&!hasEmbedCode) {
+            e.preventDefault();
+            urlError.classList.add('show');
+            videoUrl.style.borderColor = '#ef4444';
+            embedCode.style.borderColor = '#ef4444';
+            return false;
+        }
+
+        urlError.classList.remove('show');
+        videoUrl.style.borderColor = '';
+        embedCode.style.borderColor = '';
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Deploying...';
+    });
+
+    videoUrl.addEventListener('input', () => {
+        if (videoUrl.value.trim()!== '') {
+            urlError.classList.remove('show');
+            videoUrl.style.borderColor = '';
+            embedCode.style.borderColor = '';
+        }
+    });
+
+    embedCode.addEventListener('input', () => {
+        if (embedCode.value.trim()!== '') {
+            urlError.classList.remove('show');
+            videoUrl.style.borderColor = '';
+            embedCode.style.borderColor = '';
+        }
+    });
+</script>
+
+<%- include('partials/footer') %>

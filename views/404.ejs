@@ -1,0 +1,88 @@
+<%- include('partials/header') %>
+
+<style>
+    :root {
+        --bg-deep: #0b0e11;
+        --card-navy: #151b23;
+        --primary-blue: #3b82f6;
+    }
+
+    body { 
+        background-color: var(--bg-deep); 
+        color: #ffffff; 
+        font-family: 'Inter', sans-serif; 
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .error-wrapper {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+
+    .glass-error-card {
+        background: rgba(21, 27, 35, 0.7);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 2.5rem;
+        padding: 4rem 2rem;
+        max-width: 500px;
+        width: 100%;
+        text-align: center;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .error-icon {
+        font-size: 4rem;
+        margin-bottom: 1.5rem;
+        display: block;
+    }
+
+    .btn-home {
+        background-color: var(--primary-blue);
+        color: white;
+        padding: 1rem 2.5rem;
+        border-radius: 1rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.75rem;
+        transition: all 0.3s ease;
+        display: inline-block;
+        margin-top: 2rem;
+        box-shadow: 0 10px 20px rgba(59, 130, 246, 0.2);
+    }
+
+    .btn-home:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 25px rgba(59, 130, 246, 0.3);
+        filter: brightness(1.1);
+    }
+</style>
+
+<div class="error-wrapper">
+    <div class="glass-error-card">
+        <span class="error-icon">🛰️</span>
+        
+        <h1 class="text-4xl font-black tracking-tighter mb-4 uppercase">
+            System <span class="text-blue-500">Error</span>
+        </h1>
+
+        <div class="text-gray-400 font-medium leading-relaxed">
+            <% if (typeof message === 'string') { %>
+                <%= message %>
+            <% } else { %>
+                An unexpected error occurred. Please try again later.
+            <% } %>
+        </div>
+
+        <a href="/" class="btn-home">Back to Safety</a>
+    </div>
+</div>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,226 @@
+<%- include('partials/header') %>
+<style>
+    :root {
+        --bg-deep: #0b0e11;
+        --card-navy: #151b23;
+        --input-dark: #1c232d;
+        --primary-blue: #3b82f6;
+        --text-muted: #9ca3af;
+        --danger-red: #ef4444;
+    }
+
+    body {
+        background-color: var(--bg-deep);
+        color: #ffffff;
+        font-family: 'Inter', sans-serif;
+    }
+
+   .admin-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 90vh;
+        width: 100%;
+        padding: 4rem 1.25rem;
+    }
+
+   .ui-card {
+        background-color: var(--card-navy);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        border-radius: 2.5rem;
+        width: 100%;
+        max-width: 650px;
+        padding: 3.5rem;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+   .ui-label {
+        font-size: 0.75rem;
+        font-weight: 800;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.75rem;
+        display: block;
+    }
+
+   .ui-input {
+        background-color: var(--input-dark);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 1rem;
+        color: #ffffff;
+        padding: 1.1rem;
+        width: 100%;
+        transition: all 0.2s ease;
+        font-size: 0.95rem;
+        box-sizing: border-box;
+    }
+
+   .ui-input:focus {
+        outline: none;
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 1px var(--primary-blue);
+    }
+
+   .ui-input:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background: rgba(28, 35, 45, 0.5);
+    }
+
+   .ui-button {
+        background-color: var(--primary-blue);
+        color: #ffffff;
+        font-weight: 800;
+        padding: 1.2rem;
+        border-radius: 1.25rem;
+        width: 100%;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        border: none;
+        cursor: pointer;
+        margin-top: 1rem;
+    }
+
+   .ui-button:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.1);
+        box-shadow: 0 15px 30px rgba(59, 130, 246, 0.3);
+    }
+
+   .back-link {
+        color: var(--text-muted);
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-decoration: none;
+        margin-bottom: 2rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+   .back-link:hover { color: #fff; }
+
+   .meta-info {
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #64748b;
+        margin-bottom: 5px;
+        display: block;
+    }
+
+   .movie-notice {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 1rem;
+        padding: 1rem;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+   .movie-notice-icon {
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+
+   .movie-notice-text {
+        font-size: 0.75rem;
+        font-weight: 800;
+        color: #fca5a5;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        line-height: 1.4;
+    }
+</style>
+
+<div class="admin-wrapper">
+
+    <div class="text-center mb-10">
+        <a href="/admin/dashboard" class="back-link">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+            Discard Changes
+        </a>
+        <h1 class="text-4xl md:text-5xl font-black tracking-tighter uppercase">
+            Edit <span class="text-blue-500"><%= anime && anime.type === 'movie'? 'Movie' : 'Episode' %></span>
+        </h1>
+        <p class="text-gray-500 mt-2 font-medium">
+            <% if (typeof anime!== 'undefined' && anime.type === 'movie') { %>
+                Updating: <span class="text-white"><%= anime.name %></span> • <span class="text-red-400">Movie File</span>
+            <% } else if (typeof anime!== 'undefined' && typeof season!== 'undefined') { %>
+                Updating: <span class="text-white"><%= anime.name %></span> • <span class="text-blue-400">S<%= season.seasonNumber %> E<%= episode.episodeNumber %></span>
+            <% } else { %>
+                Configuration for Episode ID: <span class="text-white"><%= episode._id %></span>
+            <% } %>
+        </p>
+    </div>
+
+    <div class="ui-card">
+        <%- include('partials/flash') %>
+
+        <form action="/admin/edit-episode/<%= episode._id %>" method="POST">
+
+            <!-- FIX: Movie ke liye Season/Episode disable + hide -->
+            <% if(anime && anime.type === 'movie') { %>
+            <div class="movie-notice">
+                <div class="movie-notice-icon">🎬</div>
+                <div class="movie-notice-text">
+                    Movie Mode: Season & Episode locked to 1.<br>
+                    Only title and video sources can be updated.
+                </div>
+            </div>
+            <input type="hidden" name="seasonNumber" value="1">
+            <input type="hidden" name="episodeNumber" value="1">
+            <% } else { %>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div>
+                    <label class="ui-label">Episode Number</label>
+                    <input type="number" name="episodeNumber" value="<%= episode.episodeNumber %>" class="ui-input" required min="1">
+                    <span class="text-[9px] text-yellow-500 mt-2 block uppercase font-bold">Warning: Changing affects order</span>
+                </div>
+                <div>
+                    <label class="ui-label">Season Number</label>
+                    <input type="number" name="seasonNumber" value="<%= episode.seasonNumber %>" class="ui-input" required min="1">
+                    <span class="text-[9px] text-yellow-500 mt-2 block uppercase font-bold">Warning: Will move episode</span>
+                </div>
+            </div>
+            <% } %>
+
+            <div class="mb-8">
+                <label class="ui-label"><%= anime && anime.type === 'movie'? 'Movie Title' : 'Episode Title' %></label>
+                <input type="text" name="title" value="<%= episode.title %>" class="ui-input" required maxlength="200">
+            </div>
+
+            <div class="mb-8">
+                <label class="ui-label">Thumbnail Image URL</label>
+                <input type="url" name="imageUrl" value="<%= episode.imageUrl %>" class="ui-input" placeholder="https://image-link.com/thumb.jpg" maxlength="500">
+                <span class="text-[9px] text-gray-600 mt-2 block uppercase font-bold italic">Will appear as video poster</span>
+            </div>
+
+            <div class="mb-8">
+                <label class="ui-label">Direct Video URL (MP4/HLS)</label>
+                <input type="url" name="videoUrl" value="<%= episode.videoUrl %>" class="ui-input" placeholder="https://server.tech/video.mp4" maxlength="500">
+            </div>
+
+            <div class="mb-10">
+                <label class="ui-label">Embed Code (Iframe)</label>
+                <textarea name="embedCode" rows="4" class="ui-input" placeholder="<iframe src='...'></iframe>" maxlength="2000"><%= episode.embedCode %></textarea>
+                <span class="text-[9px] text-gray-600 mt-2 block uppercase font-bold italic">Iframe priority over direct URL</span>
+            </div>
+
+            <button type="submit" class="ui-button">
+                Apply System Updates
+            </button>
+        </form>
+    </div>
+</div>
+
+<%- include('partials/footer') %>
