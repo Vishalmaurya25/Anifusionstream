@@ -1,0 +1,400 @@
+<%- include('partials/header') %>
+
+<!-- Import Rajdhani for the Futuristic Anime/Gaming UI typography -->
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+    :root {
+        --bg-deep: #06090e;
+        --ui-dark: #0f141e;
+        --ui-border: rgba(59, 130, 246, 0.2);
+        --neon-blue: #3b82f6;
+        --neon-cyan: #06b6d4;
+        --neon-yellow: #facc15;
+        --neon-red: #ef4444;
+        --neon-purple: #8b5cf6;
+        --neon-green: #10b981;
+        --text-main: #e2e8f0;
+        --text-dim: #94a3b8;
+    }
+
+    body {
+        background: var(--bg-deep);
+        color: var(--text-main);
+        font-family: 'Inter', sans-serif;
+        overflow-x: hidden;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    .anime-font {
+        font-family: 'Rajdhani', sans-serif;
+    }
+
+    /* Holographic System Grid */
+    .system-bg {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background-color: var(--bg-deep);
+        background-image: 
+            linear-gradient(var(--ui-border) 1px, transparent 1px),
+            linear-gradient(90deg, var(--ui-border) 1px, transparent 1px);
+        background-size: 50px 50px;
+        mask-image: radial-gradient(ellipse at top left, black 20%, transparent 80%);
+        -webkit-mask-image: radial-gradient(ellipse at top left, black 20%, transparent 80%);
+        opacity: 0.2;
+    }
+
+    /* Background Japanese Accent (Privacy Policy) */
+    .bg-kanji {
+        position: fixed;
+        right: -2rem;
+        bottom: 5%;
+        font-size: 12vw;
+        font-weight: 900;
+        color: rgba(255, 255, 255, 0.02);
+        writing-mode: vertical-rl;
+        z-index: 0;
+        pointer-events: none;
+        line-height: 0.8;
+    }
+
+    .page-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 5rem 1.5rem;
+        position: relative;
+        z-index: 1;
+        min-height: 80vh;
+    }
+
+    /* Main Sci-Fi Card */
+    .system-card {
+        background: rgba(15, 20, 30, 0.85);
+        backdrop-filter: blur(16px);
+        border: 1px solid var(--ui-border);
+        border-top: 3px solid var(--neon-cyan);
+        padding: 4rem;
+        margin-bottom: 2.5rem;
+        position: relative;
+        /* Mecha/Sci-Fi Angled Corners */
+        clip-path: polygon(0 0, 100% 0, 100% calc(100% - 40px), calc(100% - 40px) 100%, 0 100%);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    }
+
+    /* Decorative bottom-right corner block */
+    .system-card::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 40px;
+        height: 40px;
+        background: var(--ui-border);
+        clip-path: polygon(100% 0, 0% 100%, 100% 100%);
+    }
+
+    .system-badge {
+        position: absolute;
+        top: 0;
+        left: 2.5rem;
+        background: var(--neon-cyan);
+        color: #000;
+        padding: 4px 20px;
+        font-size: 0.8rem;
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        clip-path: polygon(0 0, 100% 0, 90% 100%, 10% 100%);
+    }
+
+    .page-title {
+        font-size: 3.5rem;
+        font-weight: 900;
+        letter-spacing: 2px;
+        line-height: 1.1;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        text-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
+    }
+
+    .title-gradient {
+        background: linear-gradient(135deg, var(--neon-cyan) 0%, var(--neon-purple) 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    /* Tech Info Boxes */
+    .tech-box {
+        background: rgba(0, 0, 0, 0.4);
+        padding: 2rem;
+        margin: 2rem 0;
+        position: relative;
+        border-right: 1px solid var(--ui-border);
+        border-bottom: 1px solid var(--ui-border);
+        transition: all 0.3s ease;
+    }
+
+    .tech-box::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        transition: width 0.3s ease;
+    }
+
+    .tech-box:hover {
+        background: rgba(59, 130, 246, 0.05);
+        transform: translateX(8px);
+    }
+    .tech-box:hover::before { width: 8px; }
+
+    /* Box Variations */
+    .box-blue::before { background: var(--neon-blue); box-shadow: 0 0 15px var(--neon-blue); }
+    .box-cyan::before { background: var(--neon-cyan); box-shadow: 0 0 15px var(--neon-cyan); }
+    .box-purple::before { background: var(--neon-purple); box-shadow: 0 0 15px var(--neon-purple); }
+    .box-yellow::before { background: var(--neon-yellow); box-shadow: 0 0 15px var(--neon-yellow); }
+    .box-green::before { background: var(--neon-green); box-shadow: 0 0 15px var(--neon-green); }
+    .box-red::before { background: var(--neon-red); box-shadow: 0 0 15px var(--neon-red); }
+
+    .tech-box h2 {
+        font-weight: 800;
+        font-size: 1.25rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 1rem;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .tech-box p {
+        color: var(--text-dim);
+        line-height: 1.8;
+        font-size: 0.95rem;
+    }
+
+    .icon-wrapper {
+        width: 2.2rem;
+        height: 2.2rem;
+        background: rgba(255, 255, 255, 0.05);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        clip-path: polygon(15% 0, 100% 0, 85% 100%, 0% 100%);
+    }
+
+    .icon-blue { color: var(--neon-blue); border-bottom: 2px solid var(--neon-blue); }
+    .icon-cyan { color: var(--neon-cyan); border-bottom: 2px solid var(--neon-cyan); }
+    .icon-purple { color: var(--neon-purple); border-bottom: 2px solid var(--neon-purple); }
+    .icon-yellow { color: var(--neon-yellow); border-bottom: 2px solid var(--neon-yellow); }
+    .icon-green { color: var(--neon-green); border-bottom: 2px solid var(--neon-green); }
+    .icon-red { color: var(--neon-red); border-bottom: 2px solid var(--neon-red); }
+
+    /* System Readout List (Replaces Checkmarks) */
+    .data-row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem 1rem;
+        background: rgba(0,0,0,0.4);
+        border-left: 2px solid var(--neon-cyan);
+        margin-bottom: 0.5rem;
+        transition: all 0.3s ease;
+        clip-path: polygon(0 0, 100% 0, 98% 100%, 0% 100%);
+    }
+
+    .data-row:hover {
+        background: rgba(6, 182, 212, 0.1);
+        transform: translateX(5px);
+        border-left-width: 4px;
+    }
+
+    .data-row i {
+        color: var(--neon-cyan);
+        font-size: 0.8rem;
+    }
+
+    .data-text {
+        color: #e2e8f0;
+        font-weight: 600;
+        letter-spacing: 1px;
+    }
+
+    /* Cyberpunk Action Button */
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        background: linear-gradient(90deg, var(--neon-purple), var(--neon-cyan));
+        color: #000;
+        padding: 1.25rem 3rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-size: 0.95rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        text-decoration: none;
+        clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+        box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+    }
+
+    .action-btn:hover {
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 0 30px rgba(139, 92, 246, 0.6);
+        filter: brightness(1.2);
+    }
+
+    /* Media Queries */
+    @media (max-width: 640px) {
+        .system-card { padding: 2.5rem 1.5rem; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%); }
+        .page-title { font-size: 2.5rem; }
+        .bg-kanji { font-size: 25vw; opacity: 0.3; }
+        .system-badge { left: 1.5rem; }
+    }
+</style>
+
+<!-- Background Grid & Accents -->
+<div class="system-bg"></div>
+<div class="bg-kanji">個人情報保護方針</div> <!-- "Personal Information Protection Policy" in Japanese -->
+
+<div class="page-container">
+    
+    <div class="text-center mb-12 relative">
+        <div class="inline-flex items-center justify-center w-20 h-20 bg-gray-900 border border-cyan-500/30 mb-6 relative" style="clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); box-shadow: 0 0 30px rgba(6,182,212,0.2);">
+            <i class="fas fa-user-secret text-cyan-400 text-3xl"></i>
+        </div>
+        <h1 class="page-title anime-font">
+            Privacy <span class="title-gradient">Policy</span>
+        </h1>
+        <p class="anime-font text-purple-400 text-lg font-bold tracking-widest uppercase opacity-80">
+            // Data Protection Protocol Initiated
+        </p>
+    </div>
+
+    <!-- MAIN SYSTEM CARD -->
+    <div class="system-card">
+        <div class="system-badge anime-font">Security / セキュリティ</div>
+        
+        <p class="text-gray-300 font-medium leading-relaxed mb-6 border-l-2 border-cyan-500 pl-4">
+            At <strong class="text-cyan-400">AniFusionStream</strong>, securing your personal data is one of our highest operational priorities.
+        </p>
+
+        <div class="tech-box box-blue">
+            <h2 class="anime-font">
+                <div class="icon-wrapper icon-blue">
+                    <i class="fas fa-handshake"></i>
+                </div>
+                User Consent
+            </h2>
+            <p>
+                By interfacing with our terminal (website), you hereby explicitly consent to our Privacy Policy and agree to abide by its defined parameters and terms of operation.
+            </p>
+        </div>
+
+        <div class="tech-box box-purple">
+            <h2 class="anime-font">
+                <div class="icon-wrapper icon-purple">
+                    <i class="fas fa-database"></i>
+                </div>
+                Information Extracted
+            </h2>
+            <p>
+                We collect your designated alias (name), transmission address (email), and relevant telemetry data when you register an account or initiate contact. This dataset is encrypted and is never sold to third-party entities.
+            </p>
+        </div>
+
+        <div class="tech-box box-cyan">
+            <h2 class="anime-font">
+                <div class="icon-wrapper icon-cyan">
+                    <i class="fas fa-cogs"></i>
+                </div>
+                Data Utilization Protocol
+            </h2>
+            <p class="mb-4">Your extracted data is routed through the following protocols:</p>
+            
+            <div class="data-row">
+                <i class="fas fa-chevron-right"></i>
+                <span class="data-text anime-font uppercase">System Optimization & Personalization</span>
+            </div>
+            <div class="data-row">
+                <i class="fas fa-chevron-right"></i>
+                <span class="data-text anime-font uppercase">Direct User Communication Relays</span>
+            </div>
+            <div class="data-row">
+                <i class="fas fa-chevron-right"></i>
+                <span class="data-text anime-font uppercase">Fraud Prevention & Threat Nullification</span>
+            </div>
+            <div class="data-row">
+                <i class="fas fa-chevron-right"></i>
+                <span class="data-text anime-font uppercase">Traffic Analytics & Platform Upgrades</span>
+            </div>
+        </div>
+
+        <div class="tech-box box-yellow">
+            <h2 class="anime-font">
+                <div class="icon-wrapper icon-yellow">
+                    <i class="fas fa-microchip"></i> <!-- Swapped cookie for microchip to fit vibe -->
+                </div>
+                Cookies & Web Beacons
+            </h2>
+            <p>
+                We deploy tracking cookies to store session preferences, maintain secure login states, and calibrate your interface experience dynamically based on your browser specifications.
+            </p>
+        </div>
+
+        <div class="tech-box box-green">
+            <h2 class="anime-font">
+                <div class="icon-wrapper icon-green">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                Data Protection Rights (GDPR/CCPA)
+            </h2>
+            <p>
+                Under global privacy mandates, you retain ultimate authority to access, correct, erase, restrict, or object to our processing of your personal data. To execute these rights, submit a formal request to the administrative team.
+            </p>
+        </div>
+
+        <div class="tech-box box-red">
+            <h2 class="anime-font">
+                <div class="icon-wrapper icon-red">
+                    <i class="fas fa-child"></i>
+                </div>
+                Minor's Protection
+            </h2>
+            <p class="mb-0">
+                We do not knowingly extract personal identifiable telemetry from users under 13. If a minor's data has bypassed our filters, alert the admin team immediately for prompt deletion protocols.
+            </p>
+        </div>
+
+    </div>
+
+    <!-- ACTION CARD -->
+    <div class="system-card text-center" style="border-top-color: var(--neon-purple);">
+        <div class="system-badge anime-font" style="background: var(--neon-purple); color: white;">Query / 質問</div>
+        
+        <h2 class="text-2xl anime-font font-black mb-4 flex items-center justify-center gap-3 uppercase tracking-widest">
+            <i class="fas fa-question-circle text-purple-400"></i>
+            Privacy Concerns?
+        </h2>
+        <p class="text-gray-400 leading-relaxed px-4 mb-8">
+            If you require clarification on our data handling procedures or wish to extract your personal records, open a direct communication line with our operators.
+        </p>
+
+        <a href="/contact-us" class="action-btn anime-font">
+            <i class="fas fa-satellite-dish"></i>
+            Open Communication Link
+        </a>
+    </div>
+
+</div>
+
+<%- include("partials/footer") %>

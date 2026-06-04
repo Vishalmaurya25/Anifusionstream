@@ -1,0 +1,203 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@700;800&display=swap');
+
+  /* Wrapper with edge fading mask */
+  .carousel-wrapper {
+    overflow: hidden;
+    width: 100%;
+    position: relative;
+    padding: 2rem 0;
+    /* Fades the left and right edges for a seamless infinite look */
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+  }
+
+  .carousel-track {
+    display: flex;
+    align-items: center;
+    transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  .carousel-item {
+    min-width: 160px; 
+    margin: 0 1.2rem;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+  }
+
+  /* THE ANIME PORTAL CARD */
+  .arch-glass-card {
+    position: relative;
+    width: 150px;
+    height: 220px;
+    border-radius: 80px 80px 12px 12px;
+    overflow: hidden;
+    background: linear-gradient(145deg, rgba(25, 30, 40, 0.4) 0%, rgba(10, 12, 16, 0.6) 100%);
+    box-shadow: 
+      inset 0 0 0 1px rgba(255, 255, 255, 0.05),
+      0 10px 20px rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+  }
+
+  /* Tech UI framing corners */
+  .arch-glass-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border: 1px solid transparent;
+    border-radius: inherit;
+    background: linear-gradient(180deg, var(--glow-color), transparent 60%) border-box;
+    -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: destination-out;
+    mask-composite: exclude;
+    opacity: 0.5; /* Default thoda visible rakha hai */
+    transition: opacity 0.4s ease;
+    z-index: 2;
+  }
+
+  .arch-glass-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* FIX: Grayscale hata diya. Ab ye humesha full color aur bright rahega */
+    filter: brightness(0.95) contrast(1.1); 
+    transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  /* Decorative Japanese overlay text */
+  .jp-decor {
+    position: absolute;
+    top: 20px;
+    right: 15px;
+    color: rgba(255, 255, 255, 0.5);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 800;
+    writing-mode: vertical-rl;
+    letter-spacing: 2px;
+    z-index: 3;
+    transition: all 0.4s ease;
+  }
+
+  /* Hover States - Pop & Glow */
+  .carousel-item:hover .arch-glass-card {
+    transform: translateY(-15px);
+    box-shadow: 
+      0 20px 40px rgba(0, 0, 0, 0.8),
+      0 0 20px var(--glow-color);
+  }
+
+  .carousel-item:hover .arch-glass-card::before {
+    opacity: 1; /* Border glow full ho jayega */
+  }
+
+  .carousel-item:hover .arch-glass-card img {
+    /* Hover pe thoda aur bright aur punchy ho jayega */
+    filter: brightness(1.15) contrast(1.2);
+    transform: scale(1.1);
+  }
+
+  .carousel-item:hover .jp-decor {
+    color: var(--glow-color);
+    text-shadow: 0 0 8px var(--glow-color);
+  }
+
+  /* Sci-Fi UI Title Badge */
+  .pill-glass-title {
+    background: rgba(10, 14, 23, 0.95);
+    color: #ffffff;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    padding: 8px 20px;
+    margin-top: -20px;
+    z-index: 5;
+    text-align: center;
+    clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%);
+    border-bottom: 2px solid var(--glow-color);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  .carousel-item:hover .pill-glass-title {
+    background: var(--glow-color);
+    color: #000;
+    transform: scale(1.1) translateY(-5px);
+    letter-spacing: 3px;
+    box-shadow: 0 10px 20px var(--glow-color);
+  }
+
+  /* Inner Bottom Glow */
+  .glass-glow {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60%;
+    background: linear-gradient(to top, var(--glow-color), transparent);
+    opacity: 0.2; /* Base glow thoda bada diya hai */
+    z-index: 1;
+    transition: opacity 0.4s ease;
+    mix-blend-mode: screen;
+  }
+
+  .carousel-item:hover .glass-glow {
+    opacity: 0.8;
+  }
+</style>
+
+<div class="carousel-wrapper">
+  <div id="carouselTrack" class="carousel-track">
+    <% 
+    const items = [
+      { name: "Teogonia", glow: "#3b82f6", img: "/images/Teogonia.png" },
+      { name: "Solo Leveling", glow: "#22d3ee", img: "/images/Solo Leveling.png" },
+      { name: "NARUTO", glow: "#f97316", img: "/images/naruto.png" },
+      { name: "POKEMON", glow: "#eab308", img: "/images/pokemon.png" },
+      { name: "Jujutsu Kaisen", glow: "#a855f7", img: "/images/jujutsu kaisen.png" },
+      { name: "Demon Slayer", glow: "#ef4444", img: "/images/Demon Slayer.png" },
+      { name: "Dragon ball", glow: "#f59e0b", img: "/images/Dragon ball.png" },
+    ]; 
+    %>
+
+    <% [...items, ...items].forEach(item => { %>
+      <div class="carousel-item" style="--glow-color: <%= item.glow %>;">
+        <div class="arch-glass-card">
+          <div class="jp-decor">アニメ</div>
+          <img src="<%= item.img %>" alt="<%= item.name %>" />
+          <div class="glass-glow"></div>
+        </div>
+        <div class="pill-glass-title"><%= item.name %></div>
+      </div>
+    <% }) %>
+  </div>
+</div>
+
+<script>
+  const track = document.getElementById("carouselTrack");
+  
+  // Dynamic width calculation based on card width (150px) + margins (1.2rem = ~19.2px * 2)
+  const itemWidth = 150 + (19.2 * 2); 
+  
+  setInterval(() => {
+    // Tech-style snap transition
+    track.style.transition = "transform 0.8s cubic-bezier(0.25, 1, 0.5, 1)";
+    track.style.transform = `translateX(-${itemWidth}px)`;
+
+    setTimeout(() => {
+      const firstItem = track.children[0];
+      track.appendChild(firstItem);
+      track.style.transition = "none";
+      track.style.transform = "translateX(0)";
+    }, 800); // Matches the transition duration
+  }, 3500); // Slightly longer pause so users can appreciate the hover
+</script>

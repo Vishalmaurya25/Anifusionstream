@@ -1,0 +1,37 @@
+<div class="container mt-3 flash-messages">
+    <% if (messages.success && messages.success.length > 0) { %>
+        <% messages.success.forEach(function(msg) { %>
+            <div class="alert alert-success alert-dismissible fade show d-flex align-items-center shadow-sm" role="alert">
+                <span class="fs-4 me-3">✅</span>
+                <div>
+                    <strong>Success!</strong> <%= msg %>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <% }) %>
+    <% } %>
+
+    <% if (messages.info && messages.info.length > 0) { %>
+        <% messages.info.forEach(function(msg) { %>
+            <div class="alert alert-info alert-dismissible fade show d-flex align-items-center shadow-sm" role="alert">
+                <span class="fs-4 me-3">📧</span>
+                <div>
+                    <strong>Action Required:</strong> <%= msg %>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <% }) %>
+    <% } %>
+
+    <% if (messages.error && messages.error.length > 0) { %>
+        <% messages.error.forEach(function(msg) { %>
+            <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center shadow-sm" role="alert">
+                <span class="fs-4 me-3">⚠️</span>
+                <div>
+                    <strong>Oops!</strong> <%= msg %>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <% }) %>
+    <% } %>
+</div>

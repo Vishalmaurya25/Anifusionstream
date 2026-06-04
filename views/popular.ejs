@@ -1,0 +1,162 @@
+<section class="popular-section py-16 px-4 md:px-8">
+    <div class="max-w-7xl mx-auto">
+        
+        <div class="text-center mb-12">
+            <h2 class="text-4xl md:text-5xl font-black tracking-tighter text-white uppercase italic">
+                Trending <span class="text-blue-500">Pick</span>
+            </h2>
+            <div class="h-1 w-12 bg-blue-600 mx-auto mt-4 rounded-full shadow-[0_0_15px_rgba(59,130,246,0.5)]"></div>
+            <p class="text-gray-500 text-xs font-bold uppercase tracking-widest mt-3">Live data from AniList</p>
+        </div>
+
+        <div class="flex justify-center mb-12">
+            <div class="glass-tab-container p-1.5 rounded-full flex gap-2">
+                <button class="tab-btn active" data-tab="series">TV Series</button>
+                <button class="tab-btn" data-tab="movies">Movies</button>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="trending-loading" class="text-center py-20">
+            <i class="fas fa-spinner fa-spin text-4xl text-blue-500 mb-4"></i>
+            <p class="text-gray-500 text-sm font-bold uppercase">Fetching Live Trends...</p>
+        </div>
+
+        <!-- Series Tab -->
+        <div id="series" class="tab-content active animate-fade-in" style="display: none;">
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6" id="series-grid">
+                <!-- JS will populate -->
+            </div>
+        </div>
+
+        <!-- Movies Tab -->
+        <div id="movies" class="tab-content animate-fade-in" style="display: none;">
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6" id="movies-grid">
+                <!-- JS will populate -->
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<style>
+    /* Same CSS as before - no changes */
+    .popular-section { background-color: transparent; }
+    .glass-tab-container {
+        background: rgba(21, 27, 35, 0.6);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    .tab-btn {
+        padding: 10px 24px;
+        border-radius: 99px;
+        color: #9ca3af;
+        font-weight: 800;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: none;
+        background: transparent;
+        cursor: pointer;
+    }
+    .tab-btn.active {
+        background: #3b82f6;
+        color: white;
+        box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+    }
+    .popular-glass-card {
+        background: rgba(21, 27, 35, 0.4);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 10px;
+        border-radius: 1.5rem;
+        transition: all 0.4s ease;
+    }
+    .popular-glass-card:hover {
+        transform: translateY(-8px);
+        background: rgba(21, 27, 35, 0.8);
+        border-color: rgba(59, 130, 246, 0.4);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', async function() {
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const seriesGrid = document.getElementById('series-grid');
+    const moviesGrid = document.getElementById('movies-grid');
+    const loadingEl = document.getElementById('trending-loading');
+    const seriesTab = document.getElementById('series');
+    
+    // Tab switching logic
+    tabButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const tabId = this.dataset.tab;
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+                content.style.display = 'none';
+            });
+            tabButtons.forEach(b => b.classList.remove('active'));
+            const selectedTab = document.getElementById(tabId);
+            if (selectedTab) {
+                selectedTab.classList.add('active');
+                selectedTab.style.display = 'block';
+            }
+            this.classList.add('active');
+        });
+    });
+
+    // Fetch real data from AniList
+    try {
+        const res = await fetch('/api/trending-picks');
+        const data = await res.json();
+        
+        loadingEl.style.display = 'none';
+        seriesTab.style.display = 'block';
+
+        // Render function
+        const renderCards = (items, grid) => {
+            grid.innerHTML = '';
+            if (items.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-10 text-gray-500 text-sm font-bold">No trending data available</div>`;
+                return;
+            }
+            items.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'popular-glass-card group';
+                card.innerHTML = `
+                    <div class="relative overflow-hidden rounded-2xl aspect-[3/4]">
+                        <img src="${item.img}" alt="${item.title}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy">
+                        <div class="absolute top-2 left-2 bg-blue-600 text-white text-xs font-black px-2 py-1 rounded-lg shadow-lg">#${index + 1}</div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-[#0b0e11] via-transparent to-transparent opacity-60"></div>
+                    </div>
+                    <div class="mt-4 px-1 text-center">
+                        <h3 class="text-white font-bold text-sm md:text-base truncate group-hover:text-blue-400 transition-colors">${item.title}</h3>
+                        <div class="flex items-center justify-center gap-2 mt-1">
+                            <span class="text-blue-500 text-xs font-black uppercase tracking-tighter">★ ${item.rating}</span>
+                            <span class="text-gray-500 text-xs font-bold italic">${item.year}</span>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        };
+
+        renderCards(data.series, seriesGrid);
+        renderCards(data.movies, moviesGrid);
+
+    } catch (err) {
+        console.error('Failed to load trending:', err);
+        loadingEl.innerHTML = `<div class="text-center py-10 text-red-500 text-sm font-bold">Failed to load trending data</div>`;
+    }
+});
+</script>

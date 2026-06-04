@@ -1,0 +1,418 @@
+<%- include('partials/header') %>
+
+<style>
+    :root {
+        --bg-deep: #0b0e11;
+        --card-navy: #151b23;
+        --input-dark: #1c232d;
+        --primary-blue: #3b82f6;
+        --text-muted: #9ca3af;
+        --danger-red: #ef4444;
+        --success-green: #10b981;
+    }
+
+    body {
+        background-color: var(--bg-deep);
+        color: #ffffff;
+        font-family: 'Inter', sans-serif;
+    }
+
+.admin-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 90vh;
+        width: 100%;
+        padding: 4rem 1.5rem;
+    }
+
+.ui-card {
+        background-color: var(--card-navy);
+        border: 1px solid rgba(255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        border-radius: 2.5rem;
+        width: 100%;
+        max-width: 700px;
+        padding: 3.5rem;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+.ui-label {
+        font-size: 0.75rem;
+        font-weight: 800;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.6rem;
+        display: block;
+    }
+
+.ui-input {
+        background-color: var(--input-dark);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 1rem;
+        color: #ffffff;
+        padding: 1.1rem;
+        width: 100%;
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+        box-sizing: border-box;
+    }
+
+.ui-input:focus {
+        outline: none;
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 1px var(--primary-blue);
+    }
+
+.ui-button {
+        background-color: var(--primary-blue);
+        color: #ffffff;
+        font-weight: 800;
+        padding: 1.2rem;
+        border-radius: 1.25rem;
+        width: 100%;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        border: none;
+        cursor: pointer;
+        margin-top: 1rem;
+    }
+
+.ui-button:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.1);
+        box-shadow: 0 15px 25px rgba(59, 130, 246, 0.3);
+    }
+
+.ui-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+.back-link {
+        color: var(--text-muted);
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-decoration: none;
+        margin-bottom: 2rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+.back-link:hover { color: #fff; }
+
+.input-hint {
+        font-size: 10px;
+        color: #64748b;
+        margin-top: 6px;
+        font-weight: 700;
+        text-transform: uppercase;
+        display: block;
+    }
+
+.flash-alert {
+        padding: 1rem 1.25rem;
+        border-radius: 1rem;
+        margin-bottom: 1.5rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+.flash-error {
+        background: rgba(239, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: #fca5a5;
+    }
+
+.flash-success {
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        color: #6ee7b7;
+    }
+
+.form-error {
+        color: var(--danger-red);
+        font-size: 0.75rem;
+        font-weight: 700;
+        margin-top: 0.5rem;
+        display: none;
+    }
+
+.form-error.show { display: block; }
+
+.movie-notice {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 0.3);
+        border-radius: 1rem;
+        padding: 1rem;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+.movie-notice-icon {
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+
+.movie-notice-text {
+        font-size: 0.75rem;
+        font-weight: 800;
+        color: #fca5a5;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        line-height: 1.4;
+    }
+
+.server-box {
+        background: rgba(28, 35, 45, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        position: relative;
+    }
+
+.server-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+.server-title {
+        font-size: 0.85rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--primary-blue);
+    }
+
+.remove-server-btn {
+        background: rgba(239, 68, 68, 0.2);
+        border: 1px solid rgba(239, 68, 0.3);
+        color: #fca5a5;
+        padding: 0.4rem 0.8rem;
+        border-radius: 0.5rem;
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+.remove-server-btn:hover {
+        background: rgba(239, 68, 68, 0.3);
+        transform: scale(1.05);
+    }
+
+.add-server-btn {
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        color: #6ee7b7;
+        padding: 0.8rem 1.2rem;
+        border-radius: 0.75rem;
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+
+.add-server-btn:hover {
+        background: rgba(16, 185, 129, 0.2);
+        transform: translateY(-1px);
+    }
+
+.add-server-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    @media (max-width: 640px) {
+   .ui-card { padding: 2rem 1.5rem; }
+    }
+</style>
+
+<div class="admin-wrapper">
+    <div class="text-center mb-10">
+        <a href="/admin/dashboard" class="back-link">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+            Return to Dashboard
+        </a>
+        <h1 class="text-4xl md:text-5xl font-black tracking-tighter uppercase">
+            Add <span class="text-blue-500"><%= anime.type === 'movie'? 'Movie' : 'Episode' %></span>
+        </h1>
+        <p class="text-gray-500 mt-2 font-medium">Linking to: <span class="text-white font-bold"><%= anime.name %></span></p>
+    </div>
+
+    <div class="ui-card">
+        <% if (messages && messages.error && messages.error.length > 0) { %>
+            <div class="flash-alert flash-error">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <%= messages.error %>
+            </div>
+        <% } %>
+        <% if (messages && messages.success && messages.success.length > 0) { %>
+            <div class="flash-alert flash-success">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <%= messages.success %>
+            </div>
+        <% } %>
+
+        <form action="/admin/add-episode/<%= anime._id %>" method="POST" id="episodeForm">
+
+            <% if(anime.type === 'movie') { %>
+            <div class="movie-notice">
+                <div class="movie-notice-icon">🎬</div>
+                <div class="movie-notice-text">
+                    Movie Mode: Season & Episode auto-set to 1.<br>
+                    Add main server below or add multiple servers.
+                </div>
+            </div>
+            <input type="hidden" name="seasonNumber" value="1">
+            <input type="hidden" name="episodeNumber" value="1">
+            <% } else { %>
+            <div class="grid grid-cols-2 gap-5 mb-8">
+                <div>
+                    <label class="ui-label">Season</label>
+                    <input type="number" name="seasonNumber" placeholder="1" class="ui-input" required min="1" max="50">
+                </div>
+                <div>
+                    <label class="ui-label">Episode</label>
+                    <input type="number" name="episodeNumber" placeholder="1" class="ui-input" required min="1" max="999">
+                </div>
+            </div>
+            <% } %>
+
+            <div class="mb-8">
+                <label class="ui-label"><%= anime.type === 'movie'? 'Movie Title' : 'Episode Title' %></label>
+                <input type="text" name="title" placeholder="<%= anime.type === 'movie'? anime.name : 'e.g. The Awakening' %>" class="ui-input" required maxlength="200">
+            </div>
+
+            <div class="mb-8">
+                <label class="ui-label">Thumbnail URL <span class="text-[9px] bg-white/5 px-2 py-1 rounded ml-2">Optional</span></label>
+                <input type="url" name="imageUrl" placeholder="https://image-link.jpg" class="ui-input" maxlength="500">
+                <span class="input-hint">This acts as a "Poster" and will not block the play button.</span>
+            </div>
+
+            <div class="mb-8">
+                <label class="ui-label">Main Server - Direct Video URL (MP4/HLS)</label>
+                <input type="url" name="videoUrl" id="videoUrl" placeholder="https://server.com/video.mp4" class="ui-input" maxlength="500">
+                <span class="input-hint">Primary server for high-speed direct streaming.</span>
+            </div>
+
+            <div class="mb-8">
+                <label class="ui-label">Main Server - Iframe / Embed Code</label>
+                <textarea name="embedCode" id="embedCode" rows="4" placeholder="Paste <iframe...> here" class="ui-input" maxlength="2000"></textarea>
+                <span class="input-hint">Preferred for third-party hosting (YouTube, G-Drive, etc).</span>
+            </div>
+
+            <div class="mb-8">
+                <label class="ui-label">Additional Servers (Optional) <span class="text-[9px] bg-white/5 px-2 py-1 rounded ml-2">Max 13</span></label>
+                <div id="serversContainer"></div>
+                <button type="button" class="add-server-btn" id="addServerBtn">
+                    + Add More Server
+                </button>
+                <span class="input-hint">Add backup servers. Users can switch if main server fails.</span>
+            </div>
+
+            <div class="form-error" id="urlError">At least one Video URL or Embed Code is required</div>
+
+            <button type="submit" class="ui-button" id="submitBtn">
+                Deploy <%= anime.type === 'movie'? 'Movie' : 'Episode' %>
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById('addEpisodeForm');
+    const serversContainer = document.getElementById('serversContainer');
+    const addServerBtn = document.getElementById('addServerBtn');
+    const submitBtn = document.getElementById('submitBtn');
+
+    let activeServerCount = 0;
+    let nextServerIndex = 0; // Ye kabhi kam nahi hoga
+    const MAX_SERVERS = 13;
+
+    function addServerBox() {
+        if (activeServerCount >= MAX_SERVERS) {
+            alert('Maximum 13 servers allowed');
+            return;
+        }
+
+        const serverIndex = nextServerIndex;
+        nextServerIndex++;
+        activeServerCount++;
+
+        const serverBox = document.createElement('div');
+        serverBox.className = 'server-box';
+        serverBox.id = 'server-' + serverIndex;
+        serverBox.dataset.index = serverIndex;
+
+        serverBox.innerHTML = '<div class="server-header">' +
+            '<div class="server-title">Server ' + (serverIndex + 2) + '</div>' +
+            '<button type="button" class="remove-server-btn" data-index="' + serverIndex + '">Remove</button>' +
+            '</div>' +
+            '<div class="mb-4">' +
+            '<label class="ui-label">Server Name</label>' +
+            '<input type="text" name="servers[' + serverIndex + '][name]" value="Server ' + (serverIndex + 2) + '" placeholder="Server ' + (serverIndex + 2) + '" class="ui-input" maxlength="50">' +
+            '</div>' +
+            '<div class="mb-4">' +
+            '<label class="ui-label">Direct Video URL</label>' +
+            '<input type="url" name="servers[' + serverIndex + '][videoUrl]" placeholder="https://server.com/video.mp4" class="ui-input" maxlength="500">' +
+            '</div>' +
+            '<div>' +
+            '<label class="ui-label">Iframe / Embed Code</label>' +
+            '<textarea name="servers[' + serverIndex + '][embedCode]" rows="3" placeholder="Paste <iframe...> here" class="ui-input" maxlength="2000"></textarea>' +
+            '</div>';
+
+        serversContainer.appendChild(serverBox);
+
+        if (activeServerCount >= MAX_SERVERS) {
+            addServerBtn.disabled = true;
+            addServerBtn.textContent = 'Max Servers Reached (13)';
+        }
+    }
+
+    // Event delegation for remove button
+    serversContainer.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-server-btn')) {
+            const index = e.target.dataset.index;
+            const serverBox = document.getElementById('server-' + index);
+            if (serverBox) {
+                serverBox.remove();
+                activeServerCount--;
+                addServerBtn.disabled = false;
+                addServerBtn.textContent = '+ Add More Server';
+            }
+        }
+    });
+
+    addServerBtn.addEventListener('click', function() {
+        addServerBox();
+    });
+
+    form.addEventListener('submit', function(e) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Creating...';
+    });
+</script>
+
+<%- include('partials/footer') %>

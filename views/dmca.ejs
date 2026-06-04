@@ -1,0 +1,395 @@
+<%- include("partials/header") %>
+
+<!-- Import Rajdhani for that sharp, futuristic Anime/Gaming UI typography -->
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --bg-deep: #06090e;
+        --ui-dark: #0f141e;
+        --ui-border: rgba(59, 130, 246, 0.2);
+        --neon-blue: #3b82f6;
+        --neon-cyan: #06b6d4;
+        --neon-red: #ef4444;
+        --neon-purple: #8b5cf6;
+        --text-main: #e2e8f0;
+        --text-dim: #94a3b8;
+    }
+
+    body {
+        background: var(--bg-deep);
+        color: var(--text-main);
+        font-family: 'Inter', sans-serif;
+        overflow-x: hidden;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    /* Headings & UI Elements get the Mecha/Anime font */
+    .anime-font {
+        font-family: 'Rajdhani', sans-serif;
+    }
+
+    /* Holographic Tech Grid Background */
+    .system-bg {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background-color: var(--bg-deep);
+        background-image: 
+            linear-gradient(var(--ui-border) 1px, transparent 1px),
+            linear-gradient(90deg, var(--ui-border) 1px, transparent 1px);
+        background-size: 40px 40px;
+        mask-image: radial-gradient(circle at center, black 20%, transparent 80%);
+        -webkit-mask-image: radial-gradient(circle at center, black 20%, transparent 80%);
+        opacity: 0.3;
+    }
+
+    /* Floating Japanese Accent Text */
+    .bg-kanji {
+        position: fixed;
+        right: -2rem;
+        top: 15%;
+        font-size: 15vw;
+        font-weight: 900;
+        color: rgba(255, 255, 255, 0.02);
+        writing-mode: vertical-rl;
+        z-index: 0;
+        pointer-events: none;
+        line-height: 0.8;
+    }
+
+    .page-container {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 5rem 1.5rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Sharp System Window Card */
+    .system-card {
+        background: rgba(15, 20, 30, 0.85);
+        backdrop-filter: blur(16px);
+        border: 1px solid var(--ui-border);
+        border-top: 3px solid var(--neon-cyan);
+        padding: 3.5rem;
+        margin-bottom: 2.5rem;
+        position: relative;
+        /* Sci-fi angled corners */
+        clip-path: polygon(0 0, 100% 0, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0 100%);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    .system-card::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 30px;
+        height: 30px;
+        background: var(--ui-border);
+        clip-path: polygon(100% 0, 0% 100%, 100% 100%);
+    }
+
+    /* Warning Decor */
+    .system-badge {
+        position: absolute;
+        top: 0;
+        left: 3rem;
+        background: var(--neon-cyan);
+        color: #000;
+        padding: 4px 16px;
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        clip-path: polygon(0 0, 100% 0, 90% 100%, 10% 100%);
+    }
+
+    .system-badge.warning {
+        background: var(--neon-red);
+        color: #fff;
+    }
+
+    .page-title {
+        font-size: 3.5rem;
+        font-weight: 900;
+        letter-spacing: 2px;
+        line-height: 1.1;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        text-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+    }
+
+    .title-gradient {
+        background: linear-gradient(135deg, var(--neon-cyan) 0%, var(--neon-blue) 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    /* Glitch/Tech Detail Boxes */
+    .tech-box {
+        background: rgba(0, 0, 0, 0.4);
+        padding: 2rem;
+        margin: 2.5rem 0;
+        position: relative;
+        border-right: 1px solid var(--ui-border);
+        border-bottom: 1px solid var(--ui-border);
+        transition: all 0.3s ease;
+    }
+
+    .tech-box::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: var(--neon-blue);
+        box-shadow: 0 0 15px var(--neon-blue);
+        transition: width 0.3s ease;
+    }
+
+    .tech-box:hover {
+        background: rgba(59, 130, 246, 0.05);
+        transform: translateX(10px);
+    }
+
+    .tech-box:hover::before {
+        width: 8px;
+    }
+
+    .box-purple::before {
+        background: var(--neon-purple);
+        box-shadow: 0 0 15px var(--neon-purple);
+    }
+    .tech-box.box-purple:hover {
+        background: rgba(139, 92, 246, 0.05);
+    }
+
+    .tech-box h3 {
+        font-weight: 800;
+        font-size: 1.4rem;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-bottom: 1rem;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .tech-box p {
+        color: var(--text-dim);
+        line-height: 1.8;
+        font-size: 0.95rem;
+    }
+
+    .icon-wrapper {
+        width: 2.5rem;
+        height: 2.5rem;
+        background: rgba(255, 255, 255, 0.05);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%);
+    }
+
+    .icon-blue { color: var(--neon-cyan); border-bottom: 2px solid var(--neon-cyan); }
+    .icon-purple { color: var(--neon-purple); border-bottom: 2px solid var(--neon-purple); }
+
+    .intro-text {
+        font-size: 1.15rem;
+        font-weight: 500;
+        line-height: 1.7;
+        margin-bottom: 2rem;
+        color: #e2e8f0;
+        border-left: 2px solid var(--text-dim);
+        padding-left: 1rem;
+    }
+
+    .body-text {
+        color: var(--text-dim);
+        line-height: 1.8;
+        font-size: 1.05rem;
+        margin: 2rem 0;
+    }
+
+    .body-text strong {
+        color: var(--neon-cyan);
+        font-weight: 700;
+        letter-spacing: 1px;
+    }
+
+    /* Cyberpunk Action Buttons */
+    .action-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        width: 100%;
+        padding: 1.25rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-size: 0.9rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        text-decoration: none;
+        position: relative;
+        overflow: hidden;
+        clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+        margin-bottom: 1rem;
+    }
+
+    .btn-outline {
+        background: rgba(15, 20, 30, 0.8);
+        color: #ffffff;
+        border: 1px solid var(--ui-border);
+    }
+
+    .btn-outline::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: var(--ui-border);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: -1;
+    }
+
+    .btn-outline:hover::before { opacity: 0.2; }
+    .btn-outline:hover {
+        transform: translateY(-2px);
+        border-color: var(--neon-cyan);
+        box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
+    }
+
+    .btn-solid {
+        background: linear-gradient(90deg, var(--neon-blue), var(--neon-cyan));
+        color: #000;
+        box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+    }
+
+    .btn-solid:hover {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 0 30px rgba(6, 182, 212, 0.6);
+        filter: brightness(1.2);
+    }
+
+    .section-header {
+        font-size: 2rem;
+        font-weight: 900;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        text-transform: uppercase;
+    }
+
+    .legal-footer {
+        text-align: center;
+        color: #64748b;
+        font-size: 0.8rem;
+        letter-spacing: 1px;
+        line-height: 1.8;
+        padding: 2rem 1rem 0;
+        border-top: 1px dashed var(--ui-border);
+        margin-top: 2rem;
+        text-transform: uppercase;
+    }
+
+    @media (max-width: 640px) {
+        .system-card { padding: 2.5rem 1.5rem; }
+        .page-title { font-size: 2.5rem; }
+        .bg-kanji { font-size: 25vw; opacity: 0.5;}
+    }
+</style>
+
+<!-- Background Grid & Accents -->
+<div class="system-bg"></div>
+<div class="bg-kanji">著作権通知</div> <!-- "Copyright Notice" in Japanese -->
+
+<div class="page-container">
+    
+    <div class="text-center mb-16 relative">
+        <div class="inline-flex items-center justify-center w-20 h-20 bg-gray-900 border border-blue-500/30 mb-6 relative" style="clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); box-shadow: 0 0 30px rgba(59,130,246,0.3);">
+            <i class="fas fa-shield-alt text-cyan-400 text-3xl"></i>
+        </div>
+        <h1 class="page-title anime-font">
+            DMCA <span class="title-gradient">Policy</span>
+        </h1>
+        <p class="anime-font text-cyan-400 text-xl font-bold tracking-widest uppercase">
+            // Digital Millennium Copyright Act
+        </p>
+    </div>
+
+    <!-- MAIN SYSTEM CARD -->
+    <div class="system-card">
+        <div class="system-badge anime-font">System Notice</div>
+        
+        <p class="intro-text">
+            We respect the intellectual property rights of others and expect our users to comply with strict operational protocols.
+        </p>
+
+        <div class="tech-box">
+            <h3 class="anime-font">
+                <div class="icon-wrapper icon-blue">
+                    <i class="fas fa-server"></i>
+                </div>
+                No Hosted Content
+            </h3>
+            <p>
+                We do not store any copyright-protected content on our servers. All media streams are for educational and promotional purposes only. Any linked content is hosted on non-affiliated, third-party databases.
+            </p>
+        </div>
+
+        <p class="body-text">
+            Content indexed on <strong class="anime-font">AniFusionStream</strong> is aggregated from non-affiliated third-party sources—functioning strictly as a search engine proxy. We do not directly host, upload, or control any of the video files traversing the network.
+        </p>
+
+        <div class="tech-box box-purple">
+            <h3 class="anime-font">
+                <div class="icon-wrapper icon-purple">
+                    <i class="fas fa-bullhorn"></i>
+                </div>
+                Promotional Use Only
+            </h3>
+            <p>
+                This terminal is meant strictly for private use. All materials are shared solely for testing, introductory, and promotional purposes. We highly encourage all users to purchase official media directly from official sources to support the original creators.
+            </p>
+        </div>
+    </div>
+
+    <!-- ACTION CARD -->
+    <div class="system-card text-center">
+        <div class="system-badge warning anime-font">Warning</div>
+        
+        <h2 class="section-header anime-font justify-center">
+            <i class="fas fa-exclamation-triangle text-red-500"></i>
+            Infringement Report
+        </h2>
+        <p class="body-text mb-10">
+            If you are a copyright holder or a legal representative and believe your work has been indexed without permission, initialize contact with proof of ownership, and we will execute a prompt takedown protocol.
+        </p>
+
+        <a href="mailto:anifusionstream@gmail.com" class="action-btn btn-outline anime-font">
+            <i class="fas fa-envelope text-cyan-400"></i>
+            Initialize Email Protocol
+        </a>
+
+        <a href="/contact-us" class="action-btn btn-solid anime-font">
+            <i class="fas fa-paper-plane"></i>
+            Open Contact Terminal
+        </a>
+    </div>
+
+    <div class="legal-footer anime-font">
+        // By continuing to browse this node, you affirm your understanding and compliance with this DMCA policy. All materials are believed to be in the public domain and are the property of their respective owners. //
+    </div>
+
+</div>
+
+<%- include("partials/footer") %>

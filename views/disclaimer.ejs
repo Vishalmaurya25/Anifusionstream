@@ -1,0 +1,333 @@
+<%- include('partials/header') %>
+
+<!-- Import Rajdhani for the Futuristic Anime/Gaming UI typography -->
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+    :root {
+        --bg-deep: #06090e;
+        --ui-dark: #0f141e;
+        --ui-border: rgba(59, 130, 246, 0.2);
+        --neon-blue: #3b82f6;
+        --neon-cyan: #06b6d4;
+        --neon-yellow: #facc15;
+        --neon-red: #ef4444;
+        --text-main: #e2e8f0;
+        --text-dim: #94a3b8;
+    }
+
+    body {
+        background: var(--bg-deep);
+        color: var(--text-main);
+        font-family: 'Inter', sans-serif;
+        overflow-x: hidden;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    .anime-font {
+        font-family: 'Rajdhani', sans-serif;
+    }
+
+    /* Holographic System Grid */
+    .system-bg {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background-color: var(--bg-deep);
+        background-image: 
+            linear-gradient(var(--ui-border) 1px, transparent 1px),
+            linear-gradient(90deg, var(--ui-border) 1px, transparent 1px);
+        background-size: 50px 50px;
+        mask-image: radial-gradient(ellipse at top right, black 20%, transparent 80%);
+        -webkit-mask-image: radial-gradient(ellipse at top right, black 20%, transparent 80%);
+        opacity: 0.2;
+    }
+
+    /* Background Japanese Accent */
+    .bg-kanji {
+        position: fixed;
+        left: -2rem;
+        bottom: 10%;
+        font-size: 14vw;
+        font-weight: 900;
+        color: rgba(255, 255, 255, 0.02);
+        writing-mode: vertical-rl;
+        z-index: 0;
+        pointer-events: none;
+        line-height: 0.8;
+    }
+
+    .page-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 5rem 1.5rem;
+        position: relative;
+        z-index: 1;
+        min-height: 80vh;
+    }
+
+    /* Main Sci-Fi Card */
+    .system-card {
+        background: rgba(15, 20, 30, 0.85);
+        backdrop-filter: blur(16px);
+        border: 1px solid var(--ui-border);
+        border-top: 3px solid var(--neon-yellow);
+        padding: 4rem;
+        margin-bottom: 2.5rem;
+        position: relative;
+        /* Mecha/Sci-Fi Angled Corners */
+        clip-path: polygon(0 0, 100% 0, 100% calc(100% - 40px), calc(100% - 40px) 100%, 0 100%);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    }
+
+    /* Decorative bottom-right corner block */
+    .system-card::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 40px;
+        height: 40px;
+        background: var(--ui-border);
+        clip-path: polygon(100% 0, 0% 100%, 100% 100%);
+    }
+
+    .system-badge {
+        position: absolute;
+        top: 0;
+        left: 2.5rem;
+        background: var(--neon-yellow);
+        color: #000;
+        padding: 4px 20px;
+        font-size: 0.8rem;
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        clip-path: polygon(0 0, 100% 0, 90% 100%, 10% 100%);
+    }
+
+    .page-title {
+        font-size: 3.5rem;
+        font-weight: 900;
+        letter-spacing: 2px;
+        line-height: 1.1;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        text-shadow: 0 0 20px rgba(250, 204, 21, 0.3);
+    }
+
+    .title-gradient {
+        background: linear-gradient(135deg, var(--neon-yellow) 0%, var(--neon-cyan) 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    /* Tech Info Boxes */
+    .tech-box {
+        background: rgba(0, 0, 0, 0.4);
+        padding: 2rem;
+        margin: 2rem 0;
+        position: relative;
+        border-right: 1px solid var(--ui-border);
+        border-bottom: 1px solid var(--ui-border);
+        transition: all 0.3s ease;
+    }
+
+    .tech-box::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        transition: width 0.3s ease;
+    }
+
+    .tech-box:hover {
+        background: rgba(59, 130, 246, 0.05);
+        transform: translateX(8px);
+    }
+    .tech-box:hover::before { width: 8px; }
+
+    /* Box Variations */
+    .box-cyan::before { background: var(--neon-cyan); box-shadow: 0 0 15px var(--neon-cyan); }
+    .box-yellow::before { background: var(--neon-yellow); box-shadow: 0 0 15px var(--neon-yellow); }
+    .box-red::before { background: var(--neon-red); box-shadow: 0 0 15px var(--neon-red); }
+
+    .tech-box h2 {
+        font-weight: 800;
+        font-size: 1.25rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 1rem;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .tech-box p {
+        color: var(--text-dim);
+        line-height: 1.8;
+        font-size: 0.95rem;
+    }
+
+    .icon-wrapper {
+        width: 2.2rem;
+        height: 2.2rem;
+        background: rgba(255, 255, 255, 0.05);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        clip-path: polygon(15% 0, 100% 0, 85% 100%, 0% 100%);
+    }
+
+    .icon-cyan { color: var(--neon-cyan); border-bottom: 2px solid var(--neon-cyan); }
+    .icon-yellow { color: var(--neon-yellow); border-bottom: 2px solid var(--neon-yellow); }
+    .icon-red { color: var(--neon-red); border-bottom: 2px solid var(--neon-red); }
+
+    /* Cyberpunk Caution Box */
+    .caution-box {
+        background: repeating-linear-gradient(
+            -45deg,
+            rgba(250, 204, 21, 0.05),
+            rgba(250, 204, 21, 0.05) 15px,
+            rgba(0, 0, 0, 0.4) 15px,
+            rgba(0, 0, 0, 0.4) 30px
+        );
+        border: 1px solid rgba(250, 204, 21, 0.2);
+        border-left: 4px solid var(--neon-yellow);
+        padding: 1.5rem 2rem;
+        margin: 2.5rem 0;
+        position: relative;
+        clip-path: polygon(0 0, 100% 0, 98% 100%, 0% 100%);
+    }
+
+    .caution-box p {
+        color: #fef08a;
+        font-weight: 600;
+        font-style: italic;
+        line-height: 1.8;
+        text-shadow: 0 0 10px rgba(250, 204, 21, 0.2);
+    }
+
+    /* Action Button */
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        background: linear-gradient(90deg, var(--neon-cyan), var(--neon-blue));
+        color: #000;
+        padding: 1.25rem 3rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-size: 0.95rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        text-decoration: none;
+        clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+        box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+    }
+
+    .action-btn:hover {
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 0 30px rgba(6, 182, 212, 0.6);
+        filter: brightness(1.2);
+    }
+
+    /* Media Queries */
+    @media (max-width: 640px) {
+        .system-card { padding: 2.5rem 1.5rem; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%); }
+        .page-title { font-size: 2.5rem; }
+        .bg-kanji { font-size: 25vw; opacity: 0.3; }
+        .system-badge { left: 1.5rem; }
+    }
+</style>
+
+<!-- Background Grid & Accents -->
+<div class="system-bg"></div>
+<div class="bg-kanji">法的免責</div> <!-- "Legal Exemption/Disclaimer" in Japanese -->
+
+<div class="page-container">
+    
+    <div class="text-center mb-12 relative">
+        <div class="inline-flex items-center justify-center w-20 h-20 bg-gray-900 border border-yellow-500/30 mb-6 relative" style="clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); box-shadow: 0 0 30px rgba(250,204,21,0.2);">
+            <i class="fas fa-balance-scale text-yellow-400 text-3xl"></i>
+        </div>
+        <h1 class="page-title anime-font">
+            Legal <span class="title-gradient">Disclaimer</span>
+        </h1>
+        <p class="anime-font text-cyan-400 text-lg font-bold tracking-widest uppercase opacity-80">
+            // Legal Protocol Initialized
+        </p>
+    </div>
+
+    <!-- MAIN SYSTEM CARD -->
+    <div class="system-card">
+        <div class="system-badge anime-font">Notice / 警告</div>
+        
+        <div class="tech-box box-cyan">
+            <h2 class="anime-font">
+                <div class="icon-wrapper icon-cyan">
+                    <i class="fas fa-server"></i>
+                </div>
+                Content Hosting & Storage
+            </h2>
+            <p>
+                <strong>AniFusionStream</strong> does not host, store, or upload any video files, media, or copyrighted content on its own servers. Our platform acts as a sophisticated indexing engine that crawls and organizes links already available on the public internet. All media content is provided and hosted by non-affiliated third-party providers.
+            </p>
+        </div>
+
+        <!-- Cyberpunk Caution Quote -->
+        <div class="caution-box">
+            <p>
+                "We do not support or encourage piracy. Our mission is to provide an organized library of content that is already accessible to the public on various third-party platforms."
+            </p>
+        </div>
+
+        <div class="tech-box box-yellow">
+            <h2 class="anime-font">
+                <div class="icon-wrapper icon-yellow">
+                    <i class="fas fa-database"></i>
+                </div>
+                Information Accuracy
+            </h2>
+            <p>
+                While we strive to provide the most accurate metadata for Hindi, Tamil, and Telugu dubbed anime, AniFusionStream makes no guarantees regarding the completeness or reliability of the information provided. Use of our service is at your own risk.
+            </p>
+        </div>
+
+        <div class="tech-box box-red">
+            <h2 class="anime-font">
+                <div class="icon-wrapper icon-red">
+                    <i class="fas fa-gavel"></i>
+                </div>
+                Copyright Infringement (DMCA)
+            </h2>
+            <p>
+                We respect the intellectual property rights of others. If you are a copyright owner and believe that any content linked through our site infringes upon your rights, we are ready to assist. Please visit our dedicated 
+                <a href="/dmca" class="text-red-400 font-bold hover:text-red-300 transition-colors" style="text-shadow: 0 0 10px rgba(239, 68, 68, 0.4);">DMCA Page</a> to submit a removal request.
+            </p>
+        </div>
+
+        <hr class="border-t border-dashed border-white/10 my-10">
+
+        <div class="text-center">
+            <p class="text-sm text-gray-500 mb-8 font-medium anime-font uppercase tracking-widest">
+                // By using this terminal, you acknowledge that you have read and understood this disclaimer.
+            </p>
+            <a href="/contact-us" class="action-btn anime-font">
+                <i class="fas fa-envelope-open-text"></i>
+                Contact Legal Team
+            </a>
+        </div>
+
+    </div>
+</div>
+
+<%- include('partials/footer') %>
