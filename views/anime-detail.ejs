@@ -495,7 +495,7 @@
 
         <div id="episodes-container">
             <% anime.seasons.forEach((season, seasonIndex) => { %>
-                <div class="season-section grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 <%= seasonIndex === 0? '' : 'hidden' %>" data-season="<%= seasonIndex %>">
+                <div class="season-section grid grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-6 <%= seasonIndex === 0? '' : 'hidden' %>" data-season="<%= seasonIndex %>">
                     <% season.episodes.forEach((episode, epIndex) => { %>
                         <div class="episode-card cursor-pointer group"
                              data-season-index="<%= seasonIndex %>"
