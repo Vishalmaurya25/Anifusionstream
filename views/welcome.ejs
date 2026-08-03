@@ -5,47 +5,38 @@
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
 
 <style>
-  body { 
+  /* STRICT MOBILE LOCK TO PREVENT SHAKING */
+  html, body { 
     background-color: #0b0e11; 
     color: #fff; 
     overflow-x: hidden; 
+    width: 100%;
+    max-width: 100vw;
+    margin: 0;
+    padding: 0;
     font-family: 'Inter', system-ui, sans-serif;
   }
 
-  /* LOGO BACKGROUND - FIXED IMAGE URL */
+  /* LOGO BACKGROUND - 100% VISIBILITY FIX */
   .bg-hero-logo {
-    position: fixed; inset: 0; z-index: -2;
-    background-image: url('/images/logo.png'); /* <-- Fixed the filename here! */
-    background-position: center; background-repeat: no-repeat;
-    background-size: contain; opacity: 0.15; /* Adjusted opacity for better readability */
-    filter: drop-shadow(0 0 30px rgba(59, 130, 246, 0.4));
-    transform: scale(1.1);
+    position: fixed; 
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    z-index: 1; /* Body background ke upar */
+    background-image: url('/images/logo.png'); 
+    background-position: center; 
+    background-repeat: no-repeat;
+    background-size: 50%; 
+    opacity: 0.2; 
+    pointer-events: none; 
   }
 
   .bg-dark-overlay {
-    position: fixed; inset: 0; z-index: -1;
-    background: radial-gradient(circle at center, rgba(11, 14, 17, 0.15) 0%, rgba(11, 14, 17, 0.95) 75%);
+    position: fixed; 
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    z-index: 2; /* Logo ke upar soft shadow */
+    background: radial-gradient(circle at center, transparent 0%, #0b0e11 85%);
     pointer-events: none;
   }
-
-  .bg-aurora {
-    position: fixed; inset: -50%; z-index: 0; pointer-events: none;
-    background:
-      radial-gradient(600px 400px at 20% 30%, rgba(59,130,246,0.15), transparent 60%),
-      radial-gradient(500px 500px at 80% 70%, rgba(147,51,234,0.15), transparent 60%),
-      radial-gradient(400px 300px at 50% 90%, rgba(236,72,153,0.10), transparent 60%);
-    filter: blur(80px); animation: aurora 25s ease-in-out infinite alternate;
-  }
-  
-  @keyframes aurora {
-    0% { transform: rotate(0deg) scale(1); }
-    50% { transform: rotate(180deg) scale(1.1); }
-    100% { transform: rotate(360deg) scale(0.9); }
-  }
-
-  .particles { position: absolute; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-  .particle { position: absolute; background: white; border-radius: 50%; box-shadow: 0 0 10px rgba(255,255,255,0.8); animation: floatParticle 8s infinite ease-in-out; }
-  @keyframes floatParticle { 0%, 100% { transform: translateY(0) scale(1); opacity: 0.3; } 50% { transform: translateY(-20px) scale(1.5); opacity: 0.8; } }
 
   .section-glow {
     background: rgba(15, 20, 28, 0.5); border: 1px solid rgba(255, 255, 255, 0.05);
@@ -74,9 +65,8 @@
   .tag-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; }
   .tag-card:hover { transform: translateY(-4px) scale(1.02); background: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.5); color: #fff; box-shadow: 0 5px 15px rgba(59,130,246,0.3); }
 
-  .logo-wrap { width: 140px; height: 140px; margin: 0 auto 25px; padding: 16px; background: rgba(15,20,25,0.4); border: 1px solid rgba(59,130,246,0.5); border-radius: 35px; backdrop-filter: blur(10px); box-shadow: 0 0 40px rgba(59,130,246,0.4), inset 0 0 20px rgba(59,130,246,0.2); animation: floatLogo 4s ease-in-out infinite; }
+  .logo-wrap { width: 140px; height: 140px; margin: 0 auto 25px; padding: 16px; background: rgba(15,20,25,0.4); border: 1px solid rgba(59,130,246,0.5); border-radius: 35px; backdrop-filter: blur(10px); box-shadow: 0 0 40px rgba(59,130,246,0.4), inset 0 0 20px rgba(59,130,246,0.2); }
   .logo-wrap img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 20px rgba(96,165,250,0.9)); }
-  @keyframes floatLogo { 0%,100%{transform:translateY(0) rotate(0deg)} 50%{transform:translateY(-12px) rotate(2deg)} }
 
   /* FEATURE CARDS */
   .feature-card {
@@ -112,30 +102,19 @@
 
   /* 📱 MOBILE RESPONSIVE FIXES 📱 */
   @media (max-width: 640px) {
+    .bg-hero-logo { background-size: 80%; }
     .section-glow { padding: 24px 16px; border-radius: 16px; }
     .share-box { padding: 24px 16px; border-radius: 16px; }
     .logo-wrap { width: 100px; height: 100px; padding: 12px; margin-bottom: 20px; border-radius: 24px; }
-    /* This overrides the font size for the main title on mobile to fit perfectly */
-    .brand-text { font-size: 2rem !important; line-height: 1.2; letter-spacing: 1px; } 
+    .brand-text { font-size: 2rem !important; line-height: 1.2; letter-spacing: 1px; word-wrap: break-word; overflow-wrap: break-word; } 
     .share-btn { width: 45px; height: 45px; font-size: 18px; border-radius: 12px; }
   }
-
 </style>
 
-<div class="relative min-h-screen px-4 py-12 flex flex-col justify-center">
-  <!-- LOGO BACKGROUND & OVERLAY -->
-  <div class="bg-hero-logo"></div>
-  <div class="bg-dark-overlay"></div>
-  <div class="bg-aurora"></div>
-  
-  <!-- Generated Particles -->
-  <div class="particles">
-    <div class="particle" style="top: 20%; left: 15%; width: 6px; height: 6px; animation-delay: 0s;"></div>
-    <div class="particle" style="top: 60%; left: 80%; width: 4px; height: 4px; animation-delay: 1.5s;"></div>
-    <div class="particle" style="top: 80%; left: 30%; width: 8px; height: 8px; animation-delay: 3s;"></div>
-    <div class="particle" style="top: 30%; left: 70%; width: 5px; height: 5px; animation-delay: 2s;"></div>
-  </div>
+<div class="bg-hero-logo"></div>
+<div class="bg-dark-overlay"></div>
 
+<div class="relative z-10 min-h-screen px-4 py-12 flex flex-col justify-center w-full overflow-hidden">
   <div class="container mx-auto max-w-6xl relative z-10">
 
     <!-- HERO SECTION -->
@@ -145,18 +124,18 @@
       </div>
 
       <p class="text-xs text-blue-400 font-black tracking-[5px] uppercase mb-4 drop-shadow-md">Welcome to the Nexus of</p>
-      <h1 class="brand-text text-5xl md:text-7xl mb-5">AniFusionStream</h1>
-      <p class="text-gray-300 text-lg md:text-xl mb-8 max-w-2xl mx-auto font-medium shadow-black drop-shadow-lg">
+      <h1 class="brand-text text-4xl sm:text-5xl md:text-7xl mb-5 break-words">AniFusionStream</h1>
+      <p class="text-gray-300 text-lg md:text-xl mb-8 max-w-2xl mx-auto font-medium shadow-black drop-shadow-lg px-2">
         Your Personal Anime Note. Track your journey, discover hidden gems, and discuss every epic moment.
       </p>
-      <a href="/home" class="btn-glow inline-flex items-center gap-3 px-12 py-5 text-sm font-black uppercase text-white tracking-wider">
+      <a href="/home" class="btn-glow inline-flex items-center gap-3 px-10 py-4 md:px-12 md:py-5 text-sm font-black uppercase text-white tracking-wider">
         Enter Anifusionstream <i class="fa-solid fa-bolt text-yellow-300"></i>
       </a>
     </div>
 
-    <!-- NEW CATCHY INTRO -->
+    <!-- CATCHY INTRO -->
     <div class="section-glow text-center">
-      <h2 class="text-3xl md:text-4xl font-black mb-3 brand-text">Thousands of Titles, All for Free!</h2>
+      <h2 class="text-3xl md:text-4xl font-black mb-3 brand-text break-words">Thousands of Titles, All for Free!</h2>
       <h3 class="text-lg md:text-xl font-bold text-gray-200 mb-5 tracking-wide">
         Unlike Your Crush, We Truly Care and We Show It Clear! <i class="fa-solid fa-heart-crack text-red-500"></i><i class="fa-solid fa-arrow-right mx-2 text-gray-500"></i><i class="fa-solid fa-heart text-pink-500"></i>
       </h3>
@@ -165,9 +144,8 @@
       </p>
     </div>
 
-    <!-- NEW FEATURES GRID -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-      <!-- Feature 1 -->
+    <!-- FEATURES GRID -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
       <div class="feature-card">
         <div class="feature-icon"><i class="fa-solid fa-book-journal-whills"></i></div>
         <h4 class="text-lg font-black text-white mb-2 uppercase tracking-wide">Extensive Library</h4>
@@ -175,7 +153,6 @@
           As extensive as the world of <span class="text-blue-400 font-bold">Hunter x Hunter</span>. From the action-packed <span class="text-pink-400 font-bold">Fullmetal Alchemist</span> to magical realms of <span class="text-purple-400 font-bold">Madoka Magica</span>.
         </p>
       </div>
-      <!-- Feature 2 -->
       <div class="feature-card">
         <div class="feature-icon"><i class="fa-solid fa-wand-magic-sparkles text-pink-400"></i></div>
         <h4 class="text-lg font-black text-white mb-2 uppercase tracking-wide">Friendly UI & UX</h4>
@@ -183,7 +160,6 @@
           Navigating is as smooth as a scroll through the landscapes in <span class="text-blue-400 font-bold">Spirited Away</span>. Find titles easily with an enjoyable experience.
         </p>
       </div>
-      <!-- Feature 3 -->
       <div class="feature-card">
         <div class="feature-icon"><i class="fa-solid fa-door-open text-yellow-400"></i></div>
         <h4 class="text-lg font-black text-white mb-2 uppercase tracking-wide">No Sign-Up</h4>
@@ -191,7 +167,6 @@
           Like flying on <span class="text-blue-400 font-bold">Kiki's</span> broomstick, dive straight into anime without registration hurdles. We value your freedom!
         </p>
       </div>
-      <!-- Feature 4 -->
       <div class="feature-card">
         <div class="feature-icon"><i class="fa-solid fa-tv text-green-400"></i></div>
         <h4 class="text-lg font-black text-white mb-2 uppercase tracking-wide">HD Quality</h4>
@@ -199,7 +174,6 @@
           Frames as sharp as <span class="text-blue-400 font-bold">Kirito's sword</span> in SAO. Experience vibrant colors and details just as animators intended.
         </p>
       </div>
-      <!-- Feature 5 -->
       <div class="feature-card">
         <div class="feature-icon"><i class="fa-solid fa-ban text-red-400"></i></div>
         <h4 class="text-lg font-black text-white mb-2 uppercase tracking-wide">Zero Ads</h4>
@@ -207,7 +181,6 @@
           Ads are as annoying as Team Rocket in <span class="text-blue-400 font-bold">Pokémon</span>! Enjoy pure, uninterrupted, unadulterated anime bliss.
         </p>
       </div>
-      <!-- Feature 6 -->
       <div class="feature-card">
         <div class="feature-icon"><i class="fa-solid fa-language text-blue-400"></i></div>
         <h4 class="text-lg font-black text-white mb-2 uppercase tracking-wide">SUB & DUB</h4>
@@ -215,7 +188,6 @@
           Just like <span class="text-blue-400 font-bold">Goku</span> transforming, we cater to all forms! Enjoy both Japanese originals and English dubbed versions.
         </p>
       </div>
-      <!-- Feature 7 -->
       <div class="feature-card">
         <div class="feature-icon"><i class="fa-solid fa-bolt text-yellow-400"></i></div>
         <h4 class="text-lg font-black text-white mb-2 uppercase tracking-wide">Fast Loading</h4>
@@ -223,7 +195,6 @@
           Lightning-fast reflexes like <span class="text-blue-400 font-bold">Levi Ackerman</span>. Never wait to immerse yourself in your favorite worlds.
         </p>
       </div>
-      <!-- Feature 8 -->
       <div class="feature-card">
         <div class="feature-icon"><i class="fa-solid fa-mobile-screen text-purple-400"></i></div>
         <h4 class="text-lg font-black text-white mb-2 uppercase tracking-wide">Multi-Device</h4>
@@ -233,7 +204,7 @@
       </div>
     </div>
 
-    <!-- NEW COMPARISON / FAQ SECTION -->
+    <!-- COMPARISON SECTION -->
     <div class="section-glow">
       <h2 class="text-2xl font-black text-center mb-6 uppercase tracking-widest text-white">
         <i class="fa-solid fa-crown text-yellow-500 mr-2"></i> How We Compare
@@ -260,7 +231,7 @@
       </div>
     </div>
 
-    <!-- SHARE SECTION - PLATFORM SPECIFIC -->
+    <!-- SHARE SECTION - ORIGINAL -->
     <div class="share-box mt-12">
       <h3 class="share-title text-2xl font-black mb-2 flex items-center justify-center gap-3">
         <i class="fa-solid fa-share-nodes"></i> Invite Your Nakama
@@ -337,4 +308,7 @@
   });
 </script>
 
-<%- include('partials/footer') %>
+<!-- Yahan Footer ko z-10 div ke andar wrap kiya hai, taki footer clear dikhe -->
+<div class="relative z-10 w-full">
+  <%- include('partials/footer') %>
+</div>
