@@ -25,7 +25,13 @@ const animeSchema = new mongoose.Schema({
     enum: ['series', 'movie'],
     default: 'series',
     index: true 
-  }
+  },
+  // NEW RATINGS FIELDS PROPERLY PLACED INSIDE THE SCHEMA:
+  ratingScore: { type: Number, default: 0 },
+  ratingCount: { type: Number, default: 0 },
+  totalRatingSum: { type: Number, default: 0 },
+  votedUsers: [{ type: String }]
+
 }, { timestamps: true });
 
 // Existing indexes

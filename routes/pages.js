@@ -109,4 +109,28 @@ router.post('/contact-us', contactLimiter, async (req, res) => {
     }
 });
 
+router.post('/report-video', contactLimiter, async (req, res) => {
+    try {
+        let { message } = req.body;
+        message = cleanText(message || '');
+        
+        if (!message || message.length < 10) {
+            return res.status(400).json({ success: false, message: 'Describe issue in 10+ characters.' });
+        }
+
+        await Contact.create({ 
+            name: 'Site User', 
+            email: 'noreply@anifusion.com', 
+            subject: 'Video Report', 
+            message, 
+            ip: req.ip 
+        });
+
+        return res.json({ success: true, message: 'Report Submitted Successfully. Admin will check it soon.' });
+
+    } catch (err) {
+        console.error('Report Error:', err); // pura error log karo
+        return res.status(500).json({ success: false, message: 'System Error' });
+    }
+});
 module.exports = router;

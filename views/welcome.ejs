@@ -1,343 +1,340 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AniFusionStream</title>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<%- include('partials/header') %>
+
+<!-- FONT AWESOME & GOOGLE FONTS CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html, body {
-  height: 100%;
-}
-
-body {
-  background: #0a0b0f;
-  color: #fff;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  background-image:
-    radial-gradient(ellipse at 20% 30%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 70%, rgba(139, 92, 246, 0.12) 0%, transparent 50%);
-}
-
-.gradient-orb {
-  position: fixed;
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.3;
-  pointer-events: none;
-  animation: orbFloat 20s ease-in-out infinite;
-}
-
-.orb-1 {
-  width: 500px;
-  height: 500px;
-  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-  top: -200px;
-  left: -200px;
-}
-
-.orb-2 {
-  width: 400px;
-  height: 400px;
-  background: linear-gradient(135deg, #f59e0b, #ef4444);
-  bottom: -150px;
-  right: -150px;
-  animation-delay: -10s;
-}
-
-@keyframes orbFloat {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(30px, -30px) scale(1.1); }
-}
-
-#particles {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-}
-
-.particle {
-  position: absolute;
-  border-radius: 50%;
-  pointer-events: none;
-  animation: gentleRise 15s linear infinite;
-  opacity: 0.4;
-}
-
-@keyframes gentleRise {
-  0% { transform: translateY(100vh) scale(0.5); opacity: 0; }
-  10% { opacity: 0.4; }
-  90% { opacity: 0.4; }
-  100% { transform: translateY(-10vh) scale(1); opacity: 0; }
-}
-
-.center {
-  position: relative;
-  z-index: 10;
-  text-align: center;
-  padding: 40px;
-  max-width: 700px;
-  width: 100%;
-}
-
-.logo-wrapper {
-  margin-bottom: 48px;
-  animation: fadeInUp 0.8s ease-out;
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
+  body { 
+    background-color: #0b0e11; 
+    color: #fff; 
+    overflow-x: hidden; 
+    font-family: 'Inter', system-ui, sans-serif;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  /* LOGO BACKGROUND - FIXED IMAGE URL */
+  .bg-hero-logo {
+    position: fixed; inset: 0; z-index: -2;
+    background-image: url('/images/logo.png'); /* <-- Fixed the filename here! */
+    background-position: center; background-repeat: no-repeat;
+    background-size: contain; opacity: 0.15; /* Adjusted opacity for better readability */
+    filter: drop-shadow(0 0 30px rgba(59, 130, 246, 0.4));
+    transform: scale(1.1);
   }
-}
 
-.icon-badge {
-  width: 100px;
-  height: 100px;
-  margin: 0 auto 32px;
-  border-radius: 24px;
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 20px 60px rgba(59, 130, 246, 0.4), 
-              inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  position: relative;
-  animation: float 3s ease-in-out infinite;
-}
+  .bg-dark-overlay {
+    position: fixed; inset: 0; z-index: -1;
+    background: radial-gradient(circle at center, rgba(11, 14, 17, 0.15) 0%, rgba(11, 14, 17, 0.95) 75%);
+    pointer-events: none;
+  }
 
-.icon-badge::after {
-  content: '';
-  position: absolute;
-  inset: -2px;
-  border-radius: 24px;
-  background: linear-gradient(135deg, #60a5fa, #a78bfa);
-  z-index: -1;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
+  .bg-aurora {
+    position: fixed; inset: -50%; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(600px 400px at 20% 30%, rgba(59,130,246,0.15), transparent 60%),
+      radial-gradient(500px 500px at 80% 70%, rgba(147,51,234,0.15), transparent 60%),
+      radial-gradient(400px 300px at 50% 90%, rgba(236,72,153,0.10), transparent 60%);
+    filter: blur(80px); animation: aurora 25s ease-in-out infinite alternate;
+  }
+  
+  @keyframes aurora {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.1); }
+    100% { transform: rotate(360deg) scale(0.9); }
+  }
 
-.icon-badge:hover::after {
-  opacity: 1;
-}
+  .particles { position: absolute; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+  .particle { position: absolute; background: white; border-radius: 50%; box-shadow: 0 0 10px rgba(255,255,255,0.8); animation: floatParticle 8s infinite ease-in-out; }
+  @keyframes floatParticle { 0%, 100% { transform: translateY(0) scale(1); opacity: 0.3; } 50% { transform: translateY(-20px) scale(1.5); opacity: 0.8; } }
 
-.icon-badge i {
-  font-size: 48px;
-  color: white;
-}
+  .section-glow {
+    background: rgba(15, 20, 28, 0.5); border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 24px; padding: 40px 32px; margin-bottom: 32px;
+    position: relative; backdrop-filter: blur(20px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .section-glow:hover { border-color: rgba(59,130,246,0.3); box-shadow: 0 0 0 1px rgba(59,130,246,0.1), 0 10px 60px rgba(59,130,246,0.2); transform: translateY(-2px); }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-}
+  .brand-text { 
+    font-family: 'Orbitron', sans-serif;
+    background: linear-gradient(135deg, #60a5fa, #c084fc, #f472b6, #60a5fa); background-size: 200% auto;
+    -webkit-background-clip: text; background-clip: text; color: transparent; 
+    filter: drop-shadow(0 0 20px rgba(192, 132, 252, 0.6)); letter-spacing: 2px;
+    animation: shineText 4s linear infinite;
+  }
+  @keyframes shineText { to { background-position: 200% center; } }
 
-.welcome-text {
-  font-size: 12px;
-  letter-spacing: 4px;
-  opacity: 0.6;
-  margin-bottom: 12px;
-  text-transform: uppercase;
-  font-weight: 600;
-  color: #94a3b8;
-  animation: fadeInUp 0.8s ease-out 0.1s both;
-}
+  .btn-glow { 
+    background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(147,51,234,0.1)); backdrop-filter: blur(24px); 
+    border: 1px solid rgba(147,51,234,0.4); border-radius: 999px; transition: all 0.3s ease; box-shadow: 0 0 20px rgba(147,51,234,0.2);
+  }
+  .btn-glow:hover { border-color: rgba(236,72,153,0.8); box-shadow: 0 0 40px rgba(236,72,153,0.4); transform: scale(1.05); }
 
-.brand {
-  font-size: 3.5rem;
-  font-weight: 900;
-  line-height: 1.1;
-  margin: 0 0 16px;
-  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #fbbf24 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  letter-spacing: -2px;
-  animation: fadeInUp 0.8s ease-out 0.2s both;
-}
+  .tag-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; }
+  .tag-card:hover { transform: translateY(-4px) scale(1.02); background: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.5); color: #fff; box-shadow: 0 5px 15px rgba(59,130,246,0.3); }
 
-.subtitle {
-  color: #64748b;
-  margin: 0 0 48px;
-  font-size: 1.05rem;
-  font-weight: 500;
-  letter-spacing: 0.3px;
-  line-height: 1.6;
-  animation: fadeInUp 0.8s ease-out 0.3s both;
-}
+  .logo-wrap { width: 140px; height: 140px; margin: 0 auto 25px; padding: 16px; background: rgba(15,20,25,0.4); border: 1px solid rgba(59,130,246,0.5); border-radius: 35px; backdrop-filter: blur(10px); box-shadow: 0 0 40px rgba(59,130,246,0.4), inset 0 0 20px rgba(59,130,246,0.2); animation: floatLogo 4s ease-in-out infinite; }
+  .logo-wrap img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 20px rgba(96,165,250,0.9)); }
+  @keyframes floatLogo { 0%,100%{transform:translateY(0) rotate(0deg)} 50%{transform:translateY(-12px) rotate(2deg)} }
 
-.enter-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  padding: 18px 42px;
-  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-  border-radius: 16px;
-  color: white;
-  text-decoration: none;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  font-size: 14px;
-  box-shadow: 0 10px 40px rgba(59, 130, 246, 0.35);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  animation: fadeInUp 0.8s ease-out 0.4s both;
-}
+  /* FEATURE CARDS */
+  .feature-card {
+    background: rgba(15, 20, 28, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 24px;
+    backdrop-filter: blur(16px);
+    transition: all 0.3s ease;
+    height: 100%;
+  }
+  .feature-card:hover {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.4);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  }
+  .feature-icon {
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, rgba(59,130,246,0.2), rgba(147,51,234,0.2));
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; color: #60a5fa; margin-bottom: 16px;
+    border: 1px solid rgba(59,130,246,0.3);
+  }
 
-.enter-btn::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
-  opacity: 0;
-  transition: opacity 0.3s;
-}
+  .share-box { background: linear-gradient(135deg, rgba(15, 23, 42, 0.7), rgba(30, 27, 75, 0.7)); border: 1px solid rgba(96,165,250,0.3); border-radius: 24px; padding: 32px; backdrop-filter: blur(24px); box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1); position: relative; overflow: hidden; }
+  .share-title { background: linear-gradient(90deg, #60a5fa, #a78bfa, #f472b6); -webkit-background-clip: text; background-clip: text; color: transparent; font-family: 'Orbitron', sans-serif; }
+  .share-btn { width: 56px; height: 56px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #fff; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid rgba(255,255,255,0.1); cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+  .share-btn:hover { transform: translateY(-5px) scale(1.15); box-shadow: 0 12px 25px rgba(0,0,0,0.5); border-color: rgba(255,255,255,0.3); }
+  
+  .btn-tg { background: linear-gradient(135deg, #0088cc, #00aaff); } .btn-wa { background: linear-gradient(135deg, #25D366, #1DA851); } .btn-x { background: linear-gradient(135deg, #14171a, #000000); } .btn-rd { background: linear-gradient(135deg, #FF4500, #FF6314); } .btn-share { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
 
-.enter-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 15px 50px rgba(59, 130, 246, 0.5);
-  border-color: rgba(255, 255, 255, 0.2);
-}
+  /* 📱 MOBILE RESPONSIVE FIXES 📱 */
+  @media (max-width: 640px) {
+    .section-glow { padding: 24px 16px; border-radius: 16px; }
+    .share-box { padding: 24px 16px; border-radius: 16px; }
+    .logo-wrap { width: 100px; height: 100px; padding: 12px; margin-bottom: 20px; border-radius: 24px; }
+    /* This overrides the font size for the main title on mobile to fit perfectly */
+    .brand-text { font-size: 2rem !important; line-height: 1.2; letter-spacing: 1px; } 
+    .share-btn { width: 45px; height: 45px; font-size: 18px; border-radius: 12px; }
+  }
 
-.enter-btn:hover::before {
-  opacity: 1;
-}
-
-.enter-btn:active {
-  transform: translateY(0);
-}
-
-.features {
-  display: flex;
-  justify-content: center;
-  gap: 32px;
-  margin-top: 56px;
-  animation: fadeInUp 0.8s ease-out 0.5s both;
-}
-
-.feature {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  opacity: 0.7;
-  transition: opacity 0.3s;
-}
-
-.feature:hover {
-  opacity: 1;
-}
-
-.feature i {
-  font-size: 24px;
-  color: #60a5fa;
-}
-
-.feature span {
-  font-size: 12px;
-  font-weight: 600;
-  color: #64748b;
-  letter-spacing: 0.5px;
-}
-
-@media (max-width: 768px) {
-  .brand { font-size: 2.5rem; letter-spacing: -1px; }
-  .welcome-text { font-size: 11px; letter-spacing: 3px; }
-  .subtitle { font-size: 0.95rem; margin-bottom: 40px; padding: 0 20px; }
-  .icon-badge { width: 80px; height: 80px; border-radius: 20px; }
-  .icon-badge i { font-size: 38px; }
-  .enter-btn { padding: 16px 36px; font-size: 13px; }
-  .features { gap: 24px; margin-top: 48px; }
-  .feature i { font-size: 20px; }
-  .feature span { font-size: 11px; }
-}
-
-@media (max-width: 420px) {
-  .brand { font-size: 2rem; }
-  .features { gap: 20px; }
-}
 </style>
-</head>
-<body>
-  <div class="gradient-orb orb-1"></div>
-  <div class="gradient-orb orb-2"></div>
-  <div id="particles"></div>
 
-  <main class="center">
-    <div class="logo-wrapper">
-      <div class="icon-badge">
-        <i class="fas fa-play"></i>
+<div class="relative min-h-screen px-4 py-12 flex flex-col justify-center">
+  <!-- LOGO BACKGROUND & OVERLAY -->
+  <div class="bg-hero-logo"></div>
+  <div class="bg-dark-overlay"></div>
+  <div class="bg-aurora"></div>
+  
+  <!-- Generated Particles -->
+  <div class="particles">
+    <div class="particle" style="top: 20%; left: 15%; width: 6px; height: 6px; animation-delay: 0s;"></div>
+    <div class="particle" style="top: 60%; left: 80%; width: 4px; height: 4px; animation-delay: 1.5s;"></div>
+    <div class="particle" style="top: 80%; left: 30%; width: 8px; height: 8px; animation-delay: 3s;"></div>
+    <div class="particle" style="top: 30%; left: 70%; width: 5px; height: 5px; animation-delay: 2s;"></div>
+  </div>
+
+  <div class="container mx-auto max-w-6xl relative z-10">
+
+    <!-- HERO SECTION -->
+    <div class="text-center mb-16">
+      <div class="logo-wrap">
+        <img src="/images/logo.png" alt="AniFusionStream Logo">
+      </div>
+
+      <p class="text-xs text-blue-400 font-black tracking-[5px] uppercase mb-4 drop-shadow-md">Welcome to the Nexus of</p>
+      <h1 class="brand-text text-5xl md:text-7xl mb-5">AniFusionStream</h1>
+      <p class="text-gray-300 text-lg md:text-xl mb-8 max-w-2xl mx-auto font-medium shadow-black drop-shadow-lg">
+        Your Personal Anime Note. Track your journey, discover hidden gems, and discuss every epic moment.
+      </p>
+      <a href="/home" class="btn-glow inline-flex items-center gap-3 px-12 py-5 text-sm font-black uppercase text-white tracking-wider">
+        Enter Anifusionstream <i class="fa-solid fa-bolt text-yellow-300"></i>
+      </a>
+    </div>
+
+    <!-- NEW CATCHY INTRO -->
+    <div class="section-glow text-center">
+      <h2 class="text-3xl md:text-4xl font-black mb-3 brand-text">Thousands of Titles, All for Free!</h2>
+      <h3 class="text-lg md:text-xl font-bold text-gray-200 mb-5 tracking-wide">
+        Unlike Your Crush, We Truly Care and We Show It Clear! <i class="fa-solid fa-heart-crack text-red-500"></i><i class="fa-solid fa-arrow-right mx-2 text-gray-500"></i><i class="fa-solid fa-heart text-pink-500"></i>
+      </h3>
+      <p class="text-gray-300 leading-relaxed text-lg max-w-3xl mx-auto">
+        Just as <span class="text-blue-400 font-bold">Inuyasha</span> protects Kagome, we're here to shield you from the woes of poor anime streaming experiences and deliver the best of the best in anime entertainment.
+      </p>
+    </div>
+
+    <!-- NEW FEATURES GRID -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+      <!-- Feature 1 -->
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fa-solid fa-book-journal-whills"></i></div>
+        <h4 class="text-lg font-black text-white mb-2 uppercase tracking-wide">Extensive Library</h4>
+        <p class="text-sm text-gray-400 leading-relaxed">
+          As extensive as the world of <span class="text-blue-400 font-bold">Hunter x Hunter</span>. From the action-packed <span class="text-pink-400 font-bold">Fullmetal Alchemist</span> to magical realms of <span class="text-purple-400 font-bold">Madoka Magica</span>.
+        </p>
+      </div>
+      <!-- Feature 2 -->
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fa-solid fa-wand-magic-sparkles text-pink-400"></i></div>
+        <h4 class="text-lg font-black text-white mb-2 uppercase tracking-wide">Friendly UI & UX</h4>
+        <p class="text-sm text-gray-400 leading-relaxed">
+          Navigating is as smooth as a scroll through the landscapes in <span class="text-blue-400 font-bold">Spirited Away</span>. Find titles easily with an enjoyable experience.
+        </p>
+      </div>
+      <!-- Feature 3 -->
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fa-solid fa-door-open text-yellow-400"></i></div>
+        <h4 class="text-lg font-black text-white mb-2 uppercase tracking-wide">No Sign-Up</h4>
+        <p class="text-sm text-gray-400 leading-relaxed">
+          Like flying on <span class="text-blue-400 font-bold">Kiki's</span> broomstick, dive straight into anime without registration hurdles. We value your freedom!
+        </p>
+      </div>
+      <!-- Feature 4 -->
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fa-solid fa-tv text-green-400"></i></div>
+        <h4 class="text-lg font-black text-white mb-2 uppercase tracking-wide">HD Quality</h4>
+        <p class="text-sm text-gray-400 leading-relaxed">
+          Frames as sharp as <span class="text-blue-400 font-bold">Kirito's sword</span> in SAO. Experience vibrant colors and details just as animators intended.
+        </p>
+      </div>
+      <!-- Feature 5 -->
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fa-solid fa-ban text-red-400"></i></div>
+        <h4 class="text-lg font-black text-white mb-2 uppercase tracking-wide">Zero Ads</h4>
+        <p class="text-sm text-gray-400 leading-relaxed">
+          Ads are as annoying as Team Rocket in <span class="text-blue-400 font-bold">Pokémon</span>! Enjoy pure, uninterrupted, unadulterated anime bliss.
+        </p>
+      </div>
+      <!-- Feature 6 -->
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fa-solid fa-language text-blue-400"></i></div>
+        <h4 class="text-lg font-black text-white mb-2 uppercase tracking-wide">SUB & DUB</h4>
+        <p class="text-sm text-gray-400 leading-relaxed">
+          Just like <span class="text-blue-400 font-bold">Goku</span> transforming, we cater to all forms! Enjoy both Japanese originals and English dubbed versions.
+        </p>
+      </div>
+      <!-- Feature 7 -->
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fa-solid fa-bolt text-yellow-400"></i></div>
+        <h4 class="text-lg font-black text-white mb-2 uppercase tracking-wide">Fast Loading</h4>
+        <p class="text-sm text-gray-400 leading-relaxed">
+          Lightning-fast reflexes like <span class="text-blue-400 font-bold">Levi Ackerman</span>. Never wait to immerse yourself in your favorite worlds.
+        </p>
+      </div>
+      <!-- Feature 8 -->
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fa-solid fa-mobile-screen text-purple-400"></i></div>
+        <h4 class="text-lg font-black text-white mb-2 uppercase tracking-wide">Multi-Device</h4>
+        <p class="text-sm text-gray-400 leading-relaxed">
+          Adaptable like the heroes in <span class="text-blue-400 font-bold">My Hero Academia</span>. Stream seamlessly on desktop, tablet, or mobile.
+        </p>
       </div>
     </div>
 
-    <div class="welcome-text">Welcome to</div>
-    <h1 class="brand">AniFusionStream</h1>
-    <p class="subtitle">Stream unlimited anime in 4K Dual Audio<br>Your gateway to endless adventures</p>
-    
-    <a href="/home" class="enter-btn">
-      <span>Enter Stream</span>
-      <i class="fas fa-arrow-right"></i>
-    </a>
+    <!-- NEW COMPARISON / FAQ SECTION -->
+    <div class="section-glow">
+      <h2 class="text-2xl font-black text-center mb-6 uppercase tracking-widest text-white">
+        <i class="fa-solid fa-crown text-yellow-500 mr-2"></i> How We Compare
+      </h2>
+      <p class="text-gray-300 leading-relaxed text-center max-w-4xl mx-auto mb-4">
+        In the world of free anime streaming sites, with big names like <span class="text-gray-400 font-bold">9anime, aniwatch,</span> and <span class="text-gray-400 font-bold">zoro</span> sailing alongside, <span class="text-blue-400 font-bold">AniFusionStream</span> has learned from their mistakes and adopted their best features.
+      </p>
+      <p class="text-gray-300 leading-relaxed text-center max-w-4xl mx-auto">
+        We're confident that we stand shoulder to shoulder with these giants, if not on a pedestal above them. With our user-friendly interface, extensive library, and top-notch streaming quality, we're sure that once you embark on the AniFusionStream journey, you'll never want to set sail with another crew! Let's get started!
+      </p>
+    </div>
 
-    <div class="features">
-      <div class="feature">
-        <i class="fas fa-hd-video"></i>
-        <span>4K Quality</span>
-      </div>
-      <div class="feature">
-        <i class="fas fa-language"></i>
-        <span>Dual Audio</span>
-      </div>
-      <div class="feature">
-        <i class="fas fa-bolt"></i>
-        <span>Fast Stream</span>
+    <!-- TRENDING SECTION -->
+    <div class="section-glow">
+      <h2 class="text-xl font-black text-center mb-8 uppercase tracking-widest text-gray-400">
+        <i class="fa-solid fa-fire text-orange-500 mr-2 drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]"></i> Trending This Season
+      </h2>
+      <div class="flex flex-wrap justify-center gap-4">
+        <% ["Chainsaw Man - The Movie: Reze Arc","Chainsaw Man","One-Punch Man Season 3","My Hero Academia Final Season","Bleach: TYBW","Gachiakuta","Solo Leveling S2: Arise","Jujutsu Kaisen"].forEach(name => { %>
+          <div class="tag-card px-5 py-3 rounded-xl text-sm font-bold text-gray-300 cursor-default">
+            <i class="fa-solid fa-play text-xs text-blue-400 opacity-70"></i> <%= name %>
+          </div>
+        <% }) %>
       </div>
     </div>
-  </main>
+
+    <!-- SHARE SECTION - PLATFORM SPECIFIC -->
+    <div class="share-box mt-12">
+      <h3 class="share-title text-2xl font-black mb-2 flex items-center justify-center gap-3">
+        <i class="fa-solid fa-share-nodes"></i> Invite Your Nakama
+      </h3>
+      <p class="text-center text-gray-300 mb-8 text-sm">Share AniFusionStream and track anime together!</p>
+      
+      <div class="flex flex-col md:flex-row items-center justify-center gap-10">
+        <div class="text-center md:border-r border-gray-600 md:pr-10">
+          <p class="text-4xl font-black text-white drop-shadow-[0_0_15px_rgba(59,130,246,0.6)]">2.6k<span class="text-blue-500">+</span></p>
+          <p class="text-xs text-gray-400 uppercase tracking-widest mt-1 font-bold">Otakus Joined</p>
+        </div>
+        <div class="flex flex-wrap justify-center gap-5">
+          <button class="share-btn btn-tg" data-platform="telegram" title="Share on Telegram"><i class="fa-brands fa-telegram"></i></button>
+          <button class="share-btn btn-wa" data-platform="whatsapp" title="Share on WhatsApp"><i class="fa-brands fa-whatsapp"></i></button>
+          <button class="share-btn btn-x" data-platform="twitter" title="Share on X / Twitter"><i class="fa-brands fa-x-twitter"></i></button>
+          <button class="share-btn btn-rd" data-platform="reddit" title="Share on Reddit"><i class="fa-brands fa-reddit-alien"></i></button>
+          <button class="share-btn btn-share" data-platform="native" title="More Options"><i class="fa-solid fa-link"></i></button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  // Subtle particles only
-  const particlesContainer = document.getElementById('particles');
-  const colors = ['#3b82f6', '#8b5cf6', '#fbbf24'];
-  
-  for (let i = 0; i < 30; i++) {
-    const p = document.createElement('div');
-    p.className = 'particle';
-    const size = Math.random() * 3 + 2;
-    p.style.width = size + 'px';
-    p.style.height = size + 'px';
-    p.style.left = Math.random() * 100 + 'vw';
-    p.style.top = Math.random() * 100 + 'vh';
-    const color = colors[Math.floor(Math.random() * colors.length)];
-    p.style.background = color;
-    p.style.boxShadow = `0 0 ${8 + Math.random() * 8}px ${color}`;
-    p.style.animationDuration = (Math.random() * 8 + 12) + 's';
-    p.style.animationDelay = (Math.random() * 15) + 's';
-    particlesContainer.appendChild(p);
-  }
-});
+  const shareUrl = window.location.href; 
+  const shareTitle = 'AniFusionStream';
+  const shareText = ' Watch The Latest anime on AniFusionStream! Never miss an episode. Join me here:';
+
+  document.querySelectorAll('.share-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const platform = btn.getAttribute('data-platform');
+      let url = '';
+
+      switch(platform) {
+        case 'telegram':
+          url = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
+          window.open(url, '_blank');
+          break;
+          
+        case 'whatsapp':
+          const waMessage = `${shareText}\n\n${shareUrl}`;
+          url = `https://api.whatsapp.com/send?text=${encodeURIComponent(waMessage)}`;
+          window.open(url, '_blank');
+          break;
+          
+        case 'twitter':
+          url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+          window.open(url, '_blank');
+          break;
+          
+        case 'reddit':
+          url = `https://reddit.com/submit?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(shareTitle)}`;
+          window.open(url, '_blank');
+          break;
+          
+        case 'native':
+          if(navigator.share) {
+            navigator.share({ 
+              title: shareTitle, 
+              text: shareText,
+              url: shareUrl 
+            }).catch(console.error);
+          } else {
+            navigator.clipboard.writeText(shareUrl);
+            const originalIcon = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+            setTimeout(() => { btn.innerHTML = originalIcon; }, 2000);
+            alert('Link Copied to Clipboard! Share it with your friends.');
+          }
+          break;
+      }
+    });
+  });
 </script>
-</body>
-</html>
+
+<%- include('partials/footer') %>

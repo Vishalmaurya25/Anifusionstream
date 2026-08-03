@@ -19,7 +19,7 @@ const ContactSchema = new mongoose.Schema({
     subject: { 
         type: String, 
         required: true,
-        enum: ['Copyright Complaint', 'Anime Suggestion', 'Dead Link Report', 'Video Quality/Blur Issue', 'Other']
+        enum: ['Copyright Complaint', 'Anime Suggestion', 'Dead Link Report', 'Video Quality/Blur Issue', 'Video Report', 'Other']
     },
     message: { 
       type: String, 

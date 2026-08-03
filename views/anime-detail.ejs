@@ -2,6 +2,8 @@
 
 <!-- SweetAlert2 CDN -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
 <style>
     :root {
@@ -354,6 +356,25 @@
         border-color: #3b82f6;
         color: #fff;
     }
+
+    /* share css */
+
+    .share-box { background: linear-gradient(135deg, rgba(15, 23, 42, 0.7), rgba(30, 27, 75, 0.7)); border: 1px solid rgba(96,165,250,0.3); border-radius: 24px; padding: 32px; backdrop-filter: blur(24px); box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1); position: relative; overflow: hidden; }
+  .share-title { background: linear-gradient(90deg, #60a5fa, #a78bfa, #f472b6); -webkit-background-clip: text; background-clip: text; color: transparent; font-family: 'Orbitron', sans-serif; }
+  .share-btn { width: 56px; height: 56px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #fff; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid rgba(255,255,255,0.1); cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+  .share-btn:hover { transform: translateY(-5px) scale(1.15); box-shadow: 0 12px 25px rgba(0,0,0,0.5); border-color: rgba(255,255,255,0.3); }
+  
+  .btn-tg { background: linear-gradient(135deg, #0088cc, #00aaff); } .btn-wa { background: linear-gradient(135deg, #25D366, #1DA851); } .btn-x { background: linear-gradient(135deg, #14171a, #000000); } .btn-rd { background: linear-gradient(135deg, #FF4500, #FF6314); } .btn-share { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+
+  /* 📱 MOBILE RESPONSIVE FIXES 📱 */
+  @media (max-width: 640px) {
+    .section-glow { padding: 24px 16px; border-radius: 16px; }
+    .share-box { padding: 24px 16px; border-radius: 16px; }
+    .logo-wrap { width: 100px; height: 100px; padding: 12px; margin-bottom: 20px; border-radius: 24px; }
+    /* This overrides the font size for the main title on mobile to fit perfectly */
+    .brand-text { font-size: 2rem !important; line-height: 1.2; letter-spacing: 1px; } 
+    .share-btn { width: 45px; height: 45px; font-size: 18px; border-radius: 12px; }
+  }
 </style>
 
 <div id="anime-data"
@@ -406,6 +427,170 @@
         </div>
     </div>
 
+
+     <!-- REAL RATING SYSTEM SECTION -->
+<% 
+   // Calculate real database values
+   let displayScore = anime.ratingScore ? anime.ratingScore.toFixed(1) : "0.0";
+   let displayCount = anime.ratingCount ? anime.ratingCount : 0;
+   let percentage = anime.ratingScore ? Math.round((anime.ratingScore / 10) * 100) : 0;
+%>
+
+<div class="rating-box my-6 p-5 rounded-2xl bg-black/40 border border-white/10 flex flex-col md:flex-row items-center justify-between gap-6 w-full">
+    
+    <!-- LEFT: Real Score & Percentage Display -->
+    <div class="flex items-center gap-5 w-full md:w-auto justify-center md:justify-start">
+        <!-- Giant Score Badge -->
+        <div class="relative flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-500/20 to-orange-500/20 border border-yellow-500/30 text-yellow-400 flex-shrink-0 shadow-lg">
+            <span id="average-score" class="text-2xl font-black"><%= displayScore %></span>
+            <span class="text-[9px] absolute bottom-1 font-bold text-gray-400">/ 10</span>
+        </div>
+
+        <div>
+            <div class="flex items-center gap-2 mb-1">
+                <div class="flex text-yellow-400 text-sm">
+                    <i class="fas fa-star"></i>
+                </div>
+                <span class="text-sm font-black text-white" id="rating-percentage"><%= percentage %>% Positive</span>
+            </div>
+            <p class="text-xs font-bold uppercase tracking-wider text-gray-400">
+                Community Rating <span id="rating-count" class="text-blue-400 ml-1">(<%= displayCount %> Voted)</span>
+            </p>
+        </div>
+    </div>
+
+    <!-- RIGHT: Interactive 5-Emoji Rating Bar (Fixed Overlap) -->
+    <div class="w-full md:w-auto text-center md:text-right">
+        <p class="text-xs font-black uppercase tracking-widest text-blue-400 mb-3 flex items-center justify-center md:justify-end gap-2">
+            <i class="fas fa-fire text-orange-500"></i> Rate this Anime
+        </p>
+
+        <!-- Added flex-wrap and gap-3 to prevent overlap -->
+        <div class="flex flex-wrap items-center justify-center md:justify-end gap-3" id="sentiment-bar">
+            <button type="button" data-value="2" class="sentiment-btn group flex-shrink-0">
+                <span class="material-symbols-outlined group-hover:text-red-500 transition-colors">sentiment_very_dissatisfied</span>
+                <span class="sentiment-tooltip">Terrible</span>
+            </button>
+
+            <button type="button" data-value="4" class="sentiment-btn group flex-shrink-0">
+                <span class="material-symbols-outlined group-hover:text-orange-500 transition-colors">sentiment_dissatisfied</span>
+                <span class="sentiment-tooltip">Poor</span>
+            </button>
+
+            <button type="button" data-value="6" class="sentiment-btn group flex-shrink-0">
+                <span class="material-symbols-outlined group-hover:text-yellow-400 transition-colors">sentiment_neutral</span>
+                <span class="sentiment-tooltip">Average</span>
+            </button>
+
+            <button type="button" data-value="8" class="sentiment-btn group flex-shrink-0">
+                <span class="material-symbols-outlined group-hover:text-lime-400 transition-colors">sentiment_satisfied</span>
+                <span class="sentiment-tooltip">Good</span>
+            </button>
+
+            <button type="button" data-value="10" class="sentiment-btn group flex-shrink-0">
+                <span class="material-symbols-outlined group-hover:text-emerald-400 transition-colors">sentiment_very_satisfied</span>
+                <span class="sentiment-tooltip">Awesome!</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+
+</div>
+
+<!-- FIXED CSS FOR BUTTONS -->
+<style>
+.sentiment-btn {
+    position: relative;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.sentiment-btn .material-symbols-outlined {
+    font-size: 28px;
+}
+
+.sentiment-btn:hover {
+    transform: translateY(-4px) scale(1.1);
+    background: rgba(59, 130, 246, 0.15);
+    border-color: rgba(59, 130, 246, 0.4);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.sentiment-btn:hover .material-symbols-outlined {
+    font-variation-settings: 'FILL' 1;
+}
+
+.sentiment-tooltip {
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%) scale(0.8);
+    opacity: 0;
+    pointer-events: none;
+    background: #151b23;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    z-index: 50;
+}
+
+.sentiment-btn:hover .sentiment-tooltip {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+    bottom: -35px;
+}
+</style>
+
+<!-- RATING JAVASCRIPT -->
+<script>
+document.querySelectorAll('#sentiment-bar .sentiment-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+        const ratingValue = parseInt(btn.dataset.value); 
+        const animeId = animeData._id;
+
+        try {
+            const response = await fetch(`/anime/rate/${animeId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ rating: ratingValue })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Update UI instantly with REAL DB numbers
+                document.getElementById('average-score').textContent = data.newAverage.toFixed(1);
+                document.getElementById('rating-count').textContent = `(${data.newCount} Voted)`;
+                document.getElementById('rating-percentage').textContent = `${data.newPercentage}% Positive`;
+
+                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Vote saved permanently!', showConfirmButton: false, timer: 2000, background: '#151b23', color: '#fff' });
+            } else {
+                Swal.fire({ icon: 'info', title: 'Notice', text: data.message, background: '#0b0e11', color: '#fff' });
+            }
+        } catch (err) {
+            console.error(err);
+            Swal.fire({ icon: 'error', title: 'Connection Error', text: 'Could not reach the server.', background: '#0b0e11', color: '#fff' });
+        }
+    });
+});
+</script>
+
     <div id="video-area" class="mb-12 hidden">
         <div class="glass-card p-2 shadow-2xl overflow-hidden">
             <div id="player-container" class="relative w-full aspect-video bg-black rounded-lg overflow-hidden"></div>
@@ -413,7 +598,7 @@
 
         <div id="player-controls" class="mt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <h2 id="active-video-title" class="text-lg md:text-xl font-black text-white uppercase tracking-tight flex-1 min-w-0 break-words"></h2>
-
+<button id="report-btn" class="report-btn" type="button"><i class="fas fa-flag"></i> Report</button>
             <div class="flex items-center gap-2 w-full sm:w-auto flex-wrap">
                 <button id="prev-btn" class="player-control-btn flex-1 sm:flex-none" type="button">
                     <i class="fas fa-backward"></i> Prev
@@ -439,7 +624,6 @@
             <h3 class="text-sm font-bold text-gray-400 uppercase mb-3">Select Server:</h3>
             <div class="flex flex-wrap gap-2" id="server-buttons"></div>
         </div>
-    </div>
 
     <!-- SPECIAL INFO / PUBLIC ANNOUNCEMENT -->
 <% if(anime.specialInfo && anime.specialInfo.trim()!== '') { %>
@@ -520,110 +704,143 @@
         </div>
     <% } %>
 
-    <div class="mt-20 glass-card p-4 md:p-10">
-    <h2 class="text-2xl md:text-3xl font-black uppercase tracking-tighter mb-6 md:mb-10 flex items-center gap-3 md:gap-4 flex-wrap">
-        <i class="fas fa-comments text-blue-500 flex-shrink-0"></i>
-        <span>Community <span class="text-blue-500">Voice</span></span>
-    </h2>
+  <div class="mt-20 glass-card p-4 md:p-10">
+        <h2 class="text-2xl md:text-3xl font-black uppercase tracking-tighter mb-6 md:mb-10 flex items-center gap-3 md:gap-4 flex-wrap">
+            <i class="fas fa-comments text-blue-500 flex-shrink-0"></i>
+            <span>Community <span class="text-blue-500">Voice</span></span>
+        </h2>
 
-    <%- include('partials/flash') %>
+        <%- include('partials/flash') %>
 
-    <!-- Public Comment Form - No Login -->
-    <form action="/anime/comment/<%= anime._id %>" method="POST" class="mb-8 md:mb-12">
-        <div class="space-y-4">
-            <div>
-                <label class="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">
-                    Comment * <span class="text-red-500">Required</span>
-                </label>
-                <textarea name="content" rows="4" class="w-full p-4 md:p-6 rounded-2xl bg-black/40 border-white/10 text-white focus:border-blue-500 outline-none transition-all placeholder-gray-600 text-sm md:text-base" placeholder="Share your thoughts..." required maxlength="500"></textarea>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Public Comment Form - No Login -->
+        <form action="/anime/comment/<%= anime._id %>" method="POST" class="mb-8 md:mb-12">
+            <div class="space-y-4">
                 <div>
                     <label class="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">
-                        Name * <span class="text-red-500">Required</span>
+                        Comment * <span class="text-red-500">Required</span>
                     </label>
-                    <input type="text" name="guestName" class="w-full p-3 md:p-4 rounded-xl bg-black/40 border-white/10 text-white focus:border-blue-500 outline-none transition-all text-sm" placeholder="Your name" required maxlength="50">
+                    <textarea name="content" rows="4" class="w-full p-4 md:p-6 rounded-2xl bg-black/40 border border-white/10 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all placeholder-gray-600 text-sm md:text-base" placeholder="Share your thoughts..." required maxlength="500"></textarea>
                 </div>
-                <div>
-                    <label class="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">
-                        Email * <span class="text-red-500">Required</span>
-                    </label>
-                    <input type="email" name="guestEmail" class="w-full p-3 md:p-4 rounded-xl bg-black/40 border-white/10 text-white focus:border-blue-500 outline-none transition-all text-sm" placeholder="your@email.com" required>
-                    <p class="text-xs text-gray-600 mt-1">Your email address will not be published.</p>
-                </div>
-            </div>
 
-            <button type="submit" class="w-full md:w-auto bg-blue-600 text-white px-6 md:px-8 py-3 rounded-xl font-black uppercase text-xs tracking-widest hover:bg-blue-500 transition-all">
-                Post Comment
-            </button>
-        </div>
-    </form>
-
-   <div class="comment-thread">
-    <%
-    const currentGuestId = typeof guestId !== 'undefined' ? guestId : '';
-
-    function renderThreadedComments(commentList, depth = 0) {
-        commentList.forEach(function(comment) {
-            const isOwner = comment.guestId && comment.guestId === currentGuestId;
-            const isAdmin = !!session.isAdminAuthenticated;
-            const isReply = depth > 0;
-    %>
-            <div class="<%= isReply? 'reply-container' : '' %>">
-                <div class="<%= isReply? 'reply-node' : 'comment-node' %>">
-                    <% if(isReply) { %><div class="reply-thread-line"></div><% } %>
-
-                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-3">
-    <div class="flex items-start gap-3 flex-1 min-w-0">
-        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-xs font-black flex-shrink-0"><%= (comment.username || 'G').charAt(0).toUpperCase() %></div>
-        <div class="flex-1 min-w-0">
-            <div class="flex flex-wrap items-center gap-2">
-                <span class="<%= comment.isAdmin? 'text-blue-400' : 'text-white' %> font-black text-xs uppercase truncate"><%= comment.username || 'Guest' %></span>
-                <% if(comment.isAdmin) { %><span class="staff-tag">MOD</span><% } %>
-                <% if(isReply) { %><span class="comment-badge reply"><i class="fas fa-reply"></i> Reply</span><% } %>
-            </div>
-            <p class="text-gray-500 font-bold uppercase mt-0.5 text-xs"><%= new Date(comment.createdAt).toLocaleDateString('en-IN') %></p>
-        </div>
-    </div>
-
-    <div class="flex items-center gap-2 flex-shrink-0">
-        <button type="button" data-action="reply" data-comment-id="<%= comment._id %>" class="action-btn reply-trigger">
-            <i class="fas fa-reply"></i> Reply
-        </button>
-        <% if (isAdmin || isOwner) { %>
-            <button type="button" data-action="delete-comment" data-anime-id="<%= anime._id %>" data-comment-id="<%= comment._id %>" class="action-btn delete-trigger">
-              🗑️ <i class="fas fa-trash-alt"></i>
-            </button>
-        <% } %>
-    </div>
-</div>
-
-                    <p class="text-sm text-gray-300 leading-relaxed break-words"><%= comment.content %></p>
-
-                    <div id="reply-form-<%= comment._id %>" class="hidden mt-4">
-                        <form action="/anime/comment/reply/<%= anime._id %>/<%= comment._id %>" method="POST">
-                            <textarea name="content" rows="2" class="w-full p-3 md:p-4 rounded-xl bg-black/60 border border-blue-500/30 text-white outline-none text-sm mb-3" placeholder="Write a reply..." required maxlength="500"></textarea>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-                                <input type="text" name="guestName" class="w-full p-3 rounded-xl bg-black/60 border border-blue-500/30 text-white outline-none text-sm" placeholder="Your name *" required maxlength="50">
-                                <input type="email" name="guestEmail" class="w-full p-3 rounded-xl bg-black/60 border border-blue-500/30 text-white outline-none text-sm" placeholder="your@email.com *" required>
-                            </div>
-                            <div class="flex gap-2">
-                                <button type="submit" class="bg-blue-600 text-white px-4 py-1.5 rounded-lg font-black uppercase text-xs">Send</button>
-                                <button type="button" data-action="cancel-reply" data-comment-id="<%= comment._id %>" class="text-gray-500 font-black uppercase text-xs px-4 py-1.5">Cancel</button>
-                            </div>
-                        </form>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">
+                            Name * <span class="text-red-500">Required</span>
+                        </label>
+                        <input type="text" name="guestName" class="w-full p-3 md:p-4 rounded-xl bg-black/40 border border-white/10 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all text-sm" placeholder="Your name" required maxlength="50">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-black uppercase tracking-widest text-gray-400 mb-2">
+                            Email * <span class="text-red-500">Required</span>
+                        </label>
+                        <input type="email" name="guestEmail" class="w-full p-3 md:p-4 rounded-xl bg-black/40 border border-white/10 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all text-sm" placeholder="your@email.com" required>
+                        <p class="text-xs text-gray-600 mt-1">Your email address will not be published.</p>
                     </div>
                 </div>
 
-                <% if (comment.replies && comment.replies.length > 0) { renderThreadedComments(comment.replies, depth + 1); } %>
+                <button type="submit" class="w-full md:w-auto bg-blue-600 text-white px-6 md:px-8 py-3 rounded-xl font-black uppercase text-xs tracking-widest hover:bg-blue-500 transition-all shadow-lg shadow-blue-600/30 hover:shadow-blue-600/50">
+                    Post Comment
+                </button>
             </div>
-    <% }); } %>
+        </form>
 
-    <% if (comments && comments.length > 0) { renderThreadedComments(comments); } else { %>
-        <p class="text-center py-10 text-gray-600 font-bold uppercase text-xs">No conversation yet.</p>
-    <% } %>
-</div>
+       <div class="comment-thread">
+        <% 
+        const currentGuestId = typeof guestId !== 'undefined' ? guestId : '';
+
+        function renderThreadedComments(commentList, depth = 0) {
+            commentList.forEach(function(comment) {
+                const isOwner = comment.guestId && comment.guestId === currentGuestId;
+                const isAdmin = !!session.isAdminAuthenticated;
+                const isReply = depth > 0;
+        %>
+                <div class="<%= isReply ? 'reply-container' : '' %>">
+                    <div class="<%= isReply ? 'reply-node' : 'comment-node' %>">
+                        <% if(isReply) { %><div class="reply-thread-line"></div><% } %>
+
+                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-3">
+                            <div class="flex items-start gap-3 flex-1 min-w-0">
+                                <!-- FIX: Added text-white and shadow-md to avatar -->
+                                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-xs font-black text-white flex-shrink-0 shadow-md">
+                                    <%= (comment.username || 'G').charAt(0).toUpperCase() %>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span class="<%= comment.isAdmin ? 'text-blue-400' : 'text-white' %> font-black text-xs uppercase truncate"><%= comment.username || 'Guest' %></span>
+                                        <% if(comment.isAdmin) { %><span class="staff-tag">MOD</span><% } %>
+                                        <% if(isReply) { %><span class="comment-badge reply"><i class="fas fa-reply"></i> Reply</span><% } %>
+                                    </div>
+                                    <!-- FIX: Professional Date Formatting -->
+                                    <p class="text-gray-500 font-bold uppercase mt-0.5 text-[10px] tracking-wide">
+                                        <%= new Date(comment.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-2 flex-shrink-0">
+                                <button type="button" data-action="reply" data-comment-id="<%= comment._id %>" class="action-btn reply-trigger">
+                                    <i class="fas fa-reply"></i> Reply
+                                </button>
+                                <% if (isAdmin || isOwner) { %>
+                                    <button type="button" data-action="delete-comment" data-anime-id="<%= anime._id %>" data-comment-id="<%= comment._id %>" class="action-btn delete-trigger">
+                                        <i class="fas fa-trash-alt">🗑️</i>
+                                    </button>
+                                <% } %>
+                            </div>
+                        </div>
+
+                        <p class="text-sm text-gray-300 leading-relaxed break-words"><%= comment.content %></p>
+
+                        <div id="reply-form-<%= comment._id %>" class="hidden mt-4">
+                            <form action="/anime/comment/reply/<%= anime._id %>/<%= comment._id %>" method="POST" class="bg-black/20 p-4 rounded-xl border border-white/5">
+                                <textarea name="content" rows="2" class="w-full p-3 md:p-4 rounded-xl bg-black/60 border border-blue-500/30 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all text-sm mb-3" placeholder="Write a reply..." required maxlength="500"></textarea>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                                    <input type="text" name="guestName" class="w-full p-3 rounded-xl bg-black/60 border border-blue-500/30 text-white focus:border-blue-500 outline-none transition-all text-sm" placeholder="Your name *" required maxlength="50">
+                                    <input type="email" name="guestEmail" class="w-full p-3 rounded-xl bg-black/60 border border-blue-500/30 text-white focus:border-blue-500 outline-none transition-all text-sm" placeholder="your@email.com *" required>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button type="submit" class="bg-blue-600 text-white px-5 py-2 rounded-lg font-black uppercase text-xs hover:bg-blue-500 transition-all">Send Reply</button>
+                                    <button type="button" data-action="cancel-reply" data-comment-id="<%= comment._id %>" class="text-gray-400 hover:text-white font-black uppercase text-xs px-4 py-2 transition-all">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <% if (comment.replies && comment.replies.length > 0) { renderThreadedComments(comment.replies, depth + 1); } %>
+                </div>
+        <% }); } %>
+
+        <% if (comments && comments.length > 0) { renderThreadedComments(comments); } else { %>
+            <div class="text-center py-12 bg-black/20 rounded-2xl border border-white/5">
+                <i class="fas fa-comment-slash text-4xl text-gray-600 mb-4 block"></i>
+                <p class="text-gray-500 font-bold uppercase text-xs tracking-widest">No conversation yet. Be the first to speak!</p>
+            </div>
+        <% } %>
+        </div>
+    </div>
+
+
+ <!-- SHARE SECTION - PLATFORM SPECIFIC -->
+    <div class="share-box mt-12">
+      <h3 class="share-title text-2xl font-black mb-2 flex items-center justify-center gap-3">
+        <i class="fa-solid fa-share-nodes"></i> Invite Your Nakama
+      </h3>
+      <p class="text-center text-gray-300 mb-8 text-sm">Share AniFusionStream and track anime together!</p>
+      
+      <div class="flex flex-col md:flex-row items-center justify-center gap-10">
+        <div class="text-center md:border-r border-gray-600 md:pr-10">
+          <p class="text-4xl font-black text-white drop-shadow-[0_0_15px_rgba(59,130,246,0.6)]">2.6k<span class="text-blue-500">+</span></p>
+          <p class="text-xs text-gray-400 uppercase tracking-widest mt-1 font-bold">Otakus Joined</p>
+        </div>
+        <div class="flex flex-wrap justify-center gap-5">
+          <button class="share-btn btn-tg" data-platform="telegram" title="Share on Telegram"><i class="fa-brands fa-telegram"></i></button>
+          <button class="share-btn btn-wa" data-platform="whatsapp" title="Share on WhatsApp"><i class="fa-brands fa-whatsapp"></i></button>
+          <button class="share-btn btn-x" data-platform="twitter" title="Share on X / Twitter"><i class="fa-brands fa-x-twitter"></i></button>
+          <button class="share-btn btn-rd" data-platform="reddit" title="Share on Reddit"><i class="fa-brands fa-reddit-alien"></i></button>
+          <button class="share-btn btn-share" data-platform="native" title="More Options"><i class="fa-solid fa-link"></i></button>
+        </div>
+      </div>
+    </div>
 
     <div class="mt-12">
         <h2 class="text-2xl font-black mb-6 uppercase tracking-tighter">Random<span class="text-blue-500">Titles</span></h2>
@@ -1030,3 +1247,201 @@
 </script>
 
 <%- include('partials/footer') %>
+
+<!-- REPORT MODAL -->
+<div id="report-modal" class="report-modal hidden fixed inset-0 bg-black/90 backdrop-blur-sm z- items-center justify-center p-4 overflow-y-auto">
+    <div class="glass-card w-full max-w-xl rounded-2xl border-white/10 shadow-2xl overflow-hidden my-8 mx-auto">
+
+        <!-- HEADER -->
+        <div class="p-5 border-b border-white/10 flex items-center justify-between">
+            <h3 class="text-xl font-black text-white flex items-center gap-2"><i class="fas fa-flag text-red-500"></i> Report Video Issue</h3>
+            <button type="button" id="close-report" class="text-gray-400 hover:text-white"><i class="fas fa-times"></i></button>
+        </div>
+
+        <form id="report-form" class="p-5">
+
+            <!-- AUTO INFO - READ ONLY -->
+            <div class="mb-4 p-3 bg-black/50 rounded-xl border border-white/5">
+                <p class="text-xs text-gray-400 font-bold uppercase mb-2">Auto Information</p>
+                <div id="report-info" class="text-xs text-gray-300 space-y-1 font-mono break-words"></div>
+            </div>
+
+            <!-- ISSUE TYPE -->
+            <div class="mb-4">
+                <label class="text-xs text-gray-400 font-bold uppercase mb-2 block">Issue Type *</label>
+                <select id="issue-type" required class="w-full p-3 rounded-xl bg-black/40 border border-white/10 text-white text-sm focus:border-red-500 focus:outline-none">
+                    <option value="">Select an issue</option>
+                    <option>Video Not Playing</option>
+                    <option>Buffering/Lag</option>
+                    <option>Video Quality/Blur</option>
+                    <option>Audio Problem</option>
+                    <option>Wrong Episode</option>
+                    <option>Other</option>
+                </select>
+            </div>
+
+            <!-- MESSAGE -->
+            <div class="mb-4">
+                <label class="text-xs text-gray-400 font-bold uppercase mb-2 block">Describe the Issue <span class="text-red-500">*</span></label>
+                <textarea name="message" id="report-message" rows="4" required minlength="10"
+                    class="w-full p-3 rounded-xl bg-black/40 border-white/10 text-white text-sm placeholder-gray-500 focus:border-red-500 focus:outline-none resize-none"
+                    placeholder="Explain the problem in detail..."></textarea>
+            </div>
+
+            <div class="flex gap-3">
+                <button type="submit" class="flex-1 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 text-white px-6 py-3 rounded-xl font-black uppercase text-xs">
+                    <i class="fas fa-paper-plane mr-2"></i> Send Report
+                </button>
+                <button type="button" id="cancel-report" class="bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-xl font-black uppercase text-xs">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const reportModal = document.getElementById('report-modal');
+    const closeReport = document.getElementById('close-report');
+    const reportForm = document.getElementById('report-form');
+
+    // OPEN
+    document.addEventListener('click', function(e) {
+        if(e.target.closest('#report-btn')) {
+            if(currentEpisodeIndex === -1) {
+                Swal.fire({icon: 'info', title: 'Play Video First', text: 'Please play a video to report it.'});
+                return;
+            }
+            const ep = allEpisodes[currentEpisodeIndex];
+            document.getElementById('report-info').innerHTML = `
+                <div><span class="text-gray-500">Anime:</span> ${animeData.name}</div>
+                <div><span class="text-gray-500">Ep:</span> S${ep.seasonNumber} E${ep.episodeNumber} - ${ep.title}</div>
+                <div><span class="text-gray-500">URL:</span> ${window.location.href}</div>
+            `;
+            document.getElementById('report-message').value = '';
+            document.getElementById('issue-type').value = '';
+            reportModal.classList.remove('hidden');
+            reportModal.classList.add('flex');
+        }
+    });
+
+    // CLOSE
+    [closeReport, document.getElementById('cancel-report')].forEach(btn => {
+        btn?.addEventListener('click', () => {
+            reportModal.classList.add('hidden');
+            reportModal.classList.remove('flex');
+        });
+    });
+    reportModal.addEventListener('click', (e) => { if(e.target === reportModal) reportModal.classList.add('hidden').remove('flex') });
+
+ // SUBMIT
+reportForm?.addEventListener('submit', async function(e){
+    e.preventDefault();
+
+    const issueType = document.getElementById('issue-type').value;
+    const description = document.getElementById('report-message').value.trim();
+
+    if(!issueType) return Swal.fire({icon: 'warning', title: 'Select Issue Type'});
+    if(description.length < 10) return Swal.fire({icon: 'error', title: 'Too Short', text: 'Min 10 characters'});
+
+    const ep = allEpisodes[currentEpisodeIndex];
+
+    // YE WALI LINE NAYI HAI - SAB KUCH EK SATH JOD DIYA
+    const fullMessage = `
+🚨 NEW VIDEO REPORT 🚨
+
+--- AUTO INFORMATION ---
+Anime: ${animeData.name}
+Type: ${animeData.type}
+${animeData.type!== 'movie'? `Season: ${ep.seasonNumber}\nEpisode: ${ep.episodeNumber}\nEpisode Title: ${ep.title}\n` : ''}
+URL: ${window.location.href}
+
+--- ISSUE DETAILS ---
+Issue Type: ${issueType}
+Description: ${description}
+    `.trim();
+
+    try {
+        const response = await fetch(`${window.location.origin}/report-video`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ message: fullMessage }) // pura fullMessage bhej rahe
+        });
+        const data = await response.json();
+        if(data.success){
+            Swal.fire({icon: 'success', title: 'Report Sent!', text: data.message, timer: 2000});
+            reportModal.classList.add('hidden');
+            reportModal.classList.remove('flex');
+            this.reset();
+        } else {
+            Swal.fire({icon: 'error', title: 'Failed!', text: data.message});
+        }
+    } catch (err) {
+        console.error(err);
+        Swal.fire({icon: 'error', title: 'Network Error', text: 'Check if server is running'});
+    }
+});
+});
+</script>
+
+<!-- Share section -->
+<script>
+  const shareUrl = window.location.href; 
+  
+  // Dynamically grab the anime name using EJS
+  const animeTitle = "<%= anime.name %>"; 
+  
+  // Clean, simple, and attractive share text
+  const shareTitle = `Watch ${animeTitle} on AniFusionStream`;
+  const shareText = `Watching ${animeTitle} on AniFusionStream! Catch it in HD here:`;
+
+  document.querySelectorAll('.share-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const platform = btn.getAttribute('data-platform');
+      let url = '';
+
+      switch(platform) {
+        case 'telegram':
+          url = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`;
+          window.open(url, '_blank');
+          break;
+          
+        case 'whatsapp':
+          const waMessage = `${shareText}\n\n${shareUrl}`;
+          url = `https://api.whatsapp.com/send?text=${encodeURIComponent(waMessage)}`;
+          window.open(url, '_blank');
+          break;
+          
+        case 'twitter':
+          url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+          window.open(url, '_blank');
+          break;
+          
+        case 'reddit':
+          url = `https://reddit.com/submit?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(shareTitle)}`;
+          window.open(url, '_blank');
+          break;
+          
+        case 'native':
+          if(navigator.share) {
+            navigator.share({ 
+              title: shareTitle, 
+              text: shareText,
+              url: shareUrl 
+            }).catch(console.error);
+          } else {
+            navigator.clipboard.writeText(shareUrl);
+            const originalIcon = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+            setTimeout(() => { btn.innerHTML = originalIcon; }, 2000);
+            // Swapped alert for a cleaner user experience, or keep alert if you prefer
+            alert('Link Copied to Clipboard!');
+          }
+          break;
+      }
+    });
+  });
+</script>
+<style>
+.report-btn { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; padding: 8px 16px; border-radius: 10px; font-weight: 900; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: all.2s; }
+.report-btn:hover { background: rgba(239, 68, 68, 0.3); }
+</style>

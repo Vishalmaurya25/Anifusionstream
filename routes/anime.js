@@ -456,4 +456,54 @@ router.get('/', async (req, res) => {
     }
 });
 
+// POST route to handle Anime Ratings
+router.post('/rate/:id', async (req, res) => {
+    try {
+        const { rating } = req.body; 
+        const animeId = req.params.id;
+        
+        // Use user session ID if logged in, otherwise use their IP address to prevent spam
+        const voterId = (req.session && req.session.userId) ? req.session.userId : req.ip; 
+
+        if (!rating || rating < 2 || rating > 10) {
+            return res.status(400).json({ success: false, message: 'Invalid rating value.' });
+        }
+
+        const anime = await Anime.findById(animeId);
+        if (!anime) return res.status(404).json({ success: false, message: 'Anime not found.' });
+
+        // Ensure fields exist (for older anime added before this feature)
+        if (!anime.votedUsers) anime.votedUsers = [];
+        if (typeof anime.ratingCount !== 'number') anime.ratingCount = 0;
+        if (typeof anime.totalRatingSum !== 'number') anime.totalRatingSum = 0;
+
+        // Block duplicate voting
+        if (anime.votedUsers.includes(voterId)) {
+            return res.json({ success: false, message: 'You have already voted for this anime!' });
+        }
+
+        // Calculate real mathematics for the rating
+        anime.votedUsers.push(voterId);
+        anime.ratingCount += 1;
+        anime.totalRatingSum += rating;
+        anime.ratingScore = anime.totalRatingSum / anime.ratingCount;
+
+        await anime.save();
+
+        const newPercentage = Math.round((anime.ratingScore / 10) * 100);
+
+        // Send back the real calculated data to update the UI instantly
+        res.json({
+            success: true,
+            newAverage: anime.ratingScore,
+            newCount: anime.ratingCount,
+            newPercentage: newPercentage
+        });
+        
+    } catch (err) {
+        console.error('Rating Error:', err);
+        res.status(500).json({ success: false, message: 'Server error. Failed to save vote.' });
+    }
+});
+
 module.exports = router;
