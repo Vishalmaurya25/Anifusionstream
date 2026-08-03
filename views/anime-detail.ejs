@@ -459,43 +459,40 @@
         </div>
     </div>
 
-    <!-- RIGHT: Interactive 5-Emoji Rating Bar (Fixed Overlap) -->
+    <!-- RIGHT: Interactive 5-Emoji Rating Bar -->
     <div class="w-full md:w-auto text-center md:text-right">
         <p class="text-xs font-black uppercase tracking-widest text-blue-400 mb-3 flex items-center justify-center md:justify-end gap-2">
             <i class="fas fa-fire text-orange-500"></i> Rate this Anime
         </p>
 
-        <!-- Added flex-wrap and gap-3 to prevent overlap -->
         <div class="flex flex-wrap items-center justify-center md:justify-end gap-3" id="sentiment-bar">
+            <!-- Font Awesome Smiley Replacements -->
             <button type="button" data-value="2" class="sentiment-btn group flex-shrink-0">
-                <span class="material-symbols-outlined group-hover:text-red-500 transition-colors">sentiment_very_dissatisfied</span>
+                <i class="fa-solid fa-face-angry group-hover:text-red-500 transition-colors"></i>
                 <span class="sentiment-tooltip">Terrible</span>
             </button>
 
             <button type="button" data-value="4" class="sentiment-btn group flex-shrink-0">
-                <span class="material-symbols-outlined group-hover:text-orange-500 transition-colors">sentiment_dissatisfied</span>
+                <i class="fa-solid fa-face-frown group-hover:text-orange-500 transition-colors"></i>
                 <span class="sentiment-tooltip">Poor</span>
             </button>
 
             <button type="button" data-value="6" class="sentiment-btn group flex-shrink-0">
-                <span class="material-symbols-outlined group-hover:text-yellow-400 transition-colors">sentiment_neutral</span>
+                <i class="fa-solid fa-face-meh group-hover:text-yellow-400 transition-colors"></i>
                 <span class="sentiment-tooltip">Average</span>
             </button>
 
             <button type="button" data-value="8" class="sentiment-btn group flex-shrink-0">
-                <span class="material-symbols-outlined group-hover:text-lime-400 transition-colors">sentiment_satisfied</span>
+                <i class="fa-solid fa-face-smile group-hover:text-lime-400 transition-colors"></i>
                 <span class="sentiment-tooltip">Good</span>
             </button>
 
             <button type="button" data-value="10" class="sentiment-btn group flex-shrink-0">
-                <span class="material-symbols-outlined group-hover:text-emerald-400 transition-colors">sentiment_very_satisfied</span>
+                <i class="fa-solid fa-face-grin-stars group-hover:text-emerald-400 transition-colors"></i>
                 <span class="sentiment-tooltip">Awesome!</span>
             </button>
         </div>
     </div>
-</div>
-
-
 </div>
 
 <!-- FIXED CSS FOR BUTTONS -->
@@ -515,8 +512,9 @@
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.sentiment-btn .material-symbols-outlined {
-    font-size: 28px;
+.sentiment-btn i {
+    font-size: 24px;
+    transition: transform 0.2s ease;
 }
 
 .sentiment-btn:hover {
@@ -526,8 +524,9 @@
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
 }
 
-.sentiment-btn:hover .material-symbols-outlined {
-    font-variation-settings: 'FILL' 1;
+/* Subtle pop effect on the icon itself when hovering the button */
+.sentiment-btn:hover i {
+    transform: scale(1.1);
 }
 
 .sentiment-tooltip {
