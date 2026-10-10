@@ -1,6 +1,22 @@
+<%
+// ==========================================================================
+// STRICT SORTING FIX: Ensure Seasons & Episodes are always in numerical order
+// ==========================================================================
+if (anime && anime.seasons) {
+    anime.seasons.sort((a, b) => a.seasonNumber - b.seasonNumber);
+    anime.seasons.forEach(season => {
+        if (season.episodes) {
+            season.episodes.sort((a, b) => a.episodeNumber - b.episodeNumber);
+        }
+    });
+}
+%>
 <%- include('partials/header') %>
 
 <style>
+    /* ==========================================================================
+       Global Variables & Base Setup
+       ========================================================================== */
     :root {
         --bg-deep: #0b0e11;
         --card-navy: #151b23;
@@ -11,13 +27,11 @@
         --success-green: #10b981;
     }
 
-    body {
-        background-color: var(--bg-deep);
-        color: #ffffff;
-        font-family: 'Inter', sans-serif;
-    }
+    * { box-sizing: border-box; }
 
-.admin-wrapper {
+    /* FIXED: Removed the html, body block to prevent conflicts with header.ejs padding and overflow lock */
+
+    .admin-wrapper {
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -27,9 +41,9 @@
         padding: 4rem 1.5rem;
     }
 
-.ui-card {
+    .ui-card {
         background-color: var(--card-navy);
-        border: 1px solid rgba(255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.05);
         backdrop-filter: blur(20px);
         border-radius: 2.5rem;
         width: 100%;
@@ -38,7 +52,7 @@
         box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     }
 
-.ui-label {
+    .ui-label {
         font-size: 0.75rem;
         font-weight: 800;
         color: var(--text-muted);
@@ -48,7 +62,7 @@
         display: block;
     }
 
-.ui-input {
+    .ui-input {
         background-color: var(--input-dark);
         border: 1px solid rgba(255, 255, 255, 0.05);
         border-radius: 1rem;
@@ -60,13 +74,13 @@
         box-sizing: border-box;
     }
 
-.ui-input:focus {
+    .ui-input:focus {
         outline: none;
         border-color: var(--primary-blue);
         box-shadow: 0 0 0 1px var(--primary-blue);
     }
 
-.ui-button {
+    .ui-button {
         background-color: var(--primary-blue);
         color: #ffffff;
         font-weight: 800;
@@ -81,19 +95,19 @@
         margin-top: 1rem;
     }
 
-.ui-button:hover {
+    .ui-button:hover:not(:disabled) {
         transform: translateY(-2px);
         filter: brightness(1.1);
         box-shadow: 0 15px 25px rgba(59, 130, 246, 0.3);
     }
 
-.ui-button:disabled {
+    .ui-button:disabled {
         opacity: 0.5;
         cursor: not-allowed;
         transform: none;
     }
 
-.back-link {
+    .back-link {
         color: var(--text-muted);
         font-size: 0.75rem;
         font-weight: 800;
@@ -106,9 +120,9 @@
         letter-spacing: 0.1em;
     }
 
-.back-link:hover { color: #fff; }
+    .back-link:hover { color: #fff; }
 
-.input-hint {
+    .input-hint {
         font-size: 10px;
         color: #64748b;
         margin-top: 6px;
@@ -117,7 +131,7 @@
         display: block;
     }
 
-.flash-alert {
+    .flash-alert {
         padding: 1rem 1.25rem;
         border-radius: 1rem;
         margin-bottom: 1.5rem;
@@ -128,31 +142,32 @@
         gap: 10px;
     }
 
-.flash-error {
-        background: rgba(239, 68, 0.1);
+    .flash-error {
+        background: rgba(239, 68, 68, 0.1);
         border: 1px solid rgba(239, 68, 68, 0.3);
         color: #fca5a5;
     }
 
-.flash-success {
+    .flash-success {
         background: rgba(16, 185, 129, 0.1);
         border: 1px solid rgba(16, 185, 129, 0.3);
         color: #6ee7b7;
     }
 
-.form-error {
+    .form-error {
         color: var(--danger-red);
         font-size: 0.75rem;
         font-weight: 700;
         margin-top: 0.5rem;
+        margin-bottom: 1rem;
         display: none;
     }
 
-.form-error.show { display: block; }
+    .form-error.show { display: block; }
 
-.movie-notice {
+    .movie-notice {
         background: rgba(239, 68, 68, 0.1);
-        border: 1px solid rgba(239, 68, 0.3);
+        border: 1px solid rgba(239, 68, 68, 0.3);
         border-radius: 1rem;
         padding: 1rem;
         margin-bottom: 2rem;
@@ -161,12 +176,12 @@
         gap: 10px;
     }
 
-.movie-notice-icon {
+    .movie-notice-icon {
         font-size: 1.5rem;
         flex-shrink: 0;
     }
 
-.movie-notice-text {
+    .movie-notice-text {
         font-size: 0.75rem;
         font-weight: 800;
         color: #fca5a5;
@@ -175,7 +190,7 @@
         line-height: 1.4;
     }
 
-.server-box {
+    .server-box {
         background: rgba(28, 35, 45, 0.6);
         border: 1px solid rgba(255, 255, 255, 0.05);
         border-radius: 1rem;
@@ -184,14 +199,14 @@
         position: relative;
     }
 
-.server-header {
+    .server-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 1rem;
     }
 
-.server-title {
+    .server-title {
         font-size: 0.85rem;
         font-weight: 800;
         text-transform: uppercase;
@@ -199,9 +214,9 @@
         color: var(--primary-blue);
     }
 
-.remove-server-btn {
+    .remove-server-btn {
         background: rgba(239, 68, 68, 0.2);
-        border: 1px solid rgba(239, 68, 0.3);
+        border: 1px solid rgba(239, 68, 68, 0.3);
         color: #fca5a5;
         padding: 0.4rem 0.8rem;
         border-radius: 0.5rem;
@@ -212,12 +227,12 @@
         transition: all 0.2s ease;
     }
 
-.remove-server-btn:hover {
+    .remove-server-btn:hover {
         background: rgba(239, 68, 68, 0.3);
         transform: scale(1.05);
     }
 
-.add-server-btn {
+    .add-server-btn {
         background: rgba(16, 185, 129, 0.1);
         border: 1px solid rgba(16, 185, 129, 0.3);
         color: #6ee7b7;
@@ -233,19 +248,19 @@
         margin-bottom: 1rem;
     }
 
-.add-server-btn:hover {
+    .add-server-btn:hover {
         background: rgba(16, 185, 129, 0.2);
         transform: translateY(-1px);
     }
 
-.add-server-btn:disabled {
+    .add-server-btn:disabled {
         opacity: 0.4;
         cursor: not-allowed;
         transform: none;
     }
 
     @media (max-width: 640px) {
-   .ui-card { padding: 2rem 1.5rem; }
+        .ui-card { padding: 2rem 1.5rem; }
     }
 </style>
 
@@ -256,7 +271,7 @@
             Return to Dashboard
         </a>
         <h1 class="text-4xl md:text-5xl font-black tracking-tighter uppercase">
-            Add <span class="text-blue-500"><%= anime.type === 'movie'? 'Movie' : 'Episode' %></span>
+            Add <span class="text-blue-500"><%= anime.type === 'movie' ? 'Movie' : 'Episode' %></span>
         </h1>
         <p class="text-gray-500 mt-2 font-medium">Linking to: <span class="text-white font-bold"><%= anime.name %></span></p>
     </div>
@@ -301,8 +316,8 @@
             <% } %>
 
             <div class="mb-8">
-                <label class="ui-label"><%= anime.type === 'movie'? 'Movie Title' : 'Episode Title' %></label>
-                <input type="text" name="title" placeholder="<%= anime.type === 'movie'? anime.name : 'e.g. The Awakening' %>" class="ui-input" required maxlength="200">
+                <label class="ui-label"><%= anime.type === 'movie' ? 'Movie Title' : 'Episode Title' %></label>
+                <input type="text" name="title" placeholder="<%= anime.type === 'movie' ? anime.name : 'e.g. The Awakening' %>" class="ui-input" required maxlength="200">
             </div>
 
             <div class="mb-8">
@@ -311,10 +326,15 @@
                 <span class="input-hint">This acts as a "Poster" and will not block the play button.</span>
             </div>
 
-            <div class="mb-8">
-                <label class="ui-label">Main Server - Direct Video URL (MP4/HLS)</label>
-                <input type="url" name="videoUrl" id="videoUrl" placeholder="https://server.com/video.mp4" class="ui-input" maxlength="500">
-                <span class="input-hint">Primary server for high-speed direct streaming.</span>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
+                <div>
+                    <label class="ui-label">Main Server Name *</label>
+                    <input type="text" name="mainServerName" id="mainServerName" placeholder="e.g. Play" class="ui-input" required maxlength="50" value="Server 1">
+                </div>
+                <div>
+                    <label class="ui-label">Main Server - Direct Video URL</label>
+                    <input type="url" name="videoUrl" id="videoUrl" placeholder="https://server.com/video.mp4" class="ui-input" maxlength="500">
+                </div>
             </div>
 
             <div class="mb-8">
@@ -332,86 +352,113 @@
                 <span class="input-hint">Add backup servers. Users can switch if main server fails.</span>
             </div>
 
-            <div class="form-error" id="urlError">At least one Video URL or Embed Code is required</div>
+            <!-- FIXED: Updated Error Text -->
+            <div class="form-error" id="urlError">At least one valid Video URL or Embed Code is required across all servers!</div>
 
             <button type="submit" class="ui-button" id="submitBtn">
-                Deploy <%= anime.type === 'movie'? 'Movie' : 'Episode' %>
+                Deploy <%= anime.type === 'movie' ? 'Movie' : 'Episode' %>
             </button>
         </form>
     </div>
 </div>
 
 <script>
-    const form = document.getElementById('addEpisodeForm');
+    const form = document.getElementById('episodeForm'); 
     const serversContainer = document.getElementById('serversContainer');
     const addServerBtn = document.getElementById('addServerBtn');
     const submitBtn = document.getElementById('submitBtn');
+    
+    const mainVideoUrl = document.getElementById('videoUrl');
+    const mainEmbedCode = document.getElementById('embedCode');
+    const urlError = document.getElementById('urlError');
 
-    let activeServerCount = 0;
-    let nextServerIndex = 0; // Ye kabhi kam nahi hoga
     const MAX_SERVERS = 13;
 
-    function addServerBox() {
-        if (activeServerCount >= MAX_SERVERS) {
-            alert('Maximum 13 servers allowed');
-            return;
-        }
+    function updateServerIndices() {
+        const boxes = serversContainer.querySelectorAll('.server-box');
+        
+        boxes.forEach((box, index) => {
+            const displayNum = index + 2; 
+            
+            box.querySelector('.server-title').textContent = `Server ${displayNum}`;
+            
+            box.querySelector('input[name*="[name]"]').name = `servers[${index}][name]`;
+            box.querySelector('input[name*="[name]"]').placeholder = `Server ${displayNum}`;
+            
+            box.querySelector('input[name*="[videoUrl]"]').name = `servers[${index}][videoUrl]`;
+            box.querySelector('textarea[name*="[embedCode]"]').name = `servers[${index}][embedCode]`;
+        });
 
-        const serverIndex = nextServerIndex;
-        nextServerIndex++;
-        activeServerCount++;
-
-        const serverBox = document.createElement('div');
-        serverBox.className = 'server-box';
-        serverBox.id = 'server-' + serverIndex;
-        serverBox.dataset.index = serverIndex;
-
-        serverBox.innerHTML = '<div class="server-header">' +
-            '<div class="server-title">Server ' + (serverIndex + 2) + '</div>' +
-            '<button type="button" class="remove-server-btn" data-index="' + serverIndex + '">Remove</button>' +
-            '</div>' +
-            '<div class="mb-4">' +
-            '<label class="ui-label">Server Name</label>' +
-            '<input type="text" name="servers[' + serverIndex + '][name]" value="Server ' + (serverIndex + 2) + '" placeholder="Server ' + (serverIndex + 2) + '" class="ui-input" maxlength="50">' +
-            '</div>' +
-            '<div class="mb-4">' +
-            '<label class="ui-label">Direct Video URL</label>' +
-            '<input type="url" name="servers[' + serverIndex + '][videoUrl]" placeholder="https://server.com/video.mp4" class="ui-input" maxlength="500">' +
-            '</div>' +
-            '<div>' +
-            '<label class="ui-label">Iframe / Embed Code</label>' +
-            '<textarea name="servers[' + serverIndex + '][embedCode]" rows="3" placeholder="Paste <iframe...> here" class="ui-input" maxlength="2000"></textarea>' +
-            '</div>';
-
-        serversContainer.appendChild(serverBox);
-
-        if (activeServerCount >= MAX_SERVERS) {
+        if (boxes.length >= MAX_SERVERS) {
             addServerBtn.disabled = true;
             addServerBtn.textContent = 'Max Servers Reached (13)';
+        } else {
+            addServerBtn.disabled = false;
+            addServerBtn.textContent = '+ Add More Server';
         }
     }
 
-    // Event delegation for remove button
+    addServerBtn.addEventListener('click', () => {
+        const currentCount = serversContainer.querySelectorAll('.server-box').length;
+        if (currentCount >= MAX_SERVERS) return alert('Maximum 13 servers allowed');
+
+        const serverBox = document.createElement('div');
+        serverBox.className = 'server-box';
+        
+        serverBox.innerHTML = `
+            <div class="server-header">
+                <div class="server-title">Server</div>
+                <button type="button" class="remove-server-btn">Remove</button>
+            </div>
+            <div class="mb-4">
+                <label class="ui-label">Server Name</label>
+                <input type="text" name="servers[0][name]" placeholder="Server Name" class="ui-input" maxlength="50">
+            </div>
+            <div class="mb-4">
+                <label class="ui-label">Direct Video URL</label>
+                <input type="url" name="servers[0][videoUrl]" placeholder="https://server.com/video.mp4" class="ui-input" maxlength="500">
+            </div>
+            <div>
+                <label class="ui-label">Iframe / Embed Code</label>
+                <textarea name="servers[0][embedCode]" rows="3" placeholder="Paste <iframe...> here" class="ui-input" maxlength="2000"></textarea>
+            </div>
+        `;
+
+        serversContainer.appendChild(serverBox);
+        updateServerIndices(); 
+    });
+
     serversContainer.addEventListener('click', function(e) {
         if (e.target.classList.contains('remove-server-btn')) {
-            const index = e.target.dataset.index;
-            const serverBox = document.getElementById('server-' + index);
-            if (serverBox) {
-                serverBox.remove();
-                activeServerCount--;
-                addServerBtn.disabled = false;
-                addServerBtn.textContent = '+ Add More Server';
-            }
+            e.target.closest('.server-box').remove();
+            updateServerIndices(); 
         }
     });
 
-    addServerBtn.addEventListener('click', function() {
-        addServerBox();
-    });
-
+    // FIXED: Properly Validates if extra server boxes actually contain URLs
     form.addEventListener('submit', function(e) {
+        const hasMain = mainVideoUrl.value.trim() !== '' || mainEmbedCode.value.trim() !== '';
+        
+        let hasValidExtra = false;
+        const serverBoxes = serversContainer.querySelectorAll('.server-box');
+        
+        serverBoxes.forEach(box => {
+            const vidUrl = box.querySelector('input[type="url"]').value.trim();
+            const embed = box.querySelector('textarea').value.trim();
+            if (vidUrl !== '' || embed !== '') {
+                hasValidExtra = true;
+            }
+        });
+        
+        if (!hasMain && !hasValidExtra) {
+            e.preventDefault(); 
+            urlError.classList.add('show'); 
+            return;
+        }
+
+        urlError.classList.remove('show');
         submitBtn.disabled = true;
-        submitBtn.textContent = 'Creating...';
+        submitBtn.textContent = 'Deploying...';
     });
 </script>
 

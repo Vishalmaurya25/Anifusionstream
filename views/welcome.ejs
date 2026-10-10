@@ -2,99 +2,199 @@
 
 <!-- FONT AWESOME & GOOGLE FONTS CDN -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
 
 <style>
+
   /* STRICT MOBILE LOCK TO PREVENT SHAKING */
   html, body { 
-    background-color: #0b0e11; 
+    background-color: #05070a; 
     color: #fff; 
-    overflow-x: hidden; 
+    overflow-x: hidden !important; 
     width: 100%;
-    max-width: 100vw;
+    max-width: 100%;
     margin: 0;
     padding: 0;
     font-family: 'Inter', system-ui, sans-serif;
+    position: relative;
   }
 
   /* LOGO BACKGROUND - 100% VISIBILITY FIX */
   .bg-hero-logo {
     position: fixed; 
-    top: 0; left: 0; width: 100vw; height: 100vh;
-    z-index: 1; /* Body background ke upar */
+    top: 0; left: 0; 
+    width: 100%; height: 100vh;
+    z-index: 1;
     background-image: url('/images/logo.png'); 
     background-position: center; 
     background-repeat: no-repeat;
     background-size: 50%; 
-    opacity: 0.2; 
+    opacity: 0.15; 
     pointer-events: none; 
+    animation: slowPulse 8s infinite alternate;
+  }
+
+  .jp-watermark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 25vw;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.02);
+    z-index: 0;
+    pointer-events: none;
+    white-space: nowrap;
+    user-select: none;
+    letter-spacing: 0.1em;
+  }
+
+  @keyframes slowPulse {
+    0% { transform: scale(1); opacity: 0.1; }
+    100% { transform: scale(1.05); opacity: 0.2; }
   }
 
   .bg-dark-overlay {
     position: fixed; 
-    top: 0; left: 0; width: 100vw; height: 100vh;
-    z-index: 2; /* Logo ke upar soft shadow */
-    background: radial-gradient(circle at center, transparent 0%, #0b0e11 85%);
+    top: 0; left: 0; width: 100%; height: 100vh;
+    z-index: 2;
+    background: radial-gradient(circle at center, transparent 0%, #05070a 85%);
     pointer-events: none;
   }
 
+  /* PREMIUM GLOW SECTIONS */
   .section-glow {
-    background: rgba(15, 20, 28, 0.5); border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 24px; padding: 40px 32px; margin-bottom: 32px;
-    position: relative; backdrop-filter: blur(20px);
+    background: linear-gradient(145deg, rgba(15, 20, 28, 0.7), rgba(10, 14, 20, 0.9));
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 24px; 
+    padding: 40px 32px; 
+    margin-bottom: 32px;
+    position: relative; 
+    backdrop-filter: blur(20px);
     box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 10;
   }
-  .section-glow:hover { border-color: rgba(59,130,246,0.3); box-shadow: 0 0 0 1px rgba(59,130,246,0.1), 0 10px 60px rgba(59,130,246,0.2); transform: translateY(-2px); }
+  .section-glow:hover { 
+    border-color: rgba(34, 211, 238, 0.4); 
+    box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.1), 0 15px 60px rgba(34, 211, 238, 0.15); 
+    transform: translateY(-2px); 
+  }
 
+  /* TYPOGRAPHY */
   .brand-text { 
     font-family: 'Orbitron', sans-serif;
-    background: linear-gradient(135deg, #60a5fa, #c084fc, #f472b6, #60a5fa); background-size: 200% auto;
-    -webkit-background-clip: text; background-clip: text; color: transparent; 
-    filter: drop-shadow(0 0 20px rgba(192, 132, 252, 0.6)); letter-spacing: 2px;
-    animation: shineText 4s linear infinite;
+    background: linear-gradient(135deg, #22d3ee, #3b82f6, #a855f7, #ec4899); 
+    background-size: 300% auto;
+    -webkit-background-clip: text; 
+    background-clip: text; 
+    color: transparent; 
+    filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.4)); 
+    letter-spacing: 2px;
+    animation: shineText 5s linear infinite;
   }
-  @keyframes shineText { to { background-position: 200% center; } }
+  @keyframes shineText { to { background-position: 300% center; } }
 
+  /* ENTER BUTTON - ANIMATED PULSE */
   .btn-glow { 
-    background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(147,51,234,0.1)); backdrop-filter: blur(24px); 
-    border: 1px solid rgba(147,51,234,0.4); border-radius: 999px; transition: all 0.3s ease; box-shadow: 0 0 20px rgba(147,51,234,0.2);
+    position: relative;
+    background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(168,85,247,0.15)); 
+    backdrop-filter: blur(24px); 
+    border: 1px solid rgba(34, 211, 238, 0.5); 
+    border-radius: 999px; 
+    transition: all 0.3s ease; 
+    box-shadow: 0 0 20px rgba(34, 211, 238, 0.3), inset 0 0 15px rgba(59, 130, 246, 0.2);
+    overflow: hidden;
   }
-  .btn-glow:hover { border-color: rgba(236,72,153,0.8); box-shadow: 0 0 40px rgba(236,72,153,0.4); transform: scale(1.05); }
+  .btn-glow::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%; width: 200%; height: 200%;
+    background: conic-gradient(transparent, rgba(34, 211, 238, 0.5), transparent 30%);
+    animation: rotateBorder 3s linear infinite;
+    z-index: -1;
+  }
+  @keyframes rotateBorder { 100% { transform: rotate(360deg); } }
+  
+  .btn-glow:hover { 
+    border-color: rgba(236,72,153,0.8); 
+    box-shadow: 0 0 40px rgba(236,72,153,0.6), inset 0 0 20px rgba(236,72,153,0.3); 
+    transform: scale(1.05); 
+    color: white;
+  }
 
-  .tag-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; }
-  .tag-card:hover { transform: translateY(-4px) scale(1.02); background: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.5); color: #fff; box-shadow: 0 5px 15px rgba(59,130,246,0.3); }
+  .tag-card { 
+    background: rgba(255,255,255,0.03); 
+    border: 1px solid rgba(255,255,255,0.08); 
+    transition: 0.3s; 
+    display: inline-flex; 
+    align-items: center; 
+    gap: 8px; 
+  }
+  .tag-card:hover { 
+    transform: translateY(-4px) scale(1.05); 
+    background: rgba(34, 211, 238, 0.1); 
+    border-color: rgba(34, 211, 238, 0.5); 
+    color: #fff; 
+    box-shadow: 0 5px 20px rgba(34, 211, 238, 0.3); 
+  }
 
-  .logo-wrap { width: 140px; height: 140px; margin: 0 auto 25px; padding: 16px; background: rgba(15,20,25,0.4); border: 1px solid rgba(59,130,246,0.5); border-radius: 35px; backdrop-filter: blur(10px); box-shadow: 0 0 40px rgba(59,130,246,0.4), inset 0 0 20px rgba(59,130,246,0.2); }
-  .logo-wrap img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 20px rgba(96,165,250,0.9)); }
+  .logo-wrap { 
+    width: 150px; height: 150px; margin: 0 auto 25px; padding: 16px; 
+    background: linear-gradient(135deg, rgba(15,20,25,0.6), rgba(5,7,10,0.8)); 
+    border: 1px solid rgba(34, 211, 238, 0.4); 
+    border-radius: 35px; 
+    backdrop-filter: blur(15px); 
+    box-shadow: 0 0 40px rgba(34, 211, 238, 0.3), inset 0 0 20px rgba(34, 211, 238, 0.2);
+    position: relative;
+    z-index: 10;
+  }
+  .logo-wrap img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 15px rgba(34, 211, 238, 0.6)); }
 
-  /* FEATURE CARDS */
+  /* FEATURE CARDS - CYBERPUNK STYLE */
   .feature-card {
-    background: rgba(15, 20, 28, 0.6);
+    background: linear-gradient(180deg, rgba(20, 25, 35, 0.6) 0%, rgba(10, 15, 20, 0.8) 100%);
     border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 20px;
-    padding: 24px;
+    padding: 28px 24px;
     backdrop-filter: blur(16px);
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     height: 100%;
+    position: relative;
+    overflow: hidden;
+    z-index: 10;
   }
+  .feature-card::after {
+    content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.5), transparent);
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .feature-card:hover::after { opacity: 1; }
   .feature-card:hover {
-    background: rgba(59, 130, 246, 0.1);
-    border-color: rgba(59, 130, 246, 0.4);
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    background: linear-gradient(180deg, rgba(34, 211, 238, 0.1) 0%, rgba(10, 15, 20, 0.9) 100%);
+    border-color: rgba(34, 211, 238, 0.4);
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.5), 0 0 20px rgba(34, 211, 238, 0.15);
   }
+  
   .feature-icon {
-    width: 48px; height: 48px;
-    background: linear-gradient(135deg, rgba(59,130,246,0.2), rgba(147,51,234,0.2));
-    border-radius: 14px;
+    width: 54px; height: 54px;
+    background: linear-gradient(135deg, rgba(34, 211, 238, 0.15), rgba(168, 85, 247, 0.15));
+    border-radius: 16px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 20px; color: #60a5fa; margin-bottom: 16px;
-    border: 1px solid rgba(59,130,246,0.3);
+    font-size: 22px; color: #22d3ee; margin-bottom: 20px;
+    border: 1px solid rgba(34, 211, 238, 0.3);
+    box-shadow: inset 0 0 15px rgba(34, 211, 238, 0.1);
+    animation: floatingIcon 4s ease-in-out infinite alternate;
+  }
+  @keyframes floatingIcon {
+    0% { transform: translateY(0px); }
+    100% { transform: translateY(-6px); }
   }
 
-  .share-box { background: linear-gradient(135deg, rgba(15, 23, 42, 0.7), rgba(30, 27, 75, 0.7)); border: 1px solid rgba(96,165,250,0.3); border-radius: 24px; padding: 32px; backdrop-filter: blur(24px); box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1); position: relative; overflow: hidden; }
-  .share-title { background: linear-gradient(90deg, #60a5fa, #a78bfa, #f472b6); -webkit-background-clip: text; background-clip: text; color: transparent; font-family: 'Orbitron', sans-serif; }
+  /* SHARE SECTION */
+  .share-box { background: linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 27, 75, 0.8)); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 24px; padding: 32px; backdrop-filter: blur(24px); box-shadow: 0 20px 50px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1); position: relative; overflow: hidden; z-index: 10; }
+  .share-title { background: linear-gradient(90deg, #22d3ee, #a855f7, #ec4899); -webkit-background-clip: text; background-clip: text; color: transparent; font-family: 'Orbitron', sans-serif; }
   .share-btn { width: 56px; height: 56px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #fff; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid rgba(255,255,255,0.1); cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
   .share-btn:hover { transform: translateY(-5px) scale(1.15); box-shadow: 0 12px 25px rgba(0,0,0,0.5); border-color: rgba(255,255,255,0.3); }
   
@@ -103,147 +203,161 @@
   /* 📱 MOBILE RESPONSIVE FIXES 📱 */
   @media (max-width: 640px) {
     .bg-hero-logo { background-size: 80%; }
+    .jp-watermark { font-size: 40vw; }
     .section-glow { padding: 24px 16px; border-radius: 16px; }
-    .share-box { padding: 24px 16px; border-radius: 16px; }
-    .logo-wrap { width: 100px; height: 100px; padding: 12px; margin-bottom: 20px; border-radius: 24px; }
-    .brand-text { font-size: 2rem !important; line-height: 1.2; letter-spacing: 1px; word-wrap: break-word; overflow-wrap: break-word; } 
-    .share-btn { width: 45px; height: 45px; font-size: 18px; border-radius: 12px; }
+    .share-box { padding: 24px 12px; border-radius: 16px; }
+    .logo-wrap { width: 110px; height: 110px; padding: 12px; margin-bottom: 20px; border-radius: 28px; }
+    
+    .brand-text { 
+        font-size: clamp(1.8rem, 9vw, 2.5rem) !important; 
+        line-height: 1.2; 
+        letter-spacing: 0px; 
+    } 
+    
+    .share-btn { width: 40px; height: 40px; font-size: 18px; border-radius: 12px; }
   }
 </style>
+</style>
 
+<!-- Background Elements -->
 <div class="bg-hero-logo"></div>
 <div class="bg-dark-overlay"></div>
+<div class="jp-watermark">アニメ</div>
 
-<div class="relative z-10 min-h-screen px-4 py-12 flex flex-col justify-center w-full overflow-hidden">
+<div class="relative z-10 min-h-screen px-4 py-12 flex flex-col justify-center w-full overflow-hidden mt-10">
   <div class="container mx-auto max-w-6xl relative z-10">
 
     <!-- HERO SECTION -->
-    <div class="text-center mb-16">
+    <div class="text-center mb-20 relative">
       <div class="logo-wrap">
         <img src="/images/logo.png" alt="AniFusionStream Logo">
       </div>
 
-      <p class="text-xs text-blue-400 font-black tracking-[5px] uppercase mb-4 drop-shadow-md">Welcome to the Nexus of</p>
-      <h1 class="brand-text text-4xl sm:text-5xl md:text-7xl mb-5 break-words">AniFusionStream</h1>
-      <p class="text-gray-300 text-lg md:text-xl mb-8 max-w-2xl mx-auto font-medium shadow-black drop-shadow-lg px-2">
+      <p class="text-[10px] md:text-xs text-cyan-400 font-black tracking-[6px] uppercase mb-4 drop-shadow-md">Welcome to the Nexus of</p>
+      <h1 class="brand-text text-4xl sm:text-5xl md:text-7xl mb-6 break-words px-2">AniFusionStream</h1>
+      <p class="text-gray-400 text-base md:text-lg mb-10 max-w-2xl mx-auto font-semibold drop-shadow-md px-4 leading-relaxed">
         Your Personal Anime Note. Track your journey, discover hidden gems, and discuss every epic moment.
       </p>
-      <a href="/home" class="btn-glow inline-flex items-center gap-3 px-10 py-4 md:px-12 md:py-5 text-sm font-black uppercase text-white tracking-wider">
-        Enter Anifusionstream <i class="fa-solid fa-bolt text-yellow-300"></i>
+      <a href="/home" class="btn-glow inline-flex items-center gap-3 px-10 py-4 md:px-12 md:py-5 text-sm font-black uppercase text-white tracking-widest relative z-20">
+        Enter The Stream <i class="fa-solid fa-bolt text-yellow-400 animate-pulse"></i>
       </a>
     </div>
 
     <!-- CATCHY INTRO -->
     <div class="section-glow text-center">
-      <h2 class="text-3xl md:text-4xl font-black mb-3 brand-text break-words">Thousands of Titles, All for Free!</h2>
-      <h3 class="text-lg md:text-xl font-bold text-gray-200 mb-5 tracking-wide">
-        Unlike Your Crush, We Truly Care and We Show It Clear! <i class="fa-solid fa-heart-crack text-red-500"></i><i class="fa-solid fa-arrow-right mx-2 text-gray-500"></i><i class="fa-solid fa-heart text-pink-500"></i>
+      <h2 class="text-3xl md:text-4xl font-black mb-4 brand-text break-words">Thousands of Titles, All for Free!</h2>
+      <h3 class="text-sm md:text-lg font-bold text-gray-300 mb-6 tracking-widest uppercase">
+        Unlike Your Crush, We Truly Care <i class="fa-solid fa-heart-crack text-red-500 mx-1"></i><i class="fa-solid fa-arrow-right mx-1 text-gray-600"></i><i class="fa-solid fa-heart text-pink-500 mx-1"></i>
       </h3>
-      <p class="text-gray-300 leading-relaxed text-lg max-w-3xl mx-auto">
-        Just as <span class="text-blue-400 font-bold">Inuyasha</span> protects Kagome, we're here to shield you from the woes of poor anime streaming experiences and deliver the best of the best in anime entertainment.
+      <p class="text-gray-400 leading-relaxed text-sm md:text-base max-w-3xl mx-auto font-medium">
+        Just as <span class="text-cyan-400 font-bold">Inuyasha</span> protects Kagome, we're here to shield you from the woes of poor anime streaming experiences and deliver the ultimate nexus of entertainment.
       </p>
     </div>
 
     <!-- FEATURES GRID -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
       <div class="feature-card">
         <div class="feature-icon"><i class="fa-solid fa-book-journal-whills"></i></div>
-        <h4 class="text-lg font-black text-white mb-2 uppercase tracking-wide">Extensive Library</h4>
-        <p class="text-sm text-gray-400 leading-relaxed">
-          As extensive as the world of <span class="text-blue-400 font-bold">Hunter x Hunter</span>. From the action-packed <span class="text-pink-400 font-bold">Fullmetal Alchemist</span> to magical realms of <span class="text-purple-400 font-bold">Madoka Magica</span>.
+        <h4 class="text-sm md:text-base font-black text-white mb-2 uppercase tracking-wide">Elite Library</h4>
+        <p class="text-xs md:text-sm text-gray-400 leading-relaxed font-medium">
+          As extensive as the world of <span class="text-cyan-400 font-bold">Hunter x Hunter</span>. From Shonen hits to magical realms of <span class="text-purple-400 font-bold">Madoka Magica</span>.
         </p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon"><i class="fa-solid fa-wand-magic-sparkles text-pink-400"></i></div>
-        <h4 class="text-lg font-black text-white mb-2 uppercase tracking-wide">Friendly UI & UX</h4>
-        <p class="text-sm text-gray-400 leading-relaxed">
-          Navigating is as smooth as a scroll through the landscapes in <span class="text-blue-400 font-bold">Spirited Away</span>. Find titles easily with an enjoyable experience.
+        <div class="feature-icon" style="color: #ec4899; border-color: rgba(236,72,153,0.3); background: linear-gradient(135deg, rgba(236,72,153,0.15), rgba(168,85,247,0.15));"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+        <h4 class="text-sm md:text-base font-black text-white mb-2 uppercase tracking-wide">Premium UX</h4>
+        <p class="text-xs md:text-sm text-gray-400 leading-relaxed font-medium">
+          Navigating is as smooth as a flight on <span class="text-cyan-400 font-bold">Haku</span>. Find titles effortlessly in a glass-forged UI.
         </p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon"><i class="fa-solid fa-door-open text-yellow-400"></i></div>
-        <h4 class="text-lg font-black text-white mb-2 uppercase tracking-wide">No Sign-Up</h4>
-        <p class="text-sm text-gray-400 leading-relaxed">
-          Like flying on <span class="text-blue-400 font-bold">Kiki's</span> broomstick, dive straight into anime without registration hurdles. We value your freedom!
+        <div class="feature-icon" style="color: #facc15; border-color: rgba(250,204,21,0.3); background: linear-gradient(135deg, rgba(250,204,21,0.15), rgba(239,68,68,0.15));"><i class="fa-solid fa-door-open"></i></div>
+        <h4 class="text-sm md:text-base font-black text-white mb-2 uppercase tracking-wide">No Sign-Up</h4>
+        <p class="text-xs md:text-sm text-gray-400 leading-relaxed font-medium">
+          Dive straight into the action without registration hurdles. We value your absolute freedom!
         </p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon"><i class="fa-solid fa-tv text-green-400"></i></div>
-        <h4 class="text-lg font-black text-white mb-2 uppercase tracking-wide">HD Quality</h4>
-        <p class="text-sm text-gray-400 leading-relaxed">
-          Frames as sharp as <span class="text-blue-400 font-bold">Kirito's sword</span> in SAO. Experience vibrant colors and details just as animators intended.
+        <div class="feature-icon" style="color: #34d399; border-color: rgba(52,211,153,0.3); background: linear-gradient(135deg, rgba(52,211,153,0.15), rgba(59,130,246,0.15));"><i class="fa-solid fa-tv"></i></div>
+        <h4 class="text-sm md:text-base font-black text-white mb-2 uppercase tracking-wide">Ultra HD</h4>
+        <p class="text-xs md:text-sm text-gray-400 leading-relaxed font-medium">
+          Frames as sharp as <span class="text-cyan-400 font-bold">Zoro's swords</span>. Experience vibrant colors just as the animators intended.
         </p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon"><i class="fa-solid fa-ban text-red-400"></i></div>
-        <h4 class="text-lg font-black text-white mb-2 uppercase tracking-wide">Zero Ads</h4>
-        <p class="text-sm text-gray-400 leading-relaxed">
-          Ads are as annoying as Team Rocket in <span class="text-blue-400 font-bold">Pokémon</span>! Enjoy pure, uninterrupted, unadulterated anime bliss.
+        <div class="feature-icon" style="color: #f87171; border-color: rgba(248,113,113,0.3); background: linear-gradient(135deg, rgba(248,113,113,0.15), rgba(236,72,153,0.15));"><i class="fa-solid fa-ban"></i></div>
+        <h4 class="text-sm md:text-base font-black text-white mb-2 uppercase tracking-wide">Zero Video Ads</h4>
+        <p class="text-xs md:text-sm text-gray-400 leading-relaxed font-medium">
+          Ads are as annoying as Team Rocket! Enjoy uninterrupted, pure anime streaming bliss.
         </p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon"><i class="fa-solid fa-language text-blue-400"></i></div>
-        <h4 class="text-lg font-black text-white mb-2 uppercase tracking-wide">SUB & DUB</h4>
-        <p class="text-sm text-gray-400 leading-relaxed">
-          Just like <span class="text-blue-400 font-bold">Goku</span> transforming, we cater to all forms! Enjoy both Japanese originals and English dubbed versions.
+        <div class="feature-icon" style="color: #60a5fa; border-color: rgba(96,165,250,0.3); background: linear-gradient(135deg, rgba(96,165,250,0.15), rgba(168,85,247,0.15));"><i class="fa-solid fa-language"></i></div>
+        <h4 class="text-sm md:text-base font-black text-white mb-2 uppercase tracking-wide">SUB & DUB</h4>
+        <p class="text-xs md:text-sm text-gray-400 leading-relaxed font-medium">
+          Like <span class="text-cyan-400 font-bold">Goku</span> transforming, we cater to all forms. Enjoy Japanese originals and multi-language dubs.
         </p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon"><i class="fa-solid fa-bolt text-yellow-400"></i></div>
-        <h4 class="text-lg font-black text-white mb-2 uppercase tracking-wide">Fast Loading</h4>
-        <p class="text-sm text-gray-400 leading-relaxed">
-          Lightning-fast reflexes like <span class="text-blue-400 font-bold">Levi Ackerman</span>. Never wait to immerse yourself in your favorite worlds.
+        <div class="feature-icon" style="color: #fbbf24; border-color: rgba(251,191,36,0.3); background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(248,113,113,0.15));"><i class="fa-solid fa-bolt"></i></div>
+        <h4 class="text-sm md:text-base font-black text-white mb-2 uppercase tracking-wide">Fast Loading</h4>
+        <p class="text-xs md:text-sm text-gray-400 leading-relaxed font-medium">
+          Reflexes like <span class="text-cyan-400 font-bold">Levi Ackerman</span>. We optimize streams so you never wait to enter your favorite worlds.
         </p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon"><i class="fa-solid fa-mobile-screen text-purple-400"></i></div>
-        <h4 class="text-lg font-black text-white mb-2 uppercase tracking-wide">Multi-Device</h4>
-        <p class="text-sm text-gray-400 leading-relaxed">
-          Adaptable like the heroes in <span class="text-blue-400 font-bold">My Hero Academia</span>. Stream seamlessly on desktop, tablet, or mobile.
+        <div class="feature-icon" style="color: #c084fc; border-color: rgba(192,132,252,0.3); background: linear-gradient(135deg, rgba(192,132,252,0.15), rgba(236,72,153,0.15));"><i class="fa-solid fa-mobile-screen"></i></div>
+        <h4 class="text-sm md:text-base font-black text-white mb-2 uppercase tracking-wide">Multi-Device</h4>
+        <p class="text-xs md:text-sm text-gray-400 leading-relaxed font-medium">
+          Adaptable like heroes in <span class="text-cyan-400 font-bold">My Hero Academia</span>. Stream seamlessly on desktop, tablet, or mobile.
         </p>
       </div>
     </div>
 
     <!-- COMPARISON SECTION -->
     <div class="section-glow">
-      <h2 class="text-2xl font-black text-center mb-6 uppercase tracking-widest text-white">
+      <h2 class="text-xl md:text-2xl font-black text-center mb-6 uppercase tracking-widest text-white">
         <i class="fa-solid fa-crown text-yellow-500 mr-2"></i> How We Compare
       </h2>
-      <p class="text-gray-300 leading-relaxed text-center max-w-4xl mx-auto mb-4">
-        In the world of free anime streaming sites, with big names like <span class="text-gray-400 font-bold">9anime, aniwatch,</span> and <span class="text-gray-400 font-bold">zoro</span> sailing alongside, <span class="text-blue-400 font-bold">AniFusionStream</span> has learned from their mistakes and adopted their best features.
+      <p class="text-gray-400 leading-relaxed text-center max-w-4xl mx-auto mb-4 text-sm md:text-base font-medium">
+        In the sea of free streaming sites, with giants like <span class="text-gray-300 font-bold">9anime, HiAnime,</span> and <span class="text-gray-300 font-bold">Crunchyroll</span>, <span class="text-cyan-400 font-black tracking-wide">ANIFUSIONSTREAM</span> has learned from their mistakes and adopted their best features.
       </p>
-      <p class="text-gray-300 leading-relaxed text-center max-w-4xl mx-auto">
-        We're confident that we stand shoulder to shoulder with these giants, if not on a pedestal above them. With our user-friendly interface, extensive library, and top-notch streaming quality, we're sure that once you embark on the AniFusionStream journey, you'll never want to set sail with another crew! Let's get started!
+      <p class="text-gray-400 leading-relaxed text-center max-w-4xl mx-auto text-sm md:text-base font-medium">
+        With our ad-free video player, Hindi/Tamil regional dubs, and lightning-fast UI, we are confident that once you embark on this journey, you'll never want to set sail with another crew! Let's get started.
       </p>
     </div>
 
     <!-- TRENDING SECTION -->
     <div class="section-glow">
-      <h2 class="text-xl font-black text-center mb-8 uppercase tracking-widest text-gray-400">
-        <i class="fa-solid fa-fire text-orange-500 mr-2 drop-shadow-[0_0_10px_rgba(249,115,22,0.8)]"></i> Trending This Season
+      <h2 class="text-lg md:text-xl font-black text-center mb-8 uppercase tracking-widest text-gray-300">
+        <i class="fa-solid fa-fire text-orange-500 mr-2 drop-shadow-[0_0_10px_rgba(249,115,22,0.8)] animate-pulse"></i> Trending This Season
       </h2>
-      <div class="flex flex-wrap justify-center gap-4">
-        <% ["Chainsaw Man - The Movie: Reze Arc","Chainsaw Man","One-Punch Man Season 3","My Hero Academia Final Season","Bleach: TYBW","Gachiakuta","Solo Leveling S2: Arise","Jujutsu Kaisen"].forEach(name => { %>
-          <div class="tag-card px-5 py-3 rounded-xl text-sm font-bold text-gray-300 cursor-default">
-            <i class="fa-solid fa-play text-xs text-blue-400 opacity-70"></i> <%= name %>
+      <div class="flex flex-wrap justify-center gap-3 md:gap-4">
+        <% ["Chainsaw Man - The Movie: Reze Arc","One-Punch Man Season 3","My Hero Academia Final Season","Bleach: TYBW","Gachiakuta","Solo Leveling S2: Arise","Jujutsu Kaisen"].forEach((name, i) => { 
+           // Add slight color variations to tags for a cyberpunk feel
+           const colors = ['text-cyan-400', 'text-pink-400', 'text-purple-400', 'text-yellow-400', 'text-emerald-400'];
+           const color = colors[i % colors.length];
+        %>
+          <div class="tag-card px-4 md:px-5 py-2.5 md:py-3 rounded-xl text-xs md:text-sm font-bold text-gray-300 cursor-default">
+            <i class="fa-solid fa-play text-[10px] <%= color %> opacity-80"></i> <%= name %>
           </div>
         <% }) %>
       </div>
     </div>
 
-    <!-- SHARE SECTION - ORIGINAL -->
+    <!-- SHARE SECTION (With Mobile Fix) -->
     <div class="share-box mt-12">
-      <h3 class="share-title text-2xl font-black mb-2 flex items-center justify-center gap-3">
+      <h3 class="share-title text-xl md:text-2xl font-black mb-2 flex items-center justify-center gap-3">
         <i class="fa-solid fa-share-nodes"></i> Invite Your Nakama
       </h3>
-      <p class="text-center text-gray-300 mb-8 text-sm">Share AniFusionStream and track anime together!</p>
+      <p class="text-center text-gray-400 mb-8 text-xs md:text-sm font-medium">Share AniFusionStream and track anime together!</p>
       
-      <div class="flex flex-col md:flex-row items-center justify-center gap-10">
+      <div class="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-10">
         <div class="text-center md:border-r border-gray-600 md:pr-10">
-          <p class="text-4xl font-black text-white drop-shadow-[0_0_15px_rgba(59,130,246,0.6)]">2.6k<span class="text-blue-500">+</span></p>
-          <p class="text-xs text-gray-400 uppercase tracking-widest mt-1 font-bold">Otakus Joined</p>
+          <p class="text-4xl font-black text-white drop-shadow-[0_0_15px_rgba(34,211,238,0.6)]">2.6k<span class="text-cyan-400">+</span></p>
+          <p class="text-[10px] md:text-xs text-gray-400 uppercase tracking-widest mt-2 font-bold">Otakus Joined</p>
         </div>
-        <div class="flex flex-wrap justify-center gap-5">
+        <div class="flex flex-wrap items-center justify-center gap-3 md:gap-5">
           <button class="share-btn btn-tg" data-platform="telegram" title="Share on Telegram"><i class="fa-brands fa-telegram"></i></button>
           <button class="share-btn btn-wa" data-platform="whatsapp" title="Share on WhatsApp"><i class="fa-brands fa-whatsapp"></i></button>
           <button class="share-btn btn-x" data-platform="twitter" title="Share on X / Twitter"><i class="fa-brands fa-x-twitter"></i></button>
@@ -257,9 +371,9 @@
 </div>
 
 <script>
-  const shareUrl = window.location.href; 
+  const shareUrl = window.location.origin + '/'; 
   const shareTitle = 'AniFusionStream';
-  const shareText = ' Watch The Latest anime on AniFusionStream! Never miss an episode. Join me here:';
+  const shareText = 'Watch the latest anime on AniFusionStream in Ultra HD! Never miss an episode. Join me here:';
 
   document.querySelectorAll('.share-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -300,7 +414,12 @@
             const originalIcon = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-check"></i>';
             setTimeout(() => { btn.innerHTML = originalIcon; }, 2000);
-            alert('Link Copied to Clipboard! Share it with your friends.');
+            
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({toast: true, position: 'top-end', icon:'success', title: 'Link copied!', timer: 2000, showConfirmButton: false, background: '#151b23', color: '#fff'});
+            } else {
+                alert('Link Copied to Clipboard!');
+            }
           }
           break;
       }
@@ -308,7 +427,6 @@
   });
 </script>
 
-<!-- Yahan Footer ko z-10 div ke andar wrap kiya hai, taki footer clear dikhe -->
 <div class="relative z-10 w-full">
   <%- include('partials/footer') %>
 </div>

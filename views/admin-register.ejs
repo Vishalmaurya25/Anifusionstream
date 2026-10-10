@@ -1,5 +1,4 @@
 <%- include('partials/header') %>
-
 <style>
     :root {
         --bg-deep: #0b0e11;
@@ -9,19 +8,14 @@
         --text-muted: #9ca3af;
     }
 
-    body { 
-        background-color: var(--bg-deep); 
-        color: #ffffff; 
-        font-family: 'Inter', sans-serif; 
-    }
-
+    /* Standardized Auth Centering */
     .auth-wrapper {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         min-height: 85vh;
-        padding: 3rem 1.25rem;
+        padding: 2rem 1.25rem;
     }
 
     .ui-card {
@@ -30,8 +24,8 @@
         backdrop-filter: blur(25px);
         border-radius: 2.5rem;
         width: 100%;
-        max-width: 480px;
-        padding: 4rem 2.5rem;
+        max-width: 450px;
+        padding: 3.5rem 2.5rem;
         box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.7);
     }
 
@@ -51,10 +45,11 @@
         border-radius: 1rem;
         color: #ffffff;
         padding: 1.1rem;
-        padding-right: 3.5rem;
         width: 100%;
         transition: all 0.3s ease;
         font-size: 0.95rem;
+        font-weight: 500;
+        box-sizing: border-box;
     }
 
     .ui-input:focus {
@@ -75,7 +70,7 @@
         text-transform: uppercase;
         letter-spacing: 0.2em;
         border: none;
-        margin-top: 1.5rem;
+        margin-top: 1rem;
         cursor: pointer;
     }
 
@@ -85,10 +80,20 @@
         box-shadow: 0 15px 30px rgba(59, 130, 246, 0.4);
     }
 
-    .field-group { 
-        position: relative; 
-        width: 100%;
+    .admin-badge {
+        background: rgba(59, 130, 246, 0.1);
+        color: var(--primary-blue);
+        padding: 6px 16px;
+        border-radius: 99px;
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        display: inline-block;
     }
+
+    .field-group { position: relative; }
 
     .toggle-btn {
         position: absolute;
@@ -96,19 +101,24 @@
         top: 50%;
         transform: translateY(-50%);
         color: var(--text-muted);
+        transition: color 0.2s;
         background: none;
         border: none;
         cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: color 0.2s;
-        z-index: 10;
-        padding: 0.5rem;
     }
 
     .toggle-btn:hover { color: #fff; }
 
+    .secondary-link {
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        font-weight: 700;
+        transition: color 0.2s;
+        text-decoration: none;
+    }
+
+    .secondary-link:hover { color: #fff; text-decoration: underline; }
+    
     .help-text {
         font-size: 10px;
         color: #64748b;
@@ -153,7 +163,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
                         <svg class="w-5 h-5 eye-closed hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13.875 18.825A10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13.875 18.825A10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
                         </svg>
                     </button>
                 </div>
@@ -169,7 +179,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
                         <svg class="w-5 h-5 eye-closed hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13.875 18.825A10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.025 0 01-4.132 5.411m0 0L21 21" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13.875 18.825A10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
                         </svg>
                     </button>
                 </div>

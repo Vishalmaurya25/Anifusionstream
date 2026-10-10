@@ -25,7 +25,7 @@
         }
 
         /* Animated gradient logo */
-   .logo-gradient {
+        .logo-gradient {
             background: linear-gradient(135deg, #ec4899 0%, #a855f7 50%, #3b82f6 100%);
             background-size: 200% 200%;
             -webkit-background-clip: text;
@@ -41,13 +41,13 @@
             50% { background-position: 100% 50%; }
         }
 
-   .logo-gradient:hover {
+        .logo-gradient:hover {
             filter: drop-shadow(0 0 30px rgba(168, 85, 247, 0.8));
             transform: scale(1.05);
         }
 
         /* Glass navbar with glow */
-   .glass-nav {
+        .glass-nav {
             background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.85) 100%);
             backdrop-filter: blur(20px) saturate(180%);
             -webkit-backdrop-filter: blur(20px) saturate(180%);
@@ -62,7 +62,7 @@
         }
 
         /* Nav links with underline animation */
-   .nav-link {
+        .nav-link {
             position: relative;
             font-size: 0.875rem;
             font-weight: 700;
@@ -76,7 +76,7 @@
             padding: 0.5rem 0;
         }
 
-   .nav-link::after {
+        .nav-link::after {
             content: '';
             position: absolute;
             bottom: 0;
@@ -89,30 +89,30 @@
             border-radius: 2px;
         }
 
-   .nav-link:hover {
+        .nav-link:hover {
             color: #ffffff;
             text-shadow: 0 0 20px rgba(236, 72, 153, 0.5);
         }
 
-   .nav-link:hover::after {
+        .nav-link:hover::after {
             width: 100%;
             box-shadow: 0 0 10px rgba(236, 72, 153, 0.8);
         }
 
         /* CTA Button glow */
-   .cta-btn {
+        .cta-btn {
             background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%);
             box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
             transition: all 0.3s ease;
         }
 
-   .cta-btn:hover {
+        .cta-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(236, 72, 153, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
         /* Hamburger animation */
-   .hamburger-line {
+        .hamburger-line {
             width: 28px;
             height: 3px;
             background: linear-gradient(90deg, #ec4899, #a855f7);
@@ -120,21 +120,13 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        #hamburger-btn:hover.hamburger-line {
+        #hamburger-btn:hover .hamburger-line {
             box-shadow: 0 0 10px rgba(236, 72, 153, 0.8);
         }
 
-        #hamburger-btn.active.line-1 {
-            transform: rotate(45deg) translate(8px, 8px);
-        }
-
-        #hamburger-btn.active.line-2 {
-            opacity: 0;
-        }
-
-        #hamburger-btn.active.line-3 {
-            transform: rotate(-45deg) translate(7px, -7px);
-        }
+        #hamburger-btn.active .line-1 { transform: rotate(45deg) translate(8px, 8px); }
+        #hamburger-btn.active .line-2 { opacity: 0; }
+        #hamburger-btn.active .line-3 { transform: rotate(-45deg) translate(7px, -7px); }
 
         /* Mobile menu */
         #mobile-menu {
@@ -149,7 +141,7 @@
             transition: opacity 0.3s ease;
         }
 
-   .mobile-link {
+        .mobile-link {
             font-size: 1.125rem;
             font-weight: 800;
             padding: 1.25rem 2rem;
@@ -162,7 +154,7 @@
             position: relative;
         }
 
-   .mobile-link::before {
+        .mobile-link::before {
             content: '';
             position: absolute;
             left: 0;
@@ -175,18 +167,18 @@
             border-radius: 0 4px 4px 0;
         }
 
-   .mobile-link:hover {
+        .mobile-link:hover {
             color: #ffffff;
             background: rgba(236, 72, 153, 0.05);
             padding-left: 2.5rem;
         }
 
-   .mobile-link:hover::before {
+        .mobile-link:hover::before {
             width: 4px;
             box-shadow: 0 0 15px rgba(236, 72, 153, 0.8);
         }
 
-   .close-btn {
+        .close-btn {
             width: 44px;
             height: 44px;
             display: flex;
@@ -198,20 +190,20 @@
             transition: all 0.3s ease;
         }
 
-   .close-btn:hover {
+        .close-btn:hover {
             background: rgba(236, 72, 153, 0.2);
             transform: rotate(90deg);
             box-shadow: 0 0 20px rgba(236, 72, 153, 0.5);
         }
 
         /* Divider glow */
-   .nav-divider {
+        .nav-divider {
             width: 1px;
             height: 24px;
             background: linear-gradient(180deg, transparent, rgba(236, 72, 153, 0.5), transparent);
         }
 
-      .icon-svg {
+        .icon-svg {
             width: 20px;
             height: 20px;
             fill: currentColor;
@@ -241,7 +233,8 @@
                 <a href="/privacy-policy" class="nav-link">Privacy</a>
                 <a href="/contact-us" class="nav-link">Contact</a>
 
-                <% if (isAdmin) { %>
+                <!-- EJS SAFE CHECK FOR ADMIN -->
+                <% if (typeof session !== 'undefined' && session.isAdminAuthenticated) { %>
                     <div class="nav-divider"></div>
                     <a href="/admin/dashboard" class="nav-link text-yellow-400 hover:text-yellow-300 flex items-center gap-2">
                         <svg class="icon-svg" viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
@@ -291,7 +284,8 @@
                 <span>Home</span>
             </a>
 
-            <% if (isAdmin) { %>
+            <!-- EJS SAFE CHECK FOR ADMIN MOBILE MENU -->
+            <% if (typeof session !== 'undefined' && session.isAdminAuthenticated) { %>
                 <a href="/admin/dashboard" class="mobile-link">
                     <svg class="icon-svg text-yellow-500 w-5" viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
                     <span>Admin Dashboard</span>
@@ -318,7 +312,7 @@
             </a>
         </div>
 
-        <% if (isAdmin) { %>
+        <% if (typeof session !== 'undefined' && session.isAdminAuthenticated) { %>
         <div class="mt-auto p-6 space-y-3 mb-6">
             <form action="/admin/logout" method="POST">
                 <button type="submit" class="w-full text-center py-4 bg-red-600/20 text-red-400 border border-red-600/30 rounded-xl font-black uppercase tracking-widest text-sm hover:bg-red-600/30 transition-all">

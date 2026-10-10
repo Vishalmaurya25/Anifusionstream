@@ -7,17 +7,9 @@
         --primary-blue: #3b82f6;
     }
 
-    body { 
-        background-color: var(--bg-deep); 
-        color: #ffffff; 
-        font-family: 'Inter', sans-serif; 
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-    }
-
     .error-wrapper {
-        flex: 1;
+        /* Replaced body flex properties with min-height on the wrapper to prevent header conflicts */
+        min-height: 70vh; 
         display: flex;
         align-items: center;
         justify-content: center;
@@ -77,10 +69,11 @@
             <% if (typeof message === 'string') { %>
                 <%= message %>
             <% } else { %>
-                An unexpected error occurred. Please try again later.
+                The requested page you are looking for does not exist or has been moved.
             <% } %>
         </div>
 
+        <!-- FIXED: Pointing directly to the root catalog '/' instead of '/home' -->
         <a href="/home" class="btn-home">Back to Safety</a>
     </div>
 </div>

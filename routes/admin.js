@@ -32,9 +32,9 @@ const escapeRegex = (text) => {
     return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
 };
 
-
+// ==========================================
 // 1. AUTHENTICATION (LOGIN & REGISTER)
-
+// ==========================================
 
 router.get('/login', (req, res) => {
     res.render('admin-login');
@@ -112,9 +112,9 @@ router.post('/register', authLimiter, async (req, res) => {
     }
 });
 
-
+// ==========================================
 // 2. PASSWORD RECOVERY (FORGOT/RESET)
-
+// ==========================================
 
 router.get('/forgot-password', (req, res) => {
     res.render('admin-forgot-password');
@@ -191,15 +191,14 @@ router.post('/reset-password', async (req, res) => {
     }
 });
 
-
+// ==========================================
 // 3. DASHBOARD & SYSTEM MONITORING
-
+// ==========================================
 
 router.get('/dashboard', ensureAuthenticatedAdmin, async (req, res) => {
     try {
-        // --- SEARCH, FILTER, AND PAGINATION ---
         const page = Math.max(1, parseInt(req.query.page) || 1);
-        const limit = 20; // 20 anime per page
+        const limit = 20; 
         const skip = (page - 1) * limit;
         
         const searchQuery = req.query.q ? req.query.q.trim() : '';
@@ -208,36 +207,30 @@ router.get('/dashboard', ensureAuthenticatedAdmin, async (req, res) => {
         let query = {};
 
         if (searchQuery) {
-            query.name = { $regex: escapeRegex(searchQuery), $options: 'i' };
+            query.name = { $regex: escapeRegex(searchQuery),$options: 'i' };
         }
 
-        // Precise Filter Logic
         switch (filterQuery) {
-            case 'series_all':
-                query.type = 'series';
+            case 'series_all': query.type = 'series'; break;
+            case 'series_with_ep': 
+                query.type = 'series'; 
+                query.seasons = { $elemMatch: { 'episodes.0': {$exists: true } } }; 
                 break;
-            case 'series_with_ep':
-                query.type = 'series';
-                query.seasons = { $elemMatch: { 'episodes.0': { $exists: true } } };
+            case 'series_without_ep': 
+                query.type = 'series'; 
+                query.seasons = { $not: { $elemMatch: { 'episodes.0': {$exists: true } } } }; 
                 break;
-            case 'series_without_ep':
-                query.type = 'series';
-                query.seasons = { $not: { $elemMatch: { 'episodes.0': { $exists: true } } } };
+            case 'movie_all': query.type = 'movie'; break;
+            case 'movie_with_ep': 
+                query.type = 'movie'; 
+                query.seasons = { $elemMatch: { 'episodes.0': {$exists: true } } }; 
                 break;
-            case 'movie_all':
-                query.type = 'movie';
-                break;
-            case 'movie_with_ep':
-                query.type = 'movie';
-                query.seasons = { $elemMatch: { 'episodes.0': { $exists: true } } };
-                break;
-            case 'movie_without_ep':
-                query.type = 'movie';
-                query.seasons = { $not: { $elemMatch: { 'episodes.0': { $exists: true } } } };
+            case 'movie_without_ep': 
+                query.type = 'movie'; 
+                query.seasons = { $not: { $elemMatch: { 'episodes.0': {$exists: true } } } }; 
                 break;
         }
 
-        // Execute parallel queries for performance
         const [totalAnimes, userMessages, animes] = await Promise.all([
             Anime.countDocuments(query),
             Contact.find().sort({ createdAt: -1 }).lean(),
@@ -252,7 +245,6 @@ router.get('/dashboard', ensureAuthenticatedAdmin, async (req, res) => {
 
         const totalPages = Math.ceil(totalAnimes / limit) || 1;
 
-        // Sort seasons and episodes within the fetched data
         animes.forEach(anime => {
             if (anime.seasons) {
                 anime.seasons.sort((a, b) => a.seasonNumber - b.seasonNumber);
@@ -293,9 +285,9 @@ router.post('/delete-message/:id', ensureAuthenticatedAdmin, async (req, res) =>
     res.redirect('/admin/dashboard');
 });
 
-
+// ==========================================
 // 4. ANIME MANAGEMENT (CRUD)
-
+// ==========================================
 
 router.get('/add-anime', ensureAuthenticatedAdmin, async (req, res) => {
     try {
@@ -316,7 +308,6 @@ router.post('/add-anime', ensureAuthenticatedAdmin, async (req, res) => {
         }
 
         const trimmedName = name.trim();
-
         const existingAnime = await Anime.findOne({
             name: { $regex: new RegExp(`^${escapeRegex(trimmedName)}$`, 'i') }
         });
@@ -340,12 +331,10 @@ router.post('/add-anime', ensureAuthenticatedAdmin, async (req, res) => {
 
     } catch (err) {
         console.error('Add anime error:', err);
-
         if (err.code === 11000) {
-            req.flash('error', `Protocol failure: "${req.body.name}" already exists (duplicate key).`);
+            req.flash('error', `Protocol failure: "${req.body.name}" already exists.`);
             return res.redirect('/admin/add-anime');
         }
-
         req.flash('error', 'Protocol failure: Anime not added - ' + err.message);
         res.redirect('/admin/add-anime');
     }
@@ -401,12 +390,10 @@ router.post('/edit-anime/:id', ensureAuthenticatedAdmin, async (req, res) => {
 
     } catch (err) {
         console.error('Edit anime error:', err);
-
         if (err.code === 11000) {
             req.flash('error', 'Duplicate name detected.');
             return res.redirect(`/admin/edit-anime/${req.params.id}`);
         }
-
         req.flash('error', 'Catalog Error: Update failed.');
         res.redirect('/admin/dashboard');
     }
@@ -434,9 +421,9 @@ router.post('/delete-anime/:id', ensureAuthenticatedAdmin, async (req, res) => {
     }
 });
 
-
+// ==========================================
 // 5. EPISODE MANAGEMENT (CRUD)
-
+// ==========================================
 
 router.get('/add-episode/:animeId', ensureAuthenticatedAdmin, async (req, res) => {
     try {
@@ -457,11 +444,10 @@ router.get('/add-episode/:animeId', ensureAuthenticatedAdmin, async (req, res) =
     }
 });
 
-// ADD EPISODE - POST
 router.post('/add-episode/:animeId', ensureAuthenticatedAdmin, async (req, res) => {
     try {
         const { animeId } = req.params;
-        let { seasonNumber, episodeNumber, title, videoUrl, imageUrl, embedCode, servers } = req.body;
+        let { seasonNumber, episodeNumber, title, mainServerName, videoUrl, imageUrl, embedCode, servers } = req.body;
 
         if (!isValidId(animeId)) {
             req.flash('error', 'Invalid anime ID in URL');
@@ -475,6 +461,7 @@ router.post('/add-episode/:animeId', ensureAuthenticatedAdmin, async (req, res) 
         }
 
         title = title?.trim();
+        mainServerName = mainServerName?.trim() || 'Server 1';
         videoUrl = videoUrl?.trim() || '';
         embedCode = embedCode?.trim() || '';
         imageUrl = imageUrl?.trim() || '';
@@ -484,28 +471,28 @@ router.post('/add-episode/:animeId', ensureAuthenticatedAdmin, async (req, res) 
             return res.redirect(`/admin/add-episode/${animeId}`);
         }
 
-        // Parse multi-servers - max 13
+        // Parse multi-servers (Max 13 strictly enforced by slice)
         let parsedServers = [];
         if (servers && typeof servers === 'object') {
-            const serverArray = Array.isArray(servers)? servers : Object.values(servers);
+            const serverArray = Array.isArray(servers) ? servers : Object.values(servers);
             parsedServers = serverArray
-          .filter(s => s && (s.videoUrl?.trim() || s.embedCode?.trim()))
-          .slice(0, 13)
-          .map((s, idx) => ({
+                .filter(s => s && (s.videoUrl?.trim() || s.embedCode?.trim()))
+                .slice(0, 13)
+                .map((s, idx) => ({
                     name: s.name?.trim() || `Server ${idx + 2}`,
                     videoUrl: s.videoUrl?.trim() || '',
                     embedCode: s.embedCode?.trim() || '',
-                    type: s.embedCode?.trim()? 'iframe' : 'direct'
+                    type: s.embedCode?.trim() ? 'iframe' : 'direct'
                 }));
         }
 
-        if (!videoUrl &&!embedCode && parsedServers.length === 0) {
+        if (!videoUrl && !embedCode && parsedServers.length === 0) {
             req.flash('error', 'At least one Video URL or Embed Code is required');
             return res.redirect(`/admin/add-episode/${animeId}`);
         }
 
-        const season = anime.type === 'movie'? 1 : parseInt(seasonNumber);
-        const episode = anime.type === 'movie'? 1 : parseInt(episodeNumber);
+        const season = anime.type === 'movie' ? 1 : parseInt(seasonNumber);
+        const episode = anime.type === 'movie' ? 1 : parseInt(episodeNumber);
 
         if (isNaN(season) || isNaN(episode) || season < 1 || episode < 1) {
             req.flash('error', 'Invalid season or episode number');
@@ -527,6 +514,7 @@ router.post('/add-episode/:animeId', ensureAuthenticatedAdmin, async (req, res) 
 
         const newEpisode = await Episode.create({
             title,
+            mainServerName,
             seasonNumber: season,
             episodeNumber: episode,
             imageUrl,
@@ -593,11 +581,9 @@ router.get('/edit-episode/:id', ensureAuthenticatedAdmin, async (req, res) => {
     }
 });
 
-
-// EDIT EPISODE - POST
 router.post('/edit-episode/:episodeId', ensureAuthenticatedAdmin, async (req, res) => {
     const { episodeId } = req.params;
-    const { title, videoUrl, imageUrl, embedCode, episodeNumber, seasonNumber, servers } = req.body;
+    const { title, mainServerName, videoUrl, imageUrl, embedCode, episodeNumber, seasonNumber, servers } = req.body;
 
     if (!isValidId(episodeId)) {
         req.flash('error', 'Invalid ID.');
@@ -608,7 +594,7 @@ router.post('/edit-episode/:episodeId', ensureAuthenticatedAdmin, async (req, re
         const epNum = Number(episodeNumber);
         const sNum = Number(seasonNumber);
 
-        if (!epNum ||!sNum || epNum < 1 || sNum < 1) {
+        if (!epNum || !sNum || epNum < 1 || sNum < 1) {
             req.flash('error', 'Invalid season or episode number.');
             return res.redirect('back');
         }
@@ -625,25 +611,25 @@ router.post('/edit-episode/:episodeId', ensureAuthenticatedAdmin, async (req, re
             return res.redirect('back');
         }
 
-        // Parse servers
+        // Parse servers securely
         let parsedServers = [];
         if (servers && typeof servers === 'object') {
-            const serverArray = Array.isArray(servers)? servers : Object.values(servers);
+            const serverArray = Array.isArray(servers) ? servers : Object.values(servers);
             parsedServers = serverArray
-          .filter(s => s && (s.videoUrl?.trim() || s.embedCode?.trim()))
-          .slice(0, 13)
-          .map((s, idx) => ({
+                .filter(s => s && (s.videoUrl?.trim() || s.embedCode?.trim()))
+                .slice(0, 13)
+                .map((s, idx) => ({
                     name: s.name?.trim() || `Server ${idx + 2}`,
                     videoUrl: s.videoUrl?.trim() || '',
                     embedCode: s.embedCode?.trim() || '',
-                    type: s.embedCode?.trim()? 'iframe' : 'direct'
+                    type: s.embedCode?.trim() ? 'iframe' : 'direct'
                 }));
         }
 
-        const finalSeasonNum = anime.type === 'movie'? 1 : sNum;
-        const finalEpNum = anime.type === 'movie'? 1 : epNum;
+        const finalSeasonNum = anime.type === 'movie' ? 1 : sNum;
+        const finalEpNum = anime.type === 'movie' ? 1 : epNum;
 
-        if (anime.type!== 'movie' && (oldEpisode.seasonNumber!== finalSeasonNum || oldEpisode.episodeNumber!== finalEpNum)) {
+        if (anime.type !== 'movie' && (oldEpisode.seasonNumber !== finalSeasonNum || oldEpisode.episodeNumber !== finalEpNum)) {
             const targetSeason = anime.seasons.find(s => s.seasonNumber === finalSeasonNum);
             if (targetSeason) {
                 const duplicate = await Episode.findOne({
@@ -659,6 +645,7 @@ router.post('/edit-episode/:episodeId', ensureAuthenticatedAdmin, async (req, re
 
         await Episode.findByIdAndUpdate(episodeId, {
             title: title.trim(),
+            mainServerName: mainServerName?.trim() || 'Server 1',
             videoUrl: videoUrl?.trim() || '',
             imageUrl: imageUrl?.trim() || '',
             embedCode: embedCode?.trim() || '',
@@ -667,9 +654,9 @@ router.post('/edit-episode/:episodeId', ensureAuthenticatedAdmin, async (req, re
             servers: parsedServers
         });
 
-        if (oldEpisode.seasonNumber!== finalSeasonNum) {
+        if (oldEpisode.seasonNumber !== finalSeasonNum) {
             anime.seasons.forEach(season => {
-                season.episodes = season.episodes.filter(ep => ep.toString()!== episodeId);
+                season.episodes = season.episodes.filter(ep => ep.toString() !== episodeId);
             });
             anime.seasons = anime.seasons.filter(s => s.episodes.length > 0);
 
@@ -684,7 +671,7 @@ router.post('/edit-episode/:episodeId', ensureAuthenticatedAdmin, async (req, re
             await anime.save();
         }
 
-        req.flash('success', `${anime.type === 'movie'? 'Movie' : 'Episode'} updated.`);
+        req.flash('success', `${anime.type === 'movie' ? 'Movie' : 'Episode'} updated.`);
         res.redirect(`/anime/${anime._id}`);
     } catch (error) {
         console.error('Edit episode error:', error);
@@ -753,7 +740,6 @@ router.post('/delete-season/:animeId/:seasonId', ensureAuthenticatedAdmin, async
 
         if (season.episodes && season.episodes.length > 0) {
             await Episode.deleteMany({ _id: { $in: season.episodes } });
-            console.log(`✅ Deleted ${episodeCount} episodes from Season ${seasonNumber}`);
         }
 
         anime.seasons = anime.seasons.filter(s => s._id.toString() !== seasonId);
@@ -769,9 +755,9 @@ router.post('/delete-season/:animeId/:seasonId', ensureAuthenticatedAdmin, async
     }
 });
 
-
+// ==========================================
 // 6. GENRE MANAGEMENT (CATEGORIES)
-
+// ==========================================
 
 router.get('/manage-categories', ensureAuthenticatedAdmin, async (req, res) => {
     try {
@@ -871,8 +857,9 @@ router.post('/update-genre-sequence/:id', ensureAuthenticatedAdmin, async (req, 
     res.redirect('/admin/manage-categories');
 });
 
-
+// ==========================================
 // 7. TERMINATE SESSION (LOGOUT)
+// ==========================================
 
 router.post('/logout', (req, res) => {
     const sessionId = req.session?.id;

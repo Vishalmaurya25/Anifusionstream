@@ -3,16 +3,20 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
+    /* Global Variables & Base Setup */
     :root {
         --bg-deep: #0b0e11;
         --card-navy: #151b23;
         --inner-navy: #1c232d;
         --primary-blue: #3b82f6;
+        --text-muted: #9ca3af;
+        --danger-red: #ef4444;
+        --success-green: #10b981;
     }
 
-    body { background-color: var(--bg-deep); color: #ffffff; font-family: 'Inter', sans-serif; }
+    /* FIXED: Removed the html, body block to prevent conflicts with header.ejs padding and overflow lock */
 
-.obsidian-card {
+    .obsidian-card {
         background-color: var(--card-navy);
         border: 1px solid rgba(255, 255, 255, 0.08);
         backdrop-filter: blur(10px);
@@ -22,13 +26,13 @@
         position: relative;
     }
 
-.obsidian-card:hover {
+    .obsidian-card:hover {
         border-color: rgba(59, 130, 246, 0.4);
         transform: translateY(-2px);
         box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
 
-.ui-input {
+    .ui-input {
         background-color: var(--inner-navy);
         border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 0.75rem;
@@ -39,12 +43,12 @@
         width: 100%;
     }
 
-.ui-input:focus {
+    .ui-input:focus {
         border-color: var(--primary-blue);
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
 
-.btn-action {
+    .btn-action {
         width: 40px;
         height: 40px;
         display: inline-flex;
@@ -62,24 +66,24 @@
         z-index: 10;
     }
 
-.btn-action:hover {
+    .btn-action:hover {
         transform: scale(1.1);
         background: #3b82f6;
         box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
     }
 
-.btn-delete {
+    .btn-delete {
         border-color: #ef4444!important;
         color: #ef4444!important;
     }
 
-.btn-delete:hover {
+    .btn-delete:hover {
         background: #ef4444!important;
         color: #ffffff!important;
         box-shadow: 0 0 20px rgba(239, 68, 68, 0.6)!important;
     }
 
-.genre-badge {
+    .genre-badge {
         background: rgba(59, 130, 246, 0.15);
         border: 1px solid rgba(59, 130, 246, 0.3);
         color: #3b82f6;
@@ -92,19 +96,19 @@
         display: inline-block;
     }
 
-.sequence-badge {
-    background: linear-gradient(135deg, #facc15 0%, #f59e0b 100%);
-    color: #000;
-    font-size: 11px;
-    font-weight: 900;
-    padding: 4px 10px;
-    border-radius: 8px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    box-shadow: 0 0 15px rgba(250, 204, 21, 0.4);
-}
+    .sequence-badge {
+        background: linear-gradient(135deg, #facc15 0%, #f59e0b 100%);
+        color: #000;
+        font-size: 11px;
+        font-weight: 900;
+        padding: 4px 10px;
+        border-radius: 8px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 0 15px rgba(250, 204, 21, 0.4);
+    }
 
-.hidden { display: none!important; }
+    .hidden { display: none!important; }
 </style>
 
 <div class="container mx-auto px-4 py-12 max-w-6xl">

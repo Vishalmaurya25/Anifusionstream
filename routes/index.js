@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose'); // FIXED: Moved to global imports
 const Anime = require('../models/Anime');
 const Genre = require('../models/Genre');
 const Episode = require('../models/Episode');
@@ -33,7 +34,7 @@ router.get('/welcome', (req, res) => {
  * Homepage - now public, no login required
  */
 router.get('/home', async (req, res) => {
-    const searchQuery = req.query.q? escapeRegex(req.query.q.trim()) : '';
+    const searchQuery = req.query.q ? escapeRegex(req.query.q.trim()) : '';
     const selectedGenre = req.query.genre || '';
     const page = Math.max(1, parseInt(req.query.page) || 1);
     const limit = 20;
@@ -41,7 +42,7 @@ router.get('/home', async (req, res) => {
     const renderData = {
         searchQuery: req.query.q || '',
         selectedGenre,
-        isSearchResult:!!(searchQuery || selectedGenre),
+        isSearchResult: !!(searchQuery || selectedGenre),
         currentPage: page,
         totalPages: 0,
         totalResults: 0,
@@ -68,7 +69,7 @@ router.get('/home', async (req, res) => {
         let sortedGenres = [...genres];
         if (selectedGenre) {
             const index = sortedGenres.findIndex(g => g._id.toString() === selectedGenre);
-            if (index!== -1) {
+            if (index !== -1) {
                 const [selected] = sortedGenres.splice(index, 1);
                 sortedGenres.unshift(selected);
             }
@@ -83,12 +84,16 @@ router.get('/home', async (req, res) => {
             }
 
             const animeQuery = {};
-            if (searchQuery) animeQuery.name = { $regex: searchQuery, $options: 'i' };
-            if (selectedGenre) animeQuery.genres = selectedGenre;
+            if (searchQuery) animeQuery.name = { $regex: searchQuery,$options: 'i' };
+            
+            // FIXED: Prevent CastError server crash if user enters invalid text into the ?genre= URL parameter
+            if (selectedGenre && mongoose.Types.ObjectId.isValid(selectedGenre)) {
+                animeQuery.genres = selectedGenre;
+            }
 
             const [animes, totalAnimes] = await Promise.all([
                 Anime.find(animeQuery)
-                  .select('name imageUrl updatedAt type')
+                  .select('name imageUrl updatedAt type status') // FIXED: Added status
                   .sort({ updatedAt: -1, _id: -1 })
                   .skip((page - 1) * limit)
                   .limit(limit)
@@ -103,18 +108,18 @@ router.get('/home', async (req, res) => {
         // STANDARD HOMEPAGE (Lazy Seeded - ONLY fetches 6 per genre initially)
         else {
             let latestGenres = genres.filter(g => /latest/i.test(g.name));
-            let movieGenres = genres.filter(g => /movie/i.test(g.name) &&!/latest/i.test(g.name));
-            let normalGenres = genres.filter(g =>!/latest/i.test(g.name) &&!/movie/i.test(g.name));
+            let movieGenres = genres.filter(g => /movie/i.test(g.name) && !/latest/i.test(g.name));
+            let normalGenres = genres.filter(g => !/latest/i.test(g.name) && !/movie/i.test(g.name));
 
             const fetchInitialAnimes = (genreId) => {
                 return Anime.find({ genres: genreId })
-                  .select('name imageUrl updatedAt type')
+                  .select('name imageUrl updatedAt type status') // FIXED: Added status
                   .sort({ updatedAt: -1, _id: -1 })
                   .limit(6)
                   .lean();
             };
 
-            const allGroups = [...latestGenres,...normalGenres,...movieGenres];
+            const allGroups = [...latestGenres, ...normalGenres, ...movieGenres];
             await Promise.all(allGroups.map(async (g) => {
                 g.initialAnimes = await fetchInitialAnimes(g._id);
             }));
@@ -123,18 +128,19 @@ router.get('/home', async (req, res) => {
             renderData.normalGenres = normalGenres.filter(g => g.initialAnimes.length > 0);
             renderData.movieGenres = movieGenres.filter(g => g.initialAnimes.length > 0);
 
-            const latestEpisodesData = await Episode.find({ anime: { $exists: true, $ne: null } })
+            const latestEpisodesData = await Episode.find({ anime: { $exists: true,$ne: null } })
               .sort({ createdAt: -1 })
               .limit(20)
               .lean();
 
             const animeIds = [...new Set(latestEpisodesData.map(ep => ep.anime.toString()))];
-            const animeMap = await Anime.find({ _id: { $in: animeIds } }).select('name imageUrl type').lean();
+            // FIXED: Added status
+            const animeMap = await Anime.find({ _id: { $in: animeIds } }).select('name imageUrl type status').lean(); 
             const animeLookup = Object.fromEntries(animeMap.map(a => [a._id.toString(), a]));
 
             renderData.latestEpisodes = latestEpisodesData
               .filter(ep => animeLookup[ep.anime.toString()])
-              .map(ep => ({...ep, anime: animeLookup[ep.anime.toString()] }));
+              .map(ep => ({ ...ep, anime: animeLookup[ep.anime.toString()] }));
         }
 
         res.render('index', renderData);
@@ -156,10 +162,10 @@ router.get('/search', (req, res) => {
 // Debounced backend search for dropdown UI
 router.get('/api/search-suggestions', async (req, res) => {
     try {
-        const q = req.query.q? escapeRegex(req.query.q.trim()) : '';
+        const q = req.query.q ? escapeRegex(req.query.q.trim()) : '';
         if (!q || q.length < 2) return res.json([]);
 
-        const animes = await Anime.find({ name: { $regex: q, $options: 'i' } })
+        const animes = await Anime.find({ name: { $regex: q,$options: 'i' } })
           .select('name _id')
           .limit(6)
           .lean();
@@ -178,13 +184,12 @@ router.get('/api/genre/:id/load', async (req, res) => {
         const skip = parseInt(req.query.skip) || 6;
         const genreId = req.params.id;
 
-        const mongoose = require('mongoose');
-        if (!genreId || genreId === 'undefined' ||!mongoose.Types.ObjectId.isValid(genreId)) {
+        if (!genreId || genreId === 'undefined' || !mongoose.Types.ObjectId.isValid(genreId)) {
             return res.json([]);
         }
 
         const animes = await Anime.find({ genres: genreId })
-          .select('name imageUrl updatedAt type')
+          .select('name imageUrl updatedAt type status') // FIXED: Added status
           .sort({ updatedAt: -1, _id: -1 })
           .skip(skip)
           .limit(limit)
@@ -217,7 +222,7 @@ router.get('/api/upcoming-schedule', async (req, res) => {
             timeout: 15000
         });
 
-        if (!data ||!data.data ||!data.data.Page ||!data.data.Page.media) throw new Error('Invalid response');
+        if (!data || !data.data || !data.data.Page || !data.data.Page.media) throw new Error('Invalid response');
 
         const scheduleByDay = { Monday: [], Tuesday: [], Wednesday: [], Thursday: [], Friday: [], Saturday: [], Sunday: [] };
         const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -228,7 +233,7 @@ router.get('/api/upcoming-schedule', async (req, res) => {
             const dayName = dayNames[istDate.getUTCDay()];
             const hours = istDate.getUTCHours();
             const minutes = istDate.getUTCMinutes();
-            const period = hours >= 12? 'pm' : 'am';
+            const period = hours >= 12 ? 'pm' : 'am';
             const displayHours = hours % 12 || 12;
             const timeStr = `${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`;
 
@@ -255,6 +260,7 @@ router.get('/api/trending-picks', async (req, res) => {
         const cached = trendingCache.get('trendingPicks');
         if (cached) return res.json(cached);
 
+        // FIXED: Added 'status' to GraphQL queries
         const query = `
         query {
             series: Page(page: 1, perPage: 5) {
@@ -266,6 +272,7 @@ router.get('/api/trending-picks', async (req, res) => {
                     duration
                     seasonYear
                     episodes
+                    status
                 }
             }
             movies: Page(page: 1, perPage: 5) {
@@ -276,6 +283,7 @@ router.get('/api/trending-picks', async (req, res) => {
                     averageScore
                     duration
                     seasonYear
+                    status
                 }
             }
         }`;
@@ -291,10 +299,11 @@ router.get('/api/trending-picks', async (req, res) => {
         const formatMedia = (media) => ({
             id: media.id,
             title: media.title.english || media.title.romaji,
-            rating: media.averageScore? (media.averageScore / 10).toFixed(1) : 'N/A',
-            duration: media.duration? `${media.duration} min.` : (media.episodes? `${media.episodes} eps` : 'N/A'),
+            rating: media.averageScore ? (media.averageScore / 10).toFixed(1) : 'N/A',
+            duration: media.duration ? `${media.duration} min.` : (media.episodes ? `${media.episodes} eps` : 'N/A'),
             year: media.seasonYear || 'TBA',
-            img: media.coverImage.large
+            img: media.coverImage.large,
+            status: media.status ? media.status.replace(/_/g, ' ') : 'UNKNOWN' // Formats RELEASING to RELEASING
         });
 
         const result = {

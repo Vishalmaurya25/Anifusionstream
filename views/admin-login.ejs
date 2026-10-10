@@ -1,20 +1,111 @@
 <%- include('partials/header') %>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <style>
     :root {
         --bg-deep: #0b0e11;
         --card-navy: #151b23;
-        --input-dark: #1c232d;
+        --inner-navy: #1c232d;
         --primary-blue: #3b82f6;
         --text-muted: #9ca3af;
     }
 
-    body { 
-        background-color: var(--bg-deep); 
-        color: #ffffff; 
-        font-family: 'Inter', sans-serif; 
+    .obsidian-card {
+        background-color: var(--card-navy);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(10px);
+        border-radius: 1.5rem;
+        transition: all 0.3s ease;
+        padding: 1.5rem;
+        position: relative;
     }
 
-    /* Standardized Auth Centering */
+    .obsidian-card:hover {
+        border-color: rgba(59, 130, 246, 0.4);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .ui-input {
+        background-color: var(--inner-navy);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 0.75rem;
+        color: #ffffff;
+        padding: 0.75rem 1rem;
+        outline: none;
+        transition: all 0.2s;
+        width: 100%;
+    }
+
+    .ui-input:focus {
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .btn-action {
+        width: 40px;
+        height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        transition: all 0.2s;
+        background: #1c232d;
+        border: 2px solid #3b82f6;
+        color: #ffffff;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 900;
+        position: relative;
+        z-index: 10;
+    }
+
+    .btn-action:hover {
+        transform: scale(1.1);
+        background: #3b82f6;
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
+    }
+
+    .btn-delete {
+        border-color: #ef4444!important;
+        color: #ef4444!important;
+    }
+
+    .btn-delete:hover {
+        background: #ef4444!important;
+        color: #ffffff!important;
+        box-shadow: 0 0 20px rgba(239, 68, 68, 0.6)!important;
+    }
+
+    .genre-badge {
+        background: rgba(59, 130, 246, 0.15);
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        color: #3b82f6;
+        font-size: 9px;
+        font-weight: 900;
+        padding: 3px 8px;
+        border-radius: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-block;
+    }
+
+    .sequence-badge {
+        background: linear-gradient(135deg, #facc15 0%, #f59e0b 100%);
+        color: #000;
+        font-size: 11px;
+        font-weight: 900;
+        padding: 4px 10px;
+        border-radius: 8px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 0 15px rgba(250, 204, 21, 0.4);
+    }
+
+    .hidden { display: none!important; }
+
+    /* Admin Login specific layouts */
     .auth-wrapper {
         display: flex;
         flex-direction: column;
@@ -24,7 +115,7 @@
         padding: 2rem 1.25rem;
     }
 
-    .ui-card {
+    .ui-card-login {
         background-color: var(--card-navy);
         border: 1px solid rgba(255, 255, 255, 0.05);
         backdrop-filter: blur(25px);
@@ -43,26 +134,6 @@
         letter-spacing: 0.15em;
         margin-bottom: 0.7rem;
         display: block;
-    }
-
-    .ui-input {
-        background-color: var(--input-dark);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: 1rem;
-        color: #ffffff;
-        padding: 1.1rem;
-        width: 100%;
-        transition: all 0.3s ease;
-        font-size: 0.95rem;
-        font-weight: 500;
-        box-sizing: border-box;
-    }
-
-    .ui-input:focus {
-        outline: none;
-        border-color: var(--primary-blue);
-        box-shadow: 0 0 0 1px var(--primary-blue);
-        background-color: #232a33;
     }
 
     .ui-button {
@@ -137,7 +208,7 @@
         <p class="text-gray-500 mt-2 font-medium">Restricted Access • AniFusion Core</p>
     </div>
 
-    <div class="ui-card">
+    <div class="ui-card-login">
         <%- include('partials/flash') %>
 
         <form action="/admin/login" method="POST">
