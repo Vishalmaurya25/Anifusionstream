@@ -1,6 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-JX9W37X7TL"></script>
+    <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-JX9W37X7TL');
+   </script>
+
+     <!-- Social Media Tags -->
+     <% if (typeof anime !== 'undefined' && anime) { %>
+    <!-- Dynamic Tags for Anime Detail Pages -->
+    <meta property="og:type" content="video.tv_show" />
+    <meta property="og:url" content="https://anifusionstream.online/anime/<%= anime._id %>" />
+    <meta property="og:title" content="<%= anime.name %> - AniFusionStream" />
+    <meta property="og:description" content="<%= (anime.description || '').substring(0, 160) %>..." />
+    <meta property="og:image" content="<%= anime.imageUrl %>" />
+    
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="<%= anime.name %> - AniFusionStream" />
+    <meta name="twitter:description" content="<%= (anime.description || '').substring(0, 160) %>..." />
+    <meta name="twitter:image" content="<%= anime.imageUrl %>" />
+     <% } else { %>
+    <!-- Default Tags for Home & Other Pages -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://anifusionstream.online/" />
+    <meta property="og:title" content="AniFusionStream - Watch Anime Online" />
+    <meta property="og:description" content="Watch your favorite anime series online. Explore by genre, seasons, and episodes." />
+    <meta property="og:image" content="https://anifusionstream.online/images/logo.png" />
+    
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://anifusionstream.online/" />
+    <meta name="twitter:title" content="AniFusionStream - Watch Anime Online" />
+    <meta name="twitter:description" content="Watch your favorite anime series online. Explore by genre, seasons, and episodes." />
+    <meta name="twitter:image" content="https://anifusionstream.online/images/logo.png" />
+      <% } %>
+
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Watch your favorite anime series online. Explore by genre, seasons, and episodes.">
