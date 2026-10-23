@@ -124,6 +124,10 @@ app.use((req, res, next) => {
     res.locals.isUser = !!req.session.isUserAuthenticated;
     res.locals.adminUsername = req.session.adminUsername || null;
     res.locals.username = req.session.username || null;
+    
+    // Add this line for Canonical URLs
+    res.locals.currentPath = req.originalUrl.split('?')[0]; 
+    
     next();
 });
 
